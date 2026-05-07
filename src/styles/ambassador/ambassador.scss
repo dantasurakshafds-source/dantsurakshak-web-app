@@ -1,0 +1,223 @@
+// @use '../variables' as *;
+
+
+// .table-container {
+//     overflow-x: auto;
+  
+  
+//   .custom-table {
+//     width: 100%;
+//     border-collapse: collapse;
+//     background-color: white;
+//     border: 1px solid #ddd;
+//     margin-top: 20px;
+
+
+//     th, td {
+//         border: 1px solid #ddd;
+//         padding: 8px;
+//         text-align: left;
+//     font-size: 17px;
+//         white-space: nowrap;
+//             &:last-child{
+//                 justify-content: center;
+//                 text-align: center;
+//             }
+//       }
+//       th {
+//         background-color: $primary-color;
+//         color: white;
+//         font-weight: bold;
+//       }
+//       tr:nth-child(even) {
+//         background-color: #f8f9fa;
+//       }
+      
+
+
+//       .approve-btn,
+//       .reject-btn {
+//           padding: 10px;
+//           border: none;
+//           cursor: pointer;
+//           color: white;
+//           border-radius: 5px;
+//           display: flex;
+//           align-items: center;
+
+//       }
+
+  
+//   .approve-btn {
+//     background-color: green;
+//   }
+  
+//   .reject-btn {
+//     background-color: red;
+//   }
+  
+//   // .disabled {
+//   //   background-color: gray ;
+//   //   cursor: not-allowed;
+//   // }
+//   .aprove-reject-buttons {
+//     display: flex;
+//     flex-direction: row;
+//     align-items: center;
+//     justify-content: center;
+
+//     gap: 10px;
+// }
+
+//   } 
+
+// }
+  
+
+
+
+
+
+
+
+
+
+
+@use '../variables' as *;
+
+.table-container {
+  overflow-x: auto;
+  margin-top: $gap;
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+
+  .custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: $rubik;
+    font-size: $font-size;
+    border-radius: $border-radius;
+    overflow: hidden;
+    text-align: center;
+
+    th {
+      background: $primary-color;
+      color: $white;
+      padding: 14px;
+      font-weight: $font-weight-bold;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    td {
+      background: $light-color;
+      padding: 12px;
+      border-bottom: 1px solid $tertiary-color;
+      font-size: $font-size-one;
+      white-space: nowrap;
+      text-align: center;
+
+      &:last-child {
+        text-align: center;
+      }
+    }
+
+    tr:nth-child(even) td {
+      background-color: $secondary-color;
+
+      &.status-cell.approved {
+        background-color: #dcfce7;
+      }
+    }
+
+    tr:hover td {
+      background-color: $purple-light;
+
+      &.status-cell.approved {
+        background-color: #dcfce7;
+      }
+    }
+
+    .role-cell {
+      font-weight: $font-weight-semi-bold;
+      text-transform: capitalize;
+      font-size: $font-size-large;
+
+      &.admin {
+        color: $primary-color;
+      }
+
+      &.dantasurakshaks {
+        color: $success-color;
+      }
+
+      &.user {
+        color: $gray-color;
+      }
+    }
+
+    .status-cell {
+      font-size: $font-size;
+      font-weight: $font-weight-medium;
+      padding: 6px 12px;
+      text-align: center;
+      text-transform: capitalize;
+
+      &.approved {
+        background: #dcfce7;
+        color: $success-color;
+      }
+
+      &.pending {
+        background: #fef9c3;
+        color: $warning-color;
+      }
+
+      &.rejected {
+        background: #fee2e2;
+        color: $danger-color;
+      }
+    }
+
+    .aprove-reject-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+
+      .approve-btn,
+      .reject-btn {
+        padding: 6px 10px;
+        border: none;
+        border-radius: $border-radius;
+        display: flex;
+        align-items: center;
+        color: $white;
+        cursor: pointer;
+        transition: $transition;
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      .approve-btn {
+        background-color: $success-color;
+
+        &:hover:not(:disabled) {
+          background-color: darken($success-color, 10%);
+        }
+      }
+
+      .reject-btn {
+        background-color: $danger-color;
+
+        &:hover:not(:disabled) {
+          background-color: darken($danger-color, 10%);
+        }
+      }
+    }
+  }
+}

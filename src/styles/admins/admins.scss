@@ -1,0 +1,315 @@
+// @use '../variables' as *;
+
+// .ambassa_wrapper {
+//   .font-bold {
+//     background: $primary-color;
+//     color: $white;
+//     font-size: $font-size-extra-large;
+//     font-weight: $font-weight-semi-bold;
+//     padding: 12px 20px;
+//     border-radius: $border-radius;
+//     box-shadow: $box-shadow;
+//     display: flex;
+//     align-items: center;
+//     gap: 12px;
+//   }
+
+//   .admin-table-outer {
+//     margin-top: $gap;
+//     background: $white;
+//     border-radius: $border-radius;
+//     overflow-x: auto;
+//     box-shadow: $box-shadow;
+//   }
+
+//   .admin_table {
+//     width: 100%;
+//     border-collapse: separate;
+//     border-spacing: 0;
+//     font-family: $rubik;
+//     font-size: $font-size;
+//     border-radius: $border-radius;
+//     overflow: hidden;
+
+//     th {
+//       background: $primary-color;
+//       color: $white;
+//       padding: 14px;
+//       text-align: left;
+//       font-weight: $font-weight-bold;
+//       white-space: nowrap;
+//       text-align: center;
+//     }
+
+//     td {
+//       background-color: $light-color;
+//       padding: 12px;
+//       border-bottom: 1px solid $tertiary-color;
+//       font-size: $font-size-one;
+//       white-space: nowrap;
+//       text-align: center;
+
+//       &:last-child {
+//         text-align: center;
+//       }
+//     }
+
+//     tr:nth-child(even) td {
+//       background-color: $secondary-color;
+//     }
+
+//     tr:hover td {
+//       background-color: $purple-light;
+//     }
+//   }
+
+//   .role-cell {
+//     font-weight: $font-weight-semi-bold;
+//     text-transform: capitalize;
+//     font-size: $font-size-large;
+
+//     &.admin {
+//       color: $primary-color;
+//     }
+//     &.dantasurakshaks {
+//       color: $success-color;
+//     }
+//     &.user {
+//       color: $gray-color;
+//     }
+//   }
+
+//   .status-cell {
+//     font-size: $font-size;
+//     font-weight: $font-weight-medium;
+//     padding: 6px 12px;
+//     border-radius: 20px;
+//     display: inline-block;
+//     text-align: center;
+//     text-transform: capitalize;
+
+//     &.approved {
+//       background-color: #dcfce7;
+//       color: $success-color;
+//     }
+
+//     &.pending {
+//       background-color: #fef9c3;
+//       color: $warning-color;
+//     }
+
+//     &.rejected {
+//       background-color: #fee2e2;
+//       color: $danger-color;
+//     }
+//   }
+
+//   .aprove-reject-buttons {
+//     display: flex;
+//     justify-content: center;
+//     gap: 10px;
+
+//     .approve_btn,
+//     .reject_btn {
+//       padding: 6px 10px;
+//       border: none;
+//       border-radius: $border-radius;
+//       display: flex;
+//       align-items: center;
+//       color: $white;
+//       cursor: pointer;
+//       transition: $transition;
+
+//       &:disabled {
+//         opacity: 0.6;
+//         cursor: not-allowed;
+//       }
+//     }
+
+//     .approve_btn {
+//       background-color: $success-color;
+//       &:hover:not(:disabled) {
+//         background: darken($success-color, 10%);
+//       }
+//     }
+
+//     .reject_btn {
+//       background-color: $danger-color;
+//       &:hover:not(:disabled) {
+//         background: darken($danger-color, 10%);
+//       }
+//     }
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+@use '../variables' as *;
+
+.ambassa_wrapper {
+  .font-bold {
+    background: $primary-color;
+    color: $white;
+    font-size: $font-size-extra-large;
+    font-weight: $font-weight-semi-bold;
+    padding: 12px 20px;
+    border-radius: $border-radius;
+    box-shadow: $box-shadow;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .admin-table-outer {
+    margin-top: $gap;
+    background: $white;
+    border-radius: $border-radius;
+    overflow-x: auto;
+    box-shadow: $box-shadow;
+  }
+
+  .admin_table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: $rubik;
+    font-size: $font-size;
+    border-radius: $border-radius;
+    overflow: hidden;
+    text-align: center;
+
+    th {
+      background: $primary-color;
+      color: $white;
+      padding: 14px;
+      text-align: left;
+      font-weight: $font-weight-bold;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    td {
+      background-color: $light-color;
+      padding: 12px;
+      border-bottom: 1px solid $tertiary-color;
+      font-size: $font-size-one;
+      white-space: nowrap;
+      text-align: center;
+
+      &:last-child {
+        text-align: center;
+      }
+    }
+
+    tr :nth-child(odd) td {
+      &.status-cell.approved {
+        background-color: #dcfce7;
+      }
+    }
+
+    tr:nth-child(even) td {
+      background-color: $secondary-color;
+
+      &.status-cell.approved {
+        background-color: #dcfce7;
+      }
+    }
+
+    tr:hover td {
+      background-color: $purple-light;
+
+      &.status-cell.approved {
+        background-color: #dcfce7;
+      }
+    }
+  }
+
+  .role-cell {
+    font-weight: $font-weight-semi-bold;
+    text-transform: capitalize;
+    font-size: $font-size-large;
+
+    &.admin {
+      color: $primary-color;
+    }
+
+    &.dantasurakshaks {
+      color: $success-color;
+    }
+
+    &.user {
+      color: $gray-color;
+    }
+  }
+
+  .status-cell {
+    font-size: $font-size;
+    font-weight: $font-weight-medium;
+    padding: 6px 12px;
+    text-align: center;
+    text-transform: capitalize;
+
+    &.approved {
+      background: #dcfce7;
+      color: $success-color;
+    }
+
+    &.pending {
+      background: #fef9c3;
+      color: $warning-color;
+    }
+
+    &.rejected {
+      background: #fee2e2;
+      color: $danger-color;
+    }
+  }
+
+  .aprove-reject-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+
+    .approve_btn,
+    .reject_btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: $border-radius;
+      display: flex;
+      align-items: center;
+      color: $white;
+      cursor: pointer;
+      transition: $transition;
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    .approve_btn {
+      background-color: $success-color;
+
+      &:hover:not(:disabled) {
+        background: darken($success-color, 10%);
+      }
+    }
+
+    .reject_btn {
+      background-color: $danger-color;
+
+      &:hover:not(:disabled) {
+        background: darken($danger-color, 10%);
+      }
+    }
+  }
+}

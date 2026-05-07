@@ -1,0 +1,53 @@
+@use '../variables' as *;
+
+
+@use '../variables' as *;
+
+.lesion-table-container {
+  overflow-x: auto;
+  margin-top: $gap;
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+
+  .lesion-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: $rubik;
+    font-size: $font-size;
+    border-radius: $border-radius;
+    overflow: hidden;
+    text-align: center;
+
+    th {
+      background: $primary-color;
+      color: $white;
+      padding: 14px;
+      font-weight: $font-weight-bold;
+      white-space: nowrap;
+      text-align: left;
+    }
+
+    td {
+      background: $light-color;
+      padding: 12px;
+      border-bottom: 1px solid $tertiary-color;
+      font-size: $font-size-one;
+      white-space: nowrap;
+      text-align: left;
+
+      &:last-child {
+        text-align: left;
+      }
+    }
+
+    tr:nth-child(even) td {
+      background-color: $secondary-color;
+    }
+
+    tr:hover td {
+      background-color: $purple-light;
+    }
+  }
+}

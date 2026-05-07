@@ -1,0 +1,202 @@
+// @use '../variables' as *;
+
+// .users-table-container {
+//   overflow-x: auto;
+//   margin-top: 20px;
+
+//   .users-table {
+//     width: 100%;
+//     border-collapse: collapse;
+//     background-color: #fff;
+//     border-radius: 10px;
+//     overflow: hidden;
+//     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+
+//     th,
+//     td {
+//       border: 1px solid #ddd;
+//       padding: 12px;
+//       text-align: left;
+//       font-size: 17px;
+
+//       &:last-child {
+//         text-align: center;
+//       }
+//     }
+
+//     th {
+//       background-color: $primary-color;
+//       color: $white;
+//       font-weight: bold;
+//     }
+
+//     tr:nth-child(even) {
+//       background-color: #f8f9fa;
+//     }
+
+//     td:last-child {
+//       color: $success-color;
+//     }
+
+//     // 👇 Add this block for role badge styles
+//     .role-cell {
+//       font-size: 18px;
+//       font-weight: $font-weight-medium;
+//       padding: 4px 10px;
+//       text-transform: capitalize;
+//       font-weight: 600;
+//       &.admin {
+//         color: $primary-color;
+//       }
+
+//       &.dantasurakshaks {
+//         color:$warning-color ;
+//       }
+
+//       &.user {
+//         color:$success-color;
+//       }
+//     }
+//   }
+// }
+
+
+
+
+
+
+
+
+
+
+
+@use '../variables' as *;
+
+.users-table-container {
+  overflow-x: auto;
+  margin-top: $gap;
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $box-shadow;
+
+  .users-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: $rubik;
+    font-size: $font-size;
+    border-radius: $border-radius;
+    overflow: hidden;
+    text-align: center;
+
+    th {
+      background: $primary-color;
+      color: $white;
+      padding: 14px;
+      font-weight: $font-weight-bold;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    td {
+      background: $light-color;
+      padding: 12px;
+      border-bottom: 1px solid $tertiary-color;
+      font-size: $font-size-one;
+      white-space: nowrap;
+      text-align: center;
+
+      &:last-child {
+        text-align: center;
+      }
+    }
+
+    tr:nth-child(even) td {
+      background-color: $secondary-color;
+    }
+
+    tr:hover td {
+      background-color: $purple-light;
+    }
+
+    .role-cell {
+      font-weight: $font-weight-semi-bold;
+      text-transform: capitalize;
+      font-size: $font-size-large;
+
+      &.admin {
+        color: $primary-color;
+      }
+
+      &.dantasurakshaks {
+        color: $warning-color;
+      }
+
+      &.user {
+        color: $success-color;
+      }
+    }
+
+    .status-cell {
+      font-size: $font-size;
+      font-weight: $font-weight-medium;
+      padding: 6px 12px;
+      text-align: center;
+      text-transform: capitalize;
+
+      &.approved {
+        background: #dcfce7;
+        color: $success-color;
+      }
+
+      &.pending {
+        background: #fef9c3;
+        color: $warning-color;
+      }
+
+      &.rejected {
+        background: #fee2e2;
+        color: $danger-color;
+      }
+    }
+
+    .aprove-reject-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+
+      .approve-btn,
+      .reject-btn {
+        padding: 6px 10px;
+        border: none;
+        border-radius: $border-radius;
+        display: flex;
+        align-items: center;
+        color: $white;
+        cursor: pointer;
+        transition: $transition;
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      .approve-btn {
+        background-color: $success-color;
+
+        &:hover:not(:disabled) {
+          background-color: darken($success-color, 10%);
+        }
+      }
+
+      .reject-btn {
+        background-color: $danger-color;
+
+        &:hover:not(:disabled) {
+          background-color: darken($danger-color, 10%);
+        }
+      }
+    }
+  }
+}
