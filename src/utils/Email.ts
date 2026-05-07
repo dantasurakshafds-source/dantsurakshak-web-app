@@ -7,7 +7,7 @@ import {
   RegisterVerificationEmailData
 } from './Types';
 
-const HOST = 'https://o-h-app.vercel.app';
+const HOST = 'http://dantsurakshak.sparkweb.co.in';
 // const HOST = 'http://localhost:3000';
 
 const transporter = nodemailer.createTransport({
