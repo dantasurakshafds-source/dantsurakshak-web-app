@@ -7,6 +7,7 @@ import { BeatLoader } from 'react-spinners'
 import {
   useCreateDentalEmergencyMutation
 } from '@/(store)/services/dental-emergency/dentalEmergencyApi'
+import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete'
 
 interface DentalEmerTabDescription {
   denatl_emer_tab_heading: {
@@ -29,21 +30,26 @@ interface DentalEmerRepeaterItem {
 
 export default function AddDentalEmergency() {
   const [createDentalEmergency, { isLoading }] = useCreateDentalEmergencyMutation()
+  const { deleteFromCloudinary } = useCloudinaryDelete()
   const router = useRouter()
 
   // Main bilingual fields
   const [title, setTitle] = useState({ en: '', kn: '' })
   const [titleImageFile, setTitleImageFile] = useState<File | null>(null)
+  const [titleImagePreview, setTitleImagePreview] = useState<string>('')
   const [titleImageUrl, setTitleImageUrl] = useState<string>('')
+  
   const [heading, setHeading] = useState({ en: '', kn: '' })
   const [para, setPara] = useState({ en: '', kn: '' })
   const [iconFile, setIconFile] = useState<File | null>(null)
+  const [iconPreview, setIconPreview] = useState<string>('')
   const [iconUrl, setIconUrl] = useState<string>('')
 
   // Inner section
   const [innerTitle, setInnerTitle] = useState({ en: '', kn: '' })
   const [innerPara, setInnerPara] = useState({ en: '', kn: '' })
   const [innerIconFile, setInnerIconFile] = useState<File | null>(null)
+  const [innerIconPreview, setInnerIconPreview] = useState<string>('')
   const [innerIconUrl, setInnerIconUrl] = useState<string>('')
 
   // Emerge section
@@ -53,6 +59,43 @@ export default function AddDentalEmergency() {
   // Repeater section
   const [repeater, setRepeater] = useState<DentalEmerRepeaterItem[]>([])
   const addCalled = useRef(false)
+  
+  // Delete handlers for images
+  const handleDeleteTitleImage = async () => {
+    if (titleImageUrl) {
+      await deleteFromCloudinary(titleImageUrl, { resourceType: 'image' })
+      setTitleImageUrl('')
+    }
+    if (titleImagePreview) {
+      URL.revokeObjectURL(titleImagePreview)
+      setTitleImagePreview('')
+    }
+    setTitleImageFile(null)
+  }
+
+  const handleDeleteIcon = async () => {
+    if (iconUrl) {
+      await deleteFromCloudinary(iconUrl, { resourceType: 'image' })
+      setIconUrl('')
+    }
+    if (iconPreview) {
+      URL.revokeObjectURL(iconPreview)
+      setIconPreview('')
+    }
+    setIconFile(null)
+  }
+
+  const handleDeleteInnerIcon = async () => {
+    if (innerIconUrl) {
+      await deleteFromCloudinary(innerIconUrl, { resourceType: 'image' })
+      setInnerIconUrl('')
+    }
+    if (innerIconPreview) {
+      URL.revokeObjectURL(innerIconPreview)
+      setInnerIconPreview('')
+    }
+    setInnerIconFile(null)
+  }
   
   const addRepeaterItem = () => {
     if (addCalled.current) return
@@ -156,10 +199,15 @@ export default function AddDentalEmergency() {
   const handleFile = (
     file: File | null,
     setFile: React.Dispatch<React.SetStateAction<File | null>>,
+    setPreview: React.Dispatch<React.SetStateAction<string>>,
     setUrl: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    setFile(file)
-    setUrl(file ? URL.createObjectURL(file) : '')
+    if (file) {
+      setFile(file)
+      const previewUrl = URL.createObjectURL(file)
+      setPreview(previewUrl)
+      setUrl('')
+    }
   }
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -170,14 +218,17 @@ export default function AddDentalEmergency() {
       // Main section
       fd.append('dental_emergency_title', JSON.stringify(title))
       if (titleImageFile) fd.append('dental_emergency_image_file', titleImageFile)
+      if (titleImageUrl) fd.append('dental_emergency_image', titleImageUrl)
       fd.append('dental_emergency_heading', JSON.stringify(heading))
       fd.append('dental_emergency_para', JSON.stringify(para))
       if (iconFile) fd.append('dental_emergency_icon_file', iconFile)
+      if (iconUrl) fd.append('dental_emergency_icon', iconUrl)
 
       // Inner section
       fd.append('dental_emergency_inner_title', JSON.stringify(innerTitle))
       fd.append('dental_emergency_inner_para', JSON.stringify(innerPara))
       if (innerIconFile) fd.append('dental_emergency_inner_icon_file', innerIconFile)
+      if (innerIconUrl) fd.append('dental_emergency_inner_icon', innerIconUrl)
 
       // Emergency section
       fd.append('dental_emer_title', JSON.stringify(emerTitle))
@@ -223,18 +274,45 @@ export default function AddDentalEmergency() {
       
       <div className="image_cust">
         <label>Upload Title Image:</label>
+        
+        {/* Show existing image with delete button */}
+        {titleImageUrl && !titleImageFile && !titleImagePreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={titleImageUrl} style={{ width: 100 }} alt="title" />
+            <button 
+              type="button" 
+              onClick={handleDeleteTitleImage}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              ✕ Delete Image
+            </button>
+          </div>
+        )}
+        
+        {/* Show preview of new image */}
+        {titleImagePreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={titleImagePreview} style={{ width: 100 }} alt="preview" />
+            <button 
+              type="button" 
+              onClick={handleDeleteTitleImage}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              ✕ Remove
+            </button>
+          </div>
+        )}
+        
         <input
           type="file"
           accept="image/*"
           onChange={e => handleFile(
             e.target.files?.[0] || null,
             setTitleImageFile,
+            setTitleImagePreview,
             setTitleImageUrl
           )}
         />
-        {titleImageUrl && (
-          <img src={titleImageUrl} style={{ width: 100 }} alt="title" />
-        )}
       </div>
       
       <div className="set_groups">
@@ -279,16 +357,45 @@ export default function AddDentalEmergency() {
       
       <div className="image_cust">
         <label>Upload Icon:</label>
+        
+        {/* Show existing icon with delete button */}
+        {iconUrl && !iconFile && !iconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={iconUrl} style={{ width: 100 }} alt="icon" />
+            <button 
+              type="button" 
+              onClick={handleDeleteIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              ✕ Delete Icon
+            </button>
+          </div>
+        )}
+        
+        {/* Show preview of new icon */}
+        {iconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={iconPreview} style={{ width: 100 }} alt="preview" />
+            <button 
+              type="button" 
+              onClick={handleDeleteIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              ✕ Remove
+            </button>
+          </div>
+        )}
+        
         <input
           type="file"
           accept="image/*"
           onChange={e => handleFile(
             e.target.files?.[0] || null,
             setIconFile,
+            setIconPreview,
             setIconUrl
           )}
         />
-        {iconUrl && <img src={iconUrl} style={{ width: 100 }} alt="icon" />}
       </div>
 
       <hr />
@@ -337,18 +444,45 @@ export default function AddDentalEmergency() {
       
       <div className="image_cust">
         <label>Upload Inner Icon:</label>
+        
+        {/* Show existing inner icon with delete button */}
+        {innerIconUrl && !innerIconFile && !innerIconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={innerIconUrl} style={{ width: 100 }} alt="inner icon" />
+            <button 
+              type="button" 
+              onClick={handleDeleteInnerIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              ✕ Delete Icon
+            </button>
+          </div>
+        )}
+        
+        {/* Show preview of new inner icon */}
+        {innerIconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={innerIconPreview} style={{ width: 100 }} alt="preview" />
+            <button 
+              type="button" 
+              onClick={handleDeleteInnerIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+            >
+              ✕ Remove
+            </button>
+          </div>
+        )}
+        
         <input
           type="file"
           accept="image/*"
           onChange={e => handleFile(
             e.target.files?.[0] || null,
             setInnerIconFile,
+            setInnerIconPreview,
             setInnerIconUrl
           )}
         />
-        {innerIconUrl && (
-          <img src={innerIconUrl} style={{ width: 100 }} alt="inner icon" />
-        )}
       </div>
 
       <hr />
@@ -397,9 +531,6 @@ export default function AddDentalEmergency() {
       </div>
 
       <hr />
-
-      
-     
       
       {repeater.map((item, repeaterIndex) => (
         <div key={repeaterIndex} className="repeater">
@@ -529,7 +660,7 @@ export default function AddDentalEmergency() {
         </div>
       ))}
 
-       <div className="button-container">
+      <div className="button-container">
         <h3>Emergency Steps</h3>
         <button type="button" onClick={addRepeaterItem}>
           <FaPlus /> Add Step
