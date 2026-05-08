@@ -19,6 +19,9 @@
 // ammdasder styling
 @use './ambassador/ambassador.scss' as *;
 
+// superadmin styling
+@use './superadmin/banners' as *;
+
 // user styling
 @use './user/user.scss' as *;
 
