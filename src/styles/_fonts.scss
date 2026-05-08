@@ -1,51 +1,15 @@
-// rubik font ***********
-@font-face {
-  font-family: 'Rubik';
-  src: url('../public/Rubik/Rubik-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
+// Rubik font family*******
 
 @font-face {
-  font-family: 'Rubik';
-  src: url('../public/Rubik/Rubik-Italic-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
+  font-family: "Rubik";
+  src: url("/fonts/Rubik/Rubik-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
-  font-display: swap;
-}
-
-// nunito font ***********
-@font-face {
-  font-family: 'Nunito';
-  src: url('../public/Nunito/Nunito-VariableFont_wght.ttf') format('truetype');
-  font-weight: 700 900;
-  font-style: normal;
-  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Nunito';
-  src: url('../public/Nunito/Nunito-Italic-VariableFont_wght.ttf') format('truetype');
-  font-weight: 700 900;
+  font-family: "Rubik";
+  src: url("/fonts/Rubik/Rubik-Medium.ttf") format("truetype");
+  font-weight: 500;
   font-style: normal;
-  font-display: swap;
-}
-
-// roboto font ***********
-@font-face {
-  font-family: 'Roboto';
-  src: url('../public/Roboto/Roboto-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Roboto';
-  src: url('../public/Roboto/Roboto-Italic-VariableFont_wdth,wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
 }
