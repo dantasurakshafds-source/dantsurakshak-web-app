@@ -14,7 +14,6 @@ const publicApi = [
  
 const publicPages = [
   '/auth/login',
-  '/super-admin/login',  
   '/auth/error',
   '/api/auth', // NextAuth endpoints
 ]
@@ -62,7 +61,7 @@ export async function middleware(req: NextRequest) {
     })
 
     if (session) {
-      if (pathname === '/auth/login' || pathname === '/super-admin/login') {
+      if (pathname === '/auth/login') {
         console.log('Redirecting logged-in user from login page to dashboard')
         return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
       }
@@ -83,7 +82,7 @@ export async function middleware(req: NextRequest) {
       }
       if (pathname.startsWith('/super-admin')) {
         console.log('Unauthorized access to protected page, redirecting to login')
-        return NextResponse.redirect(new URL('/super-admin/login', req.url))
+        return NextResponse.redirect(new URL('/auth/login', req.url))
       }
       
       return NextResponse.next()

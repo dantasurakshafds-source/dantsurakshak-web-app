@@ -10,30 +10,41 @@ import {
   useGetSingleDentalEmergencyQuery,
   useUpdateDentalEmergencyMutation
 } from '@/(store)/services/dental-emergency/dentalEmergencyApi';
-import { Language, DentalEmerRepeater, DentalEmerDescriptionRepeater,   } from '@/utils/Types';
+import { Language, DentalEmerRepeater, DentalEmerDescriptionRepeater } from '@/utils/Types';
+import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete';
 
 interface UpdateDiseaseProps {
   id: string;
 }
-export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
-  
+
+export default function EditDentalEmergency({ id }: UpdateDiseaseProps) {
   const router = useRouter();
   const { data, isLoading: isFetching, error } = useGetSingleDentalEmergencyQuery({ id });
   const [updateDental, { isLoading }] = useUpdateDentalEmergencyMutation();
+  const { deleteFromCloudinary } = useCloudinaryDelete();
+
+  // Loading states for image deletions
+  const [isDeletingTitleImage, setIsDeletingTitleImage] = useState(false);
+  const [isDeletingIcon, setIsDeletingIcon] = useState(false);
+  const [isDeletingInnerIcon, setIsDeletingInnerIcon] = useState(false);
 
   // Main bilingual
   const [title, setTitle] = useState<Language>({ en: '', kn: '' });
   const [titleImageFile, setTitleImageFile] = useState<File | null>(null);
+  const [titleImagePreview, setTitleImagePreview] = useState<string>('');
   const [titleImageUrl, setTitleImageUrl] = useState<string>('');
+  
   const [heading, setHeading] = useState<Language>({ en: '', kn: '' });
   const [para, setPara] = useState<Language>({ en: '', kn: '' });
   const [iconFile, setIconFile] = useState<File | null>(null);
+  const [iconPreview, setIconPreview] = useState<string>('');
   const [iconUrl, setIconUrl] = useState<string>('');
 
   // Inner
   const [innerTitle, setInnerTitle] = useState<Language>({ en: '', kn: '' });
   const [innerPara, setInnerPara] = useState<Language>({ en: '', kn: '' });
   const [innerIconFile, setInnerIconFile] = useState<File | null>(null);
+  const [innerIconPreview, setInnerIconPreview] = useState<string>('');
   const [innerIconUrl, setInnerIconUrl] = useState<string>('');
 
   // Emergency section
@@ -43,6 +54,76 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
   // Repeater
   const [repeater, setRepeater] = useState<DentalEmerRepeater[]>([]);
   const addCalled = useRef(false);
+
+  // Delete handlers with loading states
+  const handleDeleteTitleImage = async () => {
+    setIsDeletingTitleImage(true);
+    try {
+      if (titleImageUrl) {
+        await deleteFromCloudinary(titleImageUrl, { resourceType: 'image' });
+        setTitleImageUrl('');
+      }
+      if (titleImagePreview) {
+        URL.revokeObjectURL(titleImagePreview);
+        setTitleImagePreview('');
+      }
+      setTitleImageFile(null);
+      toast.success('Title image deleted successfully');
+    } catch (error) {
+      if(error instanceof Error)
+        {
+          toast.error('Failed to delete image');
+        }
+    } finally {
+      setIsDeletingTitleImage(false);
+    }
+  };
+
+  const handleDeleteIcon = async () => {
+    setIsDeletingIcon(true);
+    try {
+      if (iconUrl) {
+        await deleteFromCloudinary(iconUrl, { resourceType: 'image' });
+        setIconUrl('');
+      }
+      if (iconPreview) {
+        URL.revokeObjectURL(iconPreview);
+        setIconPreview('');
+      }
+      setIconFile(null);
+      toast.success('Icon deleted successfully');
+    } catch (error) {
+       if(error instanceof Error)
+        {
+          toast.error('Failed to delete icon');
+        }
+    } finally {
+      setIsDeletingIcon(false);
+    }
+  };
+
+  const handleDeleteInnerIcon = async () => {
+    setIsDeletingInnerIcon(true);
+    try {
+      if (innerIconUrl) {
+        await deleteFromCloudinary(innerIconUrl, { resourceType: 'image' });
+        setInnerIconUrl('');
+      }
+      if (innerIconPreview) {
+        URL.revokeObjectURL(innerIconPreview);
+        setInnerIconPreview('');
+      }
+      setInnerIconFile(null);
+      toast.success('Inner icon deleted successfully');
+    } catch (error) {
+       if(error instanceof Error)
+        {
+          toast.error('Failed to delete inner icon');
+                  }
+    } finally {
+      setIsDeletingInnerIcon(false);
+    }
+  };
 
   // Seed form
   useEffect(() => {
@@ -72,10 +153,15 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
   const handleFile = (
     file: File | null,
     setFile: React.Dispatch<React.SetStateAction<File | null>>,
+    setPreview: React.Dispatch<React.SetStateAction<string>>,
     setUrl: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    setFile(file);
-    setUrl(file ? URL.createObjectURL(file) : '');
+    if (file) {
+      setFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setPreview(previewUrl);
+      setUrl('');
+    }
   };
 
   const addRepeaterItem = () => {
@@ -169,14 +255,17 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
       // Main
       fd.append('dental_emergency_title', JSON.stringify(title));
       if (titleImageFile) fd.append('dental_emergency_image_file', titleImageFile);
+      if (titleImageUrl) fd.append('dental_emergency_image', titleImageUrl);
       fd.append('dental_emergency_heading', JSON.stringify(heading));
       fd.append('dental_emergency_para', JSON.stringify(para));
       if (iconFile) fd.append('dental_emergency_icon_file', iconFile);
+      if (iconUrl) fd.append('dental_emergency_icon', iconUrl);
 
       // Inner
       fd.append('dental_emergency_inner_title', JSON.stringify(innerTitle));
       fd.append('dental_emergency_inner_para', JSON.stringify(innerPara));
       if (innerIconFile) fd.append('dental_emergency_inner_icon_file', innerIconFile);
+      if (innerIconUrl) fd.append('dental_emergency_inner_icon', innerIconUrl);
 
       // Emergency
       fd.append('dental_emer_title', JSON.stringify(emerTitle));
@@ -218,16 +307,48 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
           />
         </div>
       </div>
+      
       <div className="image_cust">
         <label>Upload Title Image:</label>
+        
+        {/* Show existing image with delete button and loader */}
+        {titleImageUrl && !titleImageFile && !titleImagePreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={titleImageUrl} style={{ width: 100 }} alt="title" />
+            <button 
+              type="button" 
+              onClick={handleDeleteTitleImage}
+              disabled={isDeletingTitleImage}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: isDeletingTitleImage ? 'not-allowed' : 'pointer' }}
+            >
+              {isDeletingTitleImage ? <BeatLoader size={8} color="#fff" /> : '✕ Delete Image'}
+            </button>
+          </div>
+        )}
+        
+        {/* Show preview of new image */}
+        {titleImagePreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={titleImagePreview} style={{ width: 100 }} alt="preview" />
+            <button 
+              type="button" 
+              onClick={handleDeleteTitleImage}
+              disabled={isDeletingTitleImage}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: isDeletingTitleImage ? 'not-allowed' : 'pointer' }}
+            >
+              {isDeletingTitleImage ? <BeatLoader size={8} color="#fff" /> : '✕ Remove'}
+            </button>
+          </div>
+        )}
+        
         <input
           type="file"
           accept="image/*"
           onChange={e =>
-            handleFile(e.target.files?.[0] || null, setTitleImageFile, setTitleImageUrl)
+            handleFile(e.target.files?.[0] || null, setTitleImageFile, setTitleImagePreview, setTitleImageUrl)
           }
+          disabled={isDeletingTitleImage}
         />
-        {titleImageUrl && <img src={titleImageUrl} style={{ width: 100 }} alt="title" />}
       </div>
 
       {/* Heading & Para */}
@@ -251,6 +372,7 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
           />
         </div>
       </div>
+      
       <div className="set_groups">
         <div className="en_g">
           <label>Paragraph (EN):</label>
@@ -269,22 +391,55 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
           />
         </div>
       </div>
+      
       <div className="image_cust">
         <label>Upload Icon:</label>
+        
+        {/* Show existing icon with delete button and loader */}
+        {iconUrl && !iconFile && !iconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={iconUrl} style={{ width: 100 }} alt="icon" />
+            <button 
+              type="button" 
+              onClick={handleDeleteIcon}
+              disabled={isDeletingIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: isDeletingIcon ? 'not-allowed' : 'pointer' }}
+            >
+              {isDeletingIcon ? <BeatLoader size={8} color="#fff" /> : '✕ Delete Icon'}
+            </button>
+          </div>
+        )}
+        
+        {/* Show preview of new icon */}
+        {iconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={iconPreview} style={{ width: 100 }} alt="preview" />
+            <button 
+              type="button" 
+              onClick={handleDeleteIcon}
+              disabled={isDeletingIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: isDeletingIcon ? 'not-allowed' : 'pointer' }}
+            >
+              {isDeletingIcon ? <BeatLoader size={8} color="#fff" /> : '✕ Remove'}
+            </button>
+          </div>
+        )}
+        
         <input
           type="file"
           accept="image/*"
           onChange={e =>
-            handleFile(e.target.files?.[0] || null, setIconFile, setIconUrl)
+            handleFile(e.target.files?.[0] || null, setIconFile, setIconPreview, setIconUrl)
           }
+          disabled={isDeletingIcon}
         />
-        {iconUrl && <img src={iconUrl} style={{ width: 100 }} alt="icon" />}
       </div>
 
       <hr />
 
       {/* Inner Section */}
       <h3>Inner Section</h3>
+      
       <div className="set_groups">
         <div className="en_g">
           <label>Inner Title (EN):</label>
@@ -305,6 +460,7 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
           />
         </div>
       </div>
+      
       <div className="set_groups">
         <div className="en_g">
           <label>Inner Paragraph (EN):</label>
@@ -323,16 +479,48 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
           />
         </div>
       </div>
+      
       <div className="image_cust">
         <label>Upload Inner Icon:</label>
+        
+        {/* Show existing inner icon with delete button and loader */}
+        {innerIconUrl && !innerIconFile && !innerIconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={innerIconUrl} style={{ width: 100 }} alt="inner icon" />
+            <button 
+              type="button" 
+              onClick={handleDeleteInnerIcon}
+              disabled={isDeletingInnerIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: isDeletingInnerIcon ? 'not-allowed' : 'pointer' }}
+            >
+              {isDeletingInnerIcon ? <BeatLoader size={8} color="#fff" /> : '✕ Delete Icon'}
+            </button>
+          </div>
+        )}
+        
+        {/* Show preview of new inner icon */}
+        {innerIconPreview && (
+          <div style={{ marginTop: '10px' }}>
+            <img src={innerIconPreview} style={{ width: 100 }} alt="preview" />
+            <button 
+              type="button" 
+              onClick={handleDeleteInnerIcon}
+              disabled={isDeletingInnerIcon}
+              style={{ marginLeft: '10px', padding: '5px 10px', background: '#dc2626', color: 'white', border: 'none', borderRadius: '4px', cursor: isDeletingInnerIcon ? 'not-allowed' : 'pointer' }}
+            >
+              {isDeletingInnerIcon ? <BeatLoader size={8} color="#fff" /> : '✕ Remove'}
+            </button>
+          </div>
+        )}
+        
         <input
           type="file"
           accept="image/*"
           onChange={e =>
-            handleFile(e.target.files?.[0] || null, setInnerIconFile, setInnerIconUrl)
+            handleFile(e.target.files?.[0] || null, setInnerIconFile, setInnerIconPreview, setInnerIconUrl)
           }
+          disabled={isDeletingInnerIcon}
         />
-        {innerIconUrl && <img src={innerIconUrl} style={{ width: 100 }} alt="inner icon" />}
       </div>
 
       <hr />
@@ -358,6 +546,7 @@ export default function EditDentalEmergency({id}:UpdateDiseaseProps) {
           />
         </div>
       </div>
+      
       <div className="set_groups">
         <div className="en_g">
           <label>Emergency Sub-Title (EN):</label>
