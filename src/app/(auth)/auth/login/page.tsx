@@ -108,7 +108,7 @@ export default function SuperAdminLogin() {
       </div>
 
       <div className="login-right">
-        <img src={loginIlluStration.src} alt="Login Illustration" />
+        <Image src={loginIlluStration.src} alt="Login Illustration" width={500} height={500}/>
       </div>
     </div>
   );

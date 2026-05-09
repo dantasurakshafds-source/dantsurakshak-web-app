@@ -1,0 +1,258 @@
+@use '../variables' as *;
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.announcement-form {
+    position: relative;
+
+    .announcement-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: $gap-2;
+        align-items: start;
+
+        .announcement-main {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+
+        .announcement-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+    }
+
+    /* ─── Section Card ─────────────────────────────────────────── */
+    .announcement-section {
+        background: $white;
+        border-radius: $border-radius;
+        box-shadow: $box-shadow;
+        overflow: hidden;
+
+        .announcement-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid $tertiary-color;
+
+            .announcement-section__title {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: $font-size-one;
+                font-weight: $font-weight-semi-bold;
+                color: $purple-dark;
+                margin: 0;
+            }
+
+            .announcement-section__toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+                border: 1px solid #ddd;
+                border-radius: 50%;
+                background: $white;
+                cursor: pointer;
+                color: $gray-color;
+                font-size: 16px;
+                line-height: 1;
+                padding: 0;
+                transition: $transition;
+
+                &:hover {
+                    background: $tertiary-color;
+                    color: $dark-color;
+                }
+            }
+        }
+
+        .announcement-section__body {
+            padding: 20px;
+
+            /* ─── Form Row / Group ─────────────────────────────────────── */
+            .announcement-form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: $gap;
+                margin-bottom: $gap;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .announcement-form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-bottom: $gap;
+                overflow: hidden;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .announcement-label {
+                font-size: $font-size-small;
+                font-weight: $font-weight-medium;
+                color: $dark-color;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+
+                svg {
+                    color: $purple;
+                    font-size: 15px;
+                    flex-shrink: 0;
+                }
+
+                .announcement-label__required {
+                    color: $danger-color;
+                    margin-left: 1px;
+                }
+
+                .announcement-label__optional {
+                    font-size: $font-size-extra-small;
+                    font-weight: $font-weight-regular;
+                    color: $gray-color;
+                }
+            }
+
+            .announcement-input {
+                height: 40px;
+                padding: 0 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+
+            .announcement-textarea {
+                padding: 10px 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+                resize: vertical;
+                min-height: 90px;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+        }
+    }
+
+    /* ─── Footer Actions ───────────────────────────────────────── */
+    .announcement-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 20px 0;
+
+        .announcement-btn-cancel {
+            height: 40px;
+            padding: 0 20px;
+            border: 1px solid #ddd;
+            border-radius: $border-radius;
+            background: $white;
+            color: $dark-color;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+
+            &:hover {
+                background: $tertiary-color;
+            }
+        }
+
+        .announcement-btn-submit {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: $border-radius;
+            background: $primary-color;
+            color: $white;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover:not(:disabled) {
+                background: $button-hover;
+            }
+
+            &:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .announcement-form {
+        .announcement-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .announcement-sidebar {
+            order: -1;
+        }
+
+        .announcement-form-row {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}

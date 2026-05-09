@@ -20,23 +20,22 @@
 @use './ambassador/ambassador.scss' as *;
 
 // superadmin styling
+@use './superadmin/itemlist' as *;
 @use './superadmin/banners' as *;
+@use './superadmin/diseases' as *;
+@use './superadmin/oralhabits' as *;
+@use './superadmin/dentalemergency' as *;
+@use './superadmin/mythsfacts' as *;
+@use './superadmin/announcements' as *;
+@use './superadmin/faqs' as *;
+@use './superadmin/policy' as *;
+@use './superadmin/terms' as *;
 
 // user styling
 @use './user/user.scss' as *;
 
 // lessons styling
 @use './lessons/lessons.scss' as *;
-
-// slider styling
-@use './slider/add_slider.scss' as *;
-@use './slider/all_slider.scss' as *;
-@use './slider/edit_slider.scss' as *;
-
-
-
-// disease styling
-@use './disease/disease.scss' as *;
 
 
 * {
@@ -56,13 +55,14 @@ body {
 }
 
 button.password-toggle {
-    border: unset;
-    background: unset;
-    display: flex;
-    justify-content: center;
+  border: unset;
+  background: unset;
+  display: flex;
+  justify-content: center;
 }
+
 button.password-toggle svg {
-    color: #56235E;
+  color: #56235E;
 }
 
 .feedback-popup {

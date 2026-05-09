@@ -371,6 +371,7 @@ export interface DiseaseTypes {
 
 export type SingleDiseaseResponse = {
   data: DiseaseTypes;
+  result: DiseaseTypes;
   success: boolean;
 };
 

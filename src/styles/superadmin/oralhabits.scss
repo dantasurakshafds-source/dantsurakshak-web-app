@@ -1,0 +1,442 @@
+@use '../variables' as *;
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.habit-form {
+    position: relative;
+
+    .habit-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: $gap-2;
+        align-items: start;
+
+        .habit-main {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+
+        .habit-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+    }
+
+    /* ─── Section Card ─────────────────────────────────────────── */
+    .habit-section {
+        background: $white;
+        border-radius: $border-radius;
+        box-shadow: $box-shadow;
+        overflow: hidden;
+
+        .habit-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid $tertiary-color;
+
+            .habit-section__title {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: $font-size-one;
+                font-weight: $font-weight-semi-bold;
+                color: $purple-dark;
+                margin: 0;
+            }
+
+            .habit-section__toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+                border: 1px solid #ddd;
+                border-radius: 50%;
+                background: $white;
+                cursor: pointer;
+                color: $gray-color;
+                font-size: 16px;
+                line-height: 1;
+                padding: 0;
+                transition: $transition;
+
+                &:hover {
+                    background: $tertiary-color;
+                    color: $dark-color;
+                }
+            }
+        }
+
+        .habit-section__body {
+            padding: 20px;
+
+            /* ─── Form Row / Group ─────────────────────────────────────── */
+            .habit-form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: $gap;
+                margin-bottom: $gap;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .habit-form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-bottom: $gap;
+                overflow: hidden;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .habit-label {
+                font-size: $font-size-small;
+                font-weight: $font-weight-medium;
+                color: $dark-color;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+
+                svg {
+                    color: $purple;
+                    font-size: 15px;
+                    flex-shrink: 0;
+                }
+
+                .habit-label__required {
+                    color: $danger-color;
+                    margin-left: 1px;
+                }
+
+                .habit-label__optional {
+                    font-size: $font-size-extra-small;
+                    font-weight: $font-weight-regular;
+                    color: $gray-color;
+                }
+            }
+
+            .habit-input {
+                height: 40px;
+                padding: 0 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+
+            .habit-textarea {
+                padding: 10px 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+                resize: vertical;
+                min-height: 90px;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+
+            /* ─── Preview ──────────────────────────────────────────────── */
+            .habit-preview {
+                position: relative;
+                display: inline-flex;
+                border-radius: $border-radius;
+                overflow: hidden;
+                border: 1px solid #e0e0e0;
+                margin-bottom: 10px;
+
+                .habit-preview__img {
+                    display: block;
+                    width: 100%;
+                    height: 160px;
+                    object-fit: cover;
+                    border-radius: $border-radius;
+                }
+            }
+
+            .habit-preview__remove {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: rgba(234, 28, 32, 0.9);
+                border: none;
+                color: $white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                transition: $transition;
+
+                &:hover:not(:disabled) {
+                    background: $danger-color;
+                    transform: scale(1.1);
+                }
+
+                &:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+            }
+
+            /* ─── Body Items ───────────────────────────────────────────── */
+            .habit-body-item {
+                border: 1px solid #e8e8e8;
+                border-radius: $border-radius;
+                padding: 16px;
+                margin-bottom: $gap;
+                background: #fafafa;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .habit-body-item__header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 14px;
+                }
+
+                .habit-body-item__title {
+                    font-size: $font-size-small;
+                    font-weight: $font-weight-semi-bold;
+                    color: $purple-dark;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+
+                    svg {
+                        font-size: 15px;
+                    }
+                }
+            }
+
+            .habit-add-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                background: $white;
+                border: 1.5px dashed $purple;
+                border-radius: $border-radius;
+                color: $purple;
+                font-size: $font-size-small;
+                font-weight: $font-weight-medium;
+                font-family: $rubik;
+                cursor: pointer;
+                transition: $transition;
+                margin-bottom: $gap;
+
+                svg {
+                    font-size: 16px;
+                }
+
+                &:hover {
+                    background: $purple-light;
+                }
+            }
+
+            /* ─── Danger / Delete Button ───────────────────────────────── */
+            .habit-btn-danger {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                background: #fff5f5;
+                border: 1px solid #ffd0d0;
+                border-radius: $border-radius;
+                color: $danger-color;
+                font-size: $font-size-extra-small;
+                font-weight: $font-weight-medium;
+                font-family: $rubik;
+                cursor: pointer;
+                transition: $transition;
+
+                svg {
+                    font-size: 13px;
+                }
+
+                &:hover:not(:disabled) {
+                    background: $danger-color;
+                    color: $white;
+                    border-color: $danger-color;
+                }
+
+                &:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+
+    /* ─── Featured Image (sidebar) ─────────────────────────────── */
+    .habit-featured-zone {
+        border: 1.5px dashed #ccc;
+        border-radius: $border-radius;
+        background: $tertiary-color;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        position: relative;
+        transition: $transition;
+        overflow: hidden;
+
+        &:hover {
+            border-color: $purple;
+            background: $purple-light;
+        }
+
+        input[type='file'] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+
+            &:disabled {
+                cursor: not-allowed;
+            }
+        }
+
+        .habit-featured-zone__icon {
+            font-size: 30px;
+            color: $gray-color;
+        }
+
+        .habit-featured-zone__text {
+            font-size: $font-size-small;
+            color: $gray-color;
+            margin: 0;
+            text-align: center;
+        }
+    }
+
+    /* ─── Footer Actions ───────────────────────────────────────── */
+    .habit-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 20px 0;
+
+        .habit-btn-cancel {
+            height: 40px;
+            padding: 0 20px;
+            border: 1px solid #ddd;
+            border-radius: $border-radius;
+            background: $white;
+            color: $dark-color;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+
+            &:hover {
+                background: $tertiary-color;
+            }
+        }
+
+        .habit-btn-submit {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: $border-radius;
+            background: $primary-color;
+            color: $white;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover:not(:disabled) {
+                background: $button-hover;
+            }
+
+            &:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .habit-form {
+        .habit-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .habit-sidebar {
+            order: -1;
+        }
+
+        .habit-form-row {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}

@@ -48,7 +48,7 @@ export default function UserLists() {
             <table className="users-table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th>S.N.</th>
                   <th>Name</th>
                   <th>Email</th>
                   <th>Phone</th>
