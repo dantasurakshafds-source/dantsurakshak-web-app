@@ -1,3 +1,6 @@
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+
 import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI!;
@@ -6,18 +9,16 @@ if (!MONGODB_URI) {
   throw new Error('Please define the MONGODB_URI environment variable in your .env file');
 }
 
- //@ts-expect-error ignore this message
+//@ts-expect-error ignore this message
 let cached = global.mongoose;
 
 if (!cached) {
-   //@ts-expect-error ignore this message
-
+  //@ts-expect-error ignore this message
   cached = global.mongoose = { conn: null, promise: null };
 }
 
 export async function dbConnect(): Promise<typeof mongoose> {
   if (cached.conn) {
-    
     return cached.conn;
   }
 
@@ -28,7 +29,7 @@ export async function dbConnect(): Promise<typeof mongoose> {
       socketTimeoutMS: 30000,
       maxPoolSize: 10,
     };
- 
+
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
       console.log('MongoDB connected successfully');
       return mongoose;
@@ -44,11 +45,10 @@ export async function dbConnect(): Promise<typeof mongoose> {
     cached.promise = null;
     throw e;
   }
-  
+
   return cached.conn;
 }
 
- 
 declare global {
   let mongoose: {
     conn: typeof mongoose | null;

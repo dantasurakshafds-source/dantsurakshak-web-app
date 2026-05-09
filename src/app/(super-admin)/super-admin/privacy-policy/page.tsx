@@ -1,150 +1,157 @@
-
 "use client";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import ReusableModal from "@/(common)/Model";
-import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { MdPolicy } from "react-icons/md";
 import Loader from "@/(common)/Loader";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { PrivacyPolicyType } from "@/utils/Types";
 import { useDeletePrivacyPolicyMutation, useGetPrivacyPolicesQuery } from "@/(store)/services/privacy-policy/privacyPolicyApi";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
+import { toast } from "sonner";
 
 const PrivacyPolicy = () => {
     const { setRightContent } = useBreadcrumb();
-    const [page, setPage] = useState(1)
-    const { data: diseasesData, isLoading, refetch } = useGetPrivacyPolicesQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
-    const [deleteDisease] = useDeletePrivacyPolicyMutation();
+    const [page, setPage] = useState(1);
+    const { data: policiesData, isLoading, refetch } = useGetPrivacyPolicesQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
+    const [deletePolicy] = useDeletePrivacyPolicyMutation();
     const [showModal, setShowModal] = useState(false);
-    const [selectedDiseaseId, setSelectedDiseaseId] = useState<string | null>(null);
+    const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null);
+
     const handleDelete = async (id: string) => {
         try {
-            await deleteDisease(id).unwrap();
+            await deletePolicy(id).unwrap();
+            toast.success("Policy deleted successfully");
             refetch();
         } catch (err) {
             if (err instanceof Error) {
-                alert("Failed to delete disease");
+                toast.error("Failed to delete policy");
             }
         }
     };
+
     const confirmDelete = () => {
-        if (selectedDiseaseId) {
-            handleDelete(selectedDiseaseId);
+        if (selectedPolicyId) {
+            handleDelete(selectedPolicyId);
             setShowModal(false);
-            setSelectedDiseaseId(null);
+            setSelectedPolicyId(null);
         }
     };
 
     useEffect(() => {
         setRightContent(
-            <Link href="/super-admin/privacy-policy/add-new-policy" className="add-slider-btn">
-                <span className="iconsss">
-                    <FaPlus /> Add New Policy
-                </span>
+            <Link href="/super-admin/privacy-policy/add-policy" className="list-header__action-btn">
+                <FaPlus />
+                Add Policy
             </Link>
         );
-
 
         return () => setRightContent(null);
     }, [setRightContent]);
 
-
-    const totalResults = diseasesData?.totalResults ?? 0;
+    const totalResults = policiesData?.totalResults ?? 0;
     const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
     const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
+    if (isLoading) return <Loader />;
 
     return (
-        <div className="disease-main-container">
-            {isLoading ? (
-                <Loader />
-            ) : diseasesData?.result?.length === 0 ? (
-                <p>No polices found.</p>
-            ) : (
-                <div className="privacy_outer" id='privacy_outer'>
-                    {diseasesData?.result?.map((disease: PrivacyPolicyType) => (
-                        <div key={disease._id} className="privacy_card">
-
-
-                            <div className="privacy-info">
-                                {disease?.privacy_policy_repeater.map((ele, index) => {
-                                    return <div key={index} className="term_main_outer">
-
-                                        <div className="flex_term">
-                                            <h3>Heading:</h3>
-                                            <p>EN: {ele?.privacy_heading.en || ''}</p>
-                                            <p>KN: {ele?.privacy_heading.en || ''}</p>
-
-                                        </div>
-                                        <div className="flex_term">
-                                            <h3>Content:</h3>
-
-                                            EN: <p dangerouslySetInnerHTML={{ __html: ele?.privacy_description.en || '' }}></p>
-                                            KN: <p dangerouslySetInnerHTML={{ __html: ele?.privacy_description.en || '' }}></p>
-
-                                        </div>
-
-                                    </div>
-                                })}
-                            </div>
-
-
-
-
-                            <div className="disease-actions">
-                                <Link href={`/super-admin/privacy-policy/update-privacy-policy/${disease._id}`} className="edit-button">
-                                    <span className="p_actions">
-                                        <FaEdit /> Edit
-                                    </span>
-                                </Link>
-                                <button
-                                    onClick={() => {
-                                        if (disease._id) {
-                                            setSelectedDiseaseId(disease._id);
-                                        }
-                                        setShowModal(true);
-                                    }}
-                                    className="delete-button"
-                                >
-                                    <span className="p_actions">
-                                        <FaTrash /> Delete
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    ))}
+        <div className="list-container">
+            {policiesData?.result?.length === 0 ? (
+                <div className="list-empty">
+                    <div className="list-empty-icon">
+                        <MdPolicy />
+                    </div>
+                    <h3>No Privacy Policies Found</h3>
+                    <p>Get started by adding your first privacy policy.</p>
                 </div>
+            ) : (
+                <>
+                    <div className="table-wrapper">
+                        <table className="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Sections</th>
+                                    <th>First Heading (EN)</th>
+                                    <th>First Heading (KN)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {policiesData?.result?.map((policy: PrivacyPolicyType) => (
+                                    <tr key={policy._id}>
+                                        <td>{policy?.privacy_policy_repeater?.length || 0} sections</td>
+                                        <td>
+                                            <span className="text-truncate">
+                                                {policy?.privacy_policy_repeater?.[0]?.privacy_heading?.en || 'N/A'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span className="text-truncate">
+                                                {policy?.privacy_policy_repeater?.[0]?.privacy_heading?.kn || 'N/A'}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div className="table-actions">
+                                                <Link
+                                                    href={`/super-admin/privacy-policy/update-policy/${policy._id}`}
+                                                    className="action-edit"
+                                                >
+                                                    <FaEdit />
+                                                </Link>
+                                                <button
+                                                    onClick={() => {
+                                                        if (policy._id) {
+                                                            setSelectedPolicyId(policy._id);
+                                                        }
+                                                        setShowModal(true);
+                                                    }}
+                                                    className="action-delete"
+                                                >
+                                                    <FaTrash />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {shouldShowPagination && (
+                        <div className="pagination">
+                            <button
+                                onClick={() => setPage(page - 1)}
+                                disabled={page === 1}
+                                className="pagination-btn"
+                            >
+                                <FaChevronLeft /> Prev
+                            </button>
+                            <span className="pagination-info">
+                                Page {page} of {totalPages}
+                            </span>
+                            <button
+                                onClick={() => setPage(page + 1)}
+                                disabled={page === totalPages}
+                                className="pagination-btn"
+                            >
+                                Next <FaChevronRight />
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
 
             <ReusableModal
                 isOpen={showModal}
-                message="Are you sure you want to delete this disease?"
+                message="Are you sure you want to delete this privacy policy?"
                 onConfirm={confirmDelete}
                 onCancel={() => {
                     setShowModal(false);
-                    setSelectedDiseaseId(null);
+                    setSelectedPolicyId(null);
                 }}
             />
-            <div className="pagination_steps">
-                {shouldShowPagination && (
-                    <div className="pagination-controls mt-4 flex items-center justify-center space-x-4">
-                        <button
-                            onClick={() => setPage(page - 1)}
-                            disabled={page === 1}
-                            className={`px-3 py-1 border rounded disabled:opacity-50 ${page === 1 ? 'disable_prev' : ''}`}
-                        >
-                            Prev
-                        </button>
-                        <button
-                            onClick={() => setPage(page + 1)}
-                            disabled={page === totalPages}
-                            className={`px-3 py-1 border rounded disabled:opacity-50 ${page === totalPages ? 'disable_next' : ''}`}
-                        >
-                            Next
-                        </button>
-                    </div>
-                )}
-            </div>
         </div>
     );
 };

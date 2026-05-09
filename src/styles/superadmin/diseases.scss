@@ -1,0 +1,563 @@
+@use '../variables' as *;
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.disease-form {
+    position: relative;
+
+    .disease-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: $gap-2;
+        align-items: start;
+
+        .disease-main {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+
+        .disease-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+    }
+
+    /* ─── Section Card ─────────────────────────────────────────── */
+    .disease-section {
+        background: $white;
+        border-radius: $border-radius;
+        box-shadow: $box-shadow;
+        overflow: hidden;
+
+        .disease-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid $tertiary-color;
+
+            .disease-section__title {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: $font-size-one;
+                font-weight: $font-weight-semi-bold;
+                color: $purple-dark;
+                margin: 0;
+            }
+
+            .disease-section__toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+                border: 1px solid #ddd;
+                border-radius: 50%;
+                background: $white;
+                cursor: pointer;
+                color: $gray-color;
+                font-size: 16px;
+                line-height: 1;
+                padding: 0;
+                transition: $transition;
+
+                &:hover {
+                    background: $tertiary-color;
+                    color: $dark-color;
+                }
+            }
+        }
+
+        .disease-section__body {
+            padding: 20px;
+
+            /* ─── Form Row / Group ─────────────────────────────────────── */
+            .disease-form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: $gap;
+                margin-bottom: $gap;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .disease-form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-bottom: $gap;
+                overflow: hidden;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .disease-label {
+                font-size: $font-size-small;
+                font-weight: $font-weight-medium;
+                color: $dark-color;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+
+                svg {
+                    color: $purple;
+                    font-size: 15px;
+                    flex-shrink: 0;
+                }
+
+                .disease-label__required {
+                    color: $danger-color;
+                    margin-left: 1px;
+                }
+
+                .disease-label__optional {
+                    font-size: $font-size-extra-small;
+                    font-weight: $font-weight-regular;
+                    color: $gray-color;
+                }
+            }
+
+            .disease-input {
+                height: 40px;
+                padding: 0 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+
+            .disease-select {
+                height: 40px;
+                padding: 0 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+                cursor: pointer;
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 12px center;
+                padding-right: 36px;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+
+                option {
+                    color: $dark-color;
+                    background: $white;
+                    padding: 10px;
+                }
+            }
+
+            .disease-textarea {
+                padding: 10px 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+                resize: vertical;
+                min-height: 90px;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+
+            /* ─── Upload / Drop Zone ───────────────────────────────────── */
+            .disease-upload-zone {
+                border: 1.5px dashed #ccc;
+                border-radius: $border-radius;
+                background: $tertiary-color;
+                padding: 28px 16px;
+                text-align: center;
+                cursor: pointer;
+                transition: $transition;
+                position: relative;
+
+                &:hover {
+                    border-color: $purple;
+                    background: $purple-light;
+                }
+
+                input[type='file'] {
+                    position: absolute;
+                    inset: 0;
+                    opacity: 0;
+                    cursor: pointer;
+                    width: 100%;
+                    height: 100%;
+
+                    &:disabled {
+                        cursor: not-allowed;
+                    }
+                }
+
+                .disease-upload-zone__icon {
+                    font-size: 28px;
+                    color: $gray-color;
+                    margin-bottom: 8px;
+                }
+
+                .disease-upload-zone__text {
+                    font-size: $font-size-small;
+                    color: $gray-color;
+                    margin: 0;
+                }
+
+                .disease-upload-zone__hint {
+                    font-size: $font-size-extra-small;
+                    color: #bbb;
+                    margin: 4px 0 0 0;
+                }
+            }
+
+            /* ─── Preview ──────────────────────────────────────────────── */
+            .disease-preview {
+                position: relative;
+                display: inline-flex;
+                border-radius: $border-radius;
+                overflow: hidden;
+                border: 1px solid #e0e0e0;
+                margin-bottom: 10px;
+
+                .disease-preview__img {
+                    display: block;
+                    width: 100%;
+                    height: 160px;
+                    object-fit: cover;
+                    border-radius: $border-radius;
+                }
+
+                .disease-preview__img--small {
+                    width: 100px;
+                    height: 80px;
+                }
+            }
+
+            .disease-preview__remove {
+                position: absolute;
+                top: 6px;
+                right: 6px;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: rgba(234, 28, 32, 0.9);
+                border: none;
+                color: $white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 13px;
+                transition: $transition;
+
+                &:hover:not(:disabled) {
+                    background: $danger-color;
+                    transform: scale(1.1);
+                }
+
+                &:disabled {
+                    opacity: 0.7;
+                    cursor: not-allowed;
+                }
+            }
+
+            /* ─── Body Items ───────────────────────────────────────────── */
+            .disease-body-item {
+                border: 1px solid #e8e8e8;
+                border-radius: $border-radius;
+                padding: 16px;
+                margin-bottom: $gap;
+                background: #fafafa;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .disease-body-item__header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 14px;
+                }
+
+                .disease-body-item__title {
+                    font-size: $font-size-small;
+                    font-weight: $font-weight-semi-bold;
+                    color: $purple-dark;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+
+                    svg {
+                        font-size: 15px;
+                    }
+                }
+            }
+
+            /* ─── Nested Items ────────────────────────────────────────── */
+            .disease-nested-item {
+                border: 1px solid #e0e0e0;
+                border-radius: $border-radius;
+                padding: 12px;
+                margin-bottom: 12px;
+                background: #f5f5f5;
+
+                .disease-nested-item__header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 12px;
+                    padding-bottom: 8px;
+                    border-bottom: 1px solid #e0e0e0;
+                }
+
+                .disease-nested-item__title {
+                    font-size: $font-size-extra-small;
+                    font-weight: $font-weight-semi-bold;
+                    color: $dark-color;
+                    margin: 0;
+                }
+            }
+
+            .disease-add-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                background: $white;
+                border: 1.5px dashed $purple;
+                border-radius: $border-radius;
+                color: $purple;
+                font-size: $font-size-small;
+                font-weight: $font-weight-medium;
+                font-family: $rubik;
+                cursor: pointer;
+                transition: $transition;
+                margin-bottom: $gap;
+                margin-top: 4px;
+
+                svg {
+                    font-size: 16px;
+                }
+
+                &:hover {
+                    background: $purple-light;
+                }
+            }
+
+            /* ─── Danger / Delete Button ───────────────────────────────── */
+            .disease-btn-danger {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                background: #fff5f5;
+                border: 1px solid #ffd0d0;
+                border-radius: $border-radius;
+                color: $danger-color;
+                font-size: $font-size-extra-small;
+                font-weight: $font-weight-medium;
+                font-family: $rubik;
+                cursor: pointer;
+                transition: $transition;
+
+                svg {
+                    font-size: 13px;
+                }
+
+                &:hover:not(:disabled) {
+                    background: $danger-color;
+                    color: $white;
+                    border-color: $danger-color;
+                }
+
+                &:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+
+    /* ─── Featured Image (sidebar) ─────────────────────────────── */
+    .disease-featured-zone {
+        border: 1.5px dashed #ccc;
+        border-radius: $border-radius;
+        background: $tertiary-color;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        position: relative;
+        transition: $transition;
+        overflow: hidden;
+
+        &:hover {
+            border-color: $purple;
+            background: $purple-light;
+        }
+
+        input[type='file'] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+
+            &:disabled {
+                cursor: not-allowed;
+            }
+        }
+
+        .disease-featured-zone__icon {
+            font-size: 30px;
+            color: $gray-color;
+        }
+
+        .disease-featured-zone__text {
+            font-size: $font-size-small;
+            color: $gray-color;
+            margin: 0;
+            text-align: center;
+        }
+    }
+
+    /* ─── Footer Actions ───────────────────────────────────────── */
+    .disease-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 20px 0;
+
+        .disease-btn-cancel {
+            height: 40px;
+            padding: 0 20px;
+            border: 1px solid #ddd;
+            border-radius: $border-radius;
+            background: $white;
+            color: $dark-color;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+
+            &:hover {
+                background: $tertiary-color;
+            }
+        }
+
+        .disease-btn-submit {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: $border-radius;
+            background: $primary-color;
+            color: $white;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover:not(:disabled) {
+                background: $button-hover;
+            }
+
+            &:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .disease-form {
+        .disease-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .disease-sidebar {
+            order: -1;
+        }
+
+        .disease-form-row {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}

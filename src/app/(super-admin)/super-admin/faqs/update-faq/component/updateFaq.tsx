@@ -1,13 +1,21 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-
 import { useGetSinglegetFaqQuery, useUpdategetFaqMutation } from '@/(store)/services/faqs/faqsApi'
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
 import Loader from '@/(common)/Loader'
 import { BeatLoader } from 'react-spinners'
 import { FaqRepeaterEntry } from '@/utils/Types'
 import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper'
+import {
+    MdTextFields,
+    MdQuestionAnswer,
+    MdAddCircleOutline,
+    MdDelete,
+    MdHelp,
+    MdDescription
+} from "react-icons/md"
 
 interface FAQItem {
     faqs_repeat_question: {
@@ -24,14 +32,17 @@ interface UpdateFaqFormCKEditorProps {
     id: string
 }
 
-export default function UpdateFaqFormCKEditor({ id }: UpdateFaqFormCKEditorProps) {
+export default function UpdateFaq({ id }: UpdateFaqFormCKEditorProps) {
     const { data: faqData, isLoading, isError } = useGetSinglegetFaqQuery({ id })
-    const [updateFaq] = useUpdategetFaqMutation()
+    const [updateFaq, { isLoading: isUpdating }] = useUpdategetFaqMutation()
     const router = useRouter()
+
+    // Section collapse states
+    const [titleOpen, setTitleOpen] = useState(true)
+    const [faqsOpen, setFaqsOpen] = useState(true)
 
     const [faqsTitle, setFaqsTitle] = useState({ en: '', kn: '' })
     const [faqs, setFaqs] = useState<FAQItem[]>([])
-
 
     useEffect(() => {
         if (faqData?.result) {
@@ -40,7 +51,6 @@ export default function UpdateFaqFormCKEditor({ id }: UpdateFaqFormCKEditorProps
                 en: data.faqs_title?.en || '',
                 kn: data.faqs_title?.kn || ''
             })
-
 
             const copiedFaqs = (data.faqs_repeater || []).map((item: FaqRepeaterEntry) => ({
                 faqs_repeat_question: {
@@ -93,9 +103,9 @@ export default function UpdateFaqFormCKEditor({ id }: UpdateFaqFormCKEditorProps
                         }
                         : item
                 )
-            );
-        };
-    };
+            )
+        }
+    }
 
     const addNewFaq = () => {
         setFaqs(prev => [
@@ -110,6 +120,12 @@ export default function UpdateFaqFormCKEditor({ id }: UpdateFaqFormCKEditorProps
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+
+        if (!faqsTitle.en.trim() || !faqsTitle.kn.trim()) {
+            toast.error('FAQ title is required in both languages')
+            return
+        }
+
         try {
             const formData = new FormData()
             formData.append('faqs_title', JSON.stringify(faqsTitle))
@@ -117,137 +133,240 @@ export default function UpdateFaqFormCKEditor({ id }: UpdateFaqFormCKEditorProps
 
             const resp = await updateFaq({ id, formData }).unwrap()
             if (resp) {
-                router.push('/super-admin/faqs');
+                toast.success('FAQ updated successfully')
+                router.back()
             }
-        } catch (error) {
-            if (error instanceof Error) {
-                alert('Failed to update FAQ')
-            }
+        } catch {
+            toast.error('Failed to update FAQ')
         }
     }
 
+    const SectionHeader = ({
+        title,
+        icon,
+        open,
+        onToggle,
+    }: {
+        title: string
+        icon: React.ReactNode
+        open: boolean
+        onToggle: () => void
+    }) => (
+        <div className="faq-section__header">
+            <h2 className="faq-section__title">
+                {icon} {title}
+            </h2>
+            <button
+                type="button"
+                className="faq-section__toggle"
+                onClick={onToggle}
+            >
+                {open ? "−" : "+"}
+            </button>
+        </div>
+    )
+
     if (isLoading) return <Loader />
-    if (isError) return <div>Error loading FAQ</div>
+    if (isError) return <div className="text-center text-red-500 p-8">Error loading FAQ</div>
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">Update FAQ</h1>
-            <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="faq-form">
+            <div className="faq-layout">
+                {/* ── Left column ─────────────────────────────── */}
+                <div className="faq-main">
 
-                <div className="bg-white p-6 rounded-lg shadow">
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1">English Title</label>
-                            <input
-                                type="text"
-                                value={faqsTitle.en}
-                                onChange={e => handleTitleChange('en', e.target.value)}
-                                className="w-full p-2 border rounded"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Kannada Title</label>
-                            <input
-                                type="text"
-                                value={faqsTitle.kn}
-                                onChange={e => handleTitleChange('kn', e.target.value)}
-                                className="w-full p-2 border rounded"
-                                required
-                            />
-                        </div>
+                    {/* FAQ Title Section */}
+                    <div className="faq-section">
+                        <SectionHeader
+                            title="FAQ Title"
+                            icon={<MdHelp />}
+                            open={titleOpen}
+                            onToggle={() => setTitleOpen((p) => !p)}
+                        />
+                        {titleOpen && (
+                            <div className="faq-section__body">
+                                <div className="faq-form-row">
+                                    <div className="faq-form-group">
+                                        <label className="faq-label">
+                                            <MdTextFields />
+                                            Title (English)
+                                            <span className="faq-label__required">*</span>
+                                        </label>
+                                        <input
+                                            className="faq-input"
+                                            type="text"
+                                            placeholder="Enter FAQ title in English"
+                                            value={faqsTitle.en}
+                                            onChange={(e) => handleTitleChange('en', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="faq-form-group">
+                                        <label className="faq-label">
+                                            <MdTextFields />
+                                            Title (Kannada)
+                                            <span className="faq-label__required">*</span>
+                                        </label>
+                                        <input
+                                            className="faq-input"
+                                            type="text"
+                                            placeholder="FAQ ಶೀರ್ಷಿಕೆ ನಮೂದಿಸಿ"
+                                            value={faqsTitle.kn}
+                                            onChange={(e) => handleTitleChange('kn', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                </div>
 
-                {/* FAQ Items */}
-                {faqs.map((faq, index) => (
-                    <div key={index} className="bg-white p-6 rounded-lg shadow">
-                        <div className="flex justify-between items-center mb-4">
+                    {/* FAQ Items Section */}
+                    <div className="faq-section">
+                        <SectionHeader
+                            title="FAQ Items"
+                            icon={<MdQuestionAnswer />}
+                            open={faqsOpen}
+                            onToggle={() => setFaqsOpen((p) => !p)}
+                        />
+                        {faqsOpen && (
+                            <div className="faq-section__body">
+                                {faqs.map((faq, index) => (
+                                    <div key={index} className="faq-body-item">
+                                        <div className="faq-body-item__header">
+                                            <h4 className="faq-body-item__title">
+                                                <MdQuestionAnswer /> FAQ {index + 1}
+                                            </h4>
+                                            {faqs.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="faq-btn-danger"
+                                                    onClick={() => removeFaq(index)}
+                                                >
+                                                    <MdDelete /> Remove
+                                                </button>
+                                            )}
+                                        </div>
 
-                            {faqs.length > 1 && (
+                                        {/* Question */}
+                                        <div className="faq-form-row">
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdTextFields />
+                                                    Question (English)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <input
+                                                    className="faq-input"
+                                                    type="text"
+                                                    placeholder="Enter question in English"
+                                                    value={faq.faqs_repeat_question.en}
+                                                    onChange={(e) => handleQuestionChange(index, 'en', e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdTextFields />
+                                                    Question (Kannada)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <input
+                                                    className="faq-input"
+                                                    type="text"
+                                                    placeholder="ಪ್ರಶ್ನೆ ನಮೂದಿಸಿ"
+                                                    value={faq.faqs_repeat_question.kn}
+                                                    onChange={(e) => handleQuestionChange(index, 'kn', e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Answer */}
+                                        <div className="faq-form-row">
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdDescription />
+                                                    Answer (English)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <CKEditorWrapper
+                                                    data={faq.faqs_repeat_answer.en}
+                                                    onChange={handleAnswerChange(index, 'en')}
+                                                />
+                                            </div>
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdDescription />
+                                                    Answer (Kannada)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <CKEditorWrapper
+                                                    data={faq.faqs_repeat_answer.kn}
+                                                    onChange={handleAnswerChange(index, 'kn')}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
                                 <button
                                     type="button"
-                                    onClick={() => removeFaq(index)}
-                                    className="text-red-500 hover:text-red-700"
+                                    className="faq-add-btn"
+                                    onClick={addNewFaq}
                                 >
-                                    Remove
+                                    <MdAddCircleOutline /> Add FAQ Item
                                 </button>
-                            )}
-                        </div>
-
-                        {/* Question */}
-                        <div className="mb-4">
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <input
-                                    type="text"
-                                    value={faq.faqs_repeat_question.en}
-                                    onChange={e => handleQuestionChange(index, 'en', e.target.value)}
-                                    placeholder="English question"
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
-                                <input
-                                    type="text"
-                                    value={faq.faqs_repeat_question.kn}
-                                    onChange={e => handleQuestionChange(index, 'kn', e.target.value)}
-                                    placeholder="Kannada question"
-                                    className="w-full p-2 border rounded"
-                                    required
-                                />
                             </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── Right sidebar ────────────────────────────── */}
+                <div className="faq-sidebar">
+                    {/* Info Card */}
+                    <div className="faq-section">
+                        <div className="faq-section__header">
+                            <h2 className="faq-section__title">
+                                <MdHelp />
+                                &nbsp;Information
+                            </h2>
                         </div>
-
-                        {/* Answer */}
-                        <div className="mb-4">
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <CKEditorWrapper
-                                    data={faq.faqs_repeat_answer.en}
-
-
-                                    onChange={handleAnswerChange(index, 'en')}
-
-                                />
-                                <CKEditorWrapper
-                                    data={faq.faqs_repeat_answer.kn}
-
-
-                                    onChange={handleAnswerChange(index, 'kn')}
-
-                                />
-                            </div>
+                        <div className="faq-section__body">
+                            <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6, margin: 0 }}>
+                                Update the frequently asked questions.
+                                Each FAQ item requires both English and Kannada questions and answers.
+                                Use the rich text editor for detailed answers.
+                            </p>
                         </div>
                     </div>
-                ))}
 
-
-                <div className="flex justify-between">
-                    <button
-                        type="button"
-                        onClick={addNewFaq}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        Add Another FAQ
-                    </button>
-                    <button
-                        type="submit"
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <>
-                                Updating...
-                                <BeatLoader color="#ffffff" size={10} />
-
-                            </>
-                        ) : (
-                            'Update Faq'
-                        )}
-                    </button>
+                    {/* Footer actions */}
+                    <div className="faq-footer">
+                        <button
+                            type="button"
+                            className="faq-btn-cancel"
+                            onClick={() => router.back()}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="faq-btn-submit"
+                            disabled={isUpdating}
+                        >
+                            {isUpdating ? (
+                                <>
+                                    <span>Updating...</span>
+                                    <BeatLoader color="#fff" size={8} />
+                                </>
+                            ) : (
+                                'Update FAQ'
+                            )}
+                        </button>
+                    </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     )
 }

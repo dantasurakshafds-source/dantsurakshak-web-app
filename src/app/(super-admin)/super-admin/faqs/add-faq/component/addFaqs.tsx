@@ -1,12 +1,19 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
-
-
-import { BeatLoader } from 'react-spinners';
-import { useRouter } from 'next/navigation';
-import { useCreategetFaqMutation } from '@/(store)/services/faqs/faqsApi';
-import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper';
+import React, { useState, useRef } from 'react'
+import { BeatLoader } from 'react-spinners'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import { useCreategetFaqMutation } from '@/(store)/services/faqs/faqsApi'
+import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper'
+import {
+    MdTextFields,
+    MdQuestionAnswer,
+    MdAddCircleOutline,
+    MdDelete,
+    MdHelp,
+    MdDescription
+} from "react-icons/md"
 
 interface FAQItem {
     question: {
@@ -19,219 +26,321 @@ interface FAQItem {
     };
 }
 
-const FaqFormCKEditor = () => {
-    const router = useRouter();
-    const [createFaq, { isLoading }] = useCreategetFaqMutation();
+const AddFaq = () => {
+    const router = useRouter()
+    const [createFaq, { isLoading }] = useCreategetFaqMutation()
+
+    // Section collapse states
+    const [titleOpen, setTitleOpen] = useState(true)
+    const [faqsOpen, setFaqsOpen] = useState(true)
+
     const [faqsTitle, setFaqsTitle] = useState({
         en: '',
         kn: ''
-    });
+    })
 
     const [faqs, setFaqs] = useState<FAQItem[]>([{
         question: { en: '', kn: '' },
         answer: { en: '', kn: '' }
-    }]);
+    }])
 
-    const editorRefs = useRef<(HTMLDivElement | null)[]>([]);
+    const editorRefs = useRef<(HTMLDivElement | null)[]>([])
 
     const handleTitleChange = (lang: 'en' | 'kn', value: string) => {
-        setFaqsTitle(prev => ({ ...prev, [lang]: value }));
-    };
+        setFaqsTitle(prev => ({ ...prev, [lang]: value }))
+    }
 
     const handleQuestionChange = (index: number, lang: 'en' | 'kn', value: string) => {
-        const updatedFaqs = [...faqs];
-        updatedFaqs[index].question[lang] = value;
-        setFaqs(updatedFaqs);
-    };
+        const updatedFaqs = [...faqs]
+        updatedFaqs[index].question[lang] = value
+        setFaqs(updatedFaqs)
+    }
 
     //@ts-expect-error ignore this message
     const handleAnswerChange = (index: number, lang: 'en' | 'kn', editor) => {
-        const updatedFaqs = [...faqs];
-        updatedFaqs[index].answer[lang] = editor;
-        setFaqs(updatedFaqs);
-    };
+        const updatedFaqs = [...faqs]
+        updatedFaqs[index].answer[lang] = editor
+        setFaqs(updatedFaqs)
+    }
 
     const addNewFaq = () => {
         setFaqs([...faqs, {
             question: { en: '', kn: '' },
             answer: { en: '', kn: '' }
-        }]);
-    };
+        }])
+    }
 
     const removeFaq = (index: number) => {
         if (faqs.length > 1) {
-            const updatedFaqs = [...faqs];
-            updatedFaqs.splice(index, 1);
-            setFaqs(updatedFaqs);
+            const updatedFaqs = [...faqs]
+            updatedFaqs.splice(index, 1)
+            setFaqs(updatedFaqs)
         }
-    };
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+        e.preventDefault()
+
+        if (!faqsTitle.en.trim() || !faqsTitle.kn.trim()) {
+            toast.error('FAQ title is required in both languages')
+            return
+        }
 
         try {
-            const formData = new FormData();
+            const formData = new FormData()
 
             const faqs_repeater = faqs.map(faq => ({
                 faqs_repeat_question: faq.question,
                 faqs_repeat_answer: faq.answer
-            }));
+            }))
 
-            formData.append('faqs_title', JSON.stringify(faqsTitle));
-            formData.append('faqs_repeater', JSON.stringify(faqs_repeater));
+            formData.append('faqs_title', JSON.stringify(faqsTitle))
+            formData.append('faqs_repeater', JSON.stringify(faqs_repeater))
 
-            await createFaq(formData).unwrap();
+            await createFaq(formData).unwrap()
 
+            setFaqsTitle({ en: '', kn: '' })
+            setFaqs([{ question: { en: '', kn: '' }, answer: { en: '', kn: '' } }])
 
-            setFaqsTitle({ en: '', kn: '' });
-            setFaqs([{ question: { en: '', kn: '' }, answer: { en: '', kn: '' } }]);
-
-
-            router.push('/super-admin/faqs');
+            toast.success('FAQ created successfully')
+            router.back()
         } catch (error) {
-            console.error('Submission error:', error);
-            alert('Failed to submit FAQ');
+            toast.error('Failed to create FAQ')
+            console.error('Submission error:', error)
         }
-    };
+    }
+
+    const SectionHeader = ({
+        title,
+        icon,
+        open,
+        onToggle,
+    }: {
+        title: string
+        icon: React.ReactNode
+        open: boolean
+        onToggle: () => void
+    }) => (
+        <div className="faq-section__header">
+            <h2 className="faq-section__title">
+                {icon} {title}
+            </h2>
+            <button
+                type="button"
+                className="faq-section__toggle"
+                onClick={onToggle}
+            >
+                {open ? "−" : "+"}
+            </button>
+        </div>
+    )
 
     return (
-        <div className="faq_wrapper">
-            <h1 className="text-2xl font-bold mb-6">Create New FAQ  </h1>
+        <form onSubmit={handleSubmit} className="faq-form">
+            <div className="faq-layout">
+                {/* ── Left column ─────────────────────────────── */}
+                <div className="faq-main">
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-
-                <div className="bg-white p-6 rounded-lg shadow">
-
-                    <div className="faq_col_wrapper">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">English Title</label>
-                            <input
-                                type="text"
-                                value={faqsTitle.en}
-                                onChange={(e) => handleTitleChange('en', e.target.value)}
-                                className="w-full p-2 border rounded"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Kannada Title</label>
-                            <input
-                                type="text"
-                                value={faqsTitle.kn}
-                                onChange={(e) => handleTitleChange('kn', e.target.value)}
-                                className="w-full p-2 border rounded"
-                                required
-                            />
-                        </div>
+                    {/* FAQ Title Section */}
+                    <div className="faq-section">
+                        <SectionHeader
+                            title="FAQ Title"
+                            icon={<MdHelp />}
+                            open={titleOpen}
+                            onToggle={() => setTitleOpen((p) => !p)}
+                        />
+                        {titleOpen && (
+                            <div className="faq-section__body">
+                                <div className="faq-form-row">
+                                    <div className="faq-form-group">
+                                        <label className="faq-label">
+                                            <MdTextFields />
+                                            Title (English)
+                                            <span className="faq-label__required">*</span>
+                                        </label>
+                                        <input
+                                            className="faq-input"
+                                            type="text"
+                                            placeholder="Enter FAQ title in English"
+                                            value={faqsTitle.en}
+                                            onChange={(e) => handleTitleChange('en', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="faq-form-group">
+                                        <label className="faq-label">
+                                            <MdTextFields />
+                                            Title (Kannada)
+                                            <span className="faq-label__required">*</span>
+                                        </label>
+                                        <input
+                                            className="faq-input"
+                                            type="text"
+                                            placeholder="FAQ ಶೀರ್ಷಿಕೆ ನಮೂದಿಸಿ"
+                                            value={faqsTitle.kn}
+                                            onChange={(e) => handleTitleChange('kn', e.target.value)}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
-                </div>
 
-                {/* FAQ Items */}
-                {faqs.map((faq, index) => (
-                    <div
-                        key={index}
-                        className="faq_desc_repeater"
-                        ref={el => {
-                            editorRefs.current[index] = el;
-                        }}
-                    >
-                        <div className="flex justify-between items-center mb-4">
+                    {/* FAQ Items Section */}
+                    <div className="faq-section">
+                        <SectionHeader
+                            title="FAQ Items"
+                            icon={<MdQuestionAnswer />}
+                            open={faqsOpen}
+                            onToggle={() => setFaqsOpen((p) => !p)}
+                        />
+                        {faqsOpen && (
+                            <div className="faq-section__body">
+                                {faqs.map((faq, index) => (
+                                    <div
+                                        key={index}
+                                        className="faq-body-item"
+                                        ref={el => {
+                                            editorRefs.current[index] = el
+                                        }}
+                                    >
+                                        <div className="faq-body-item__header">
+                                            <h4 className="faq-body-item__title">
+                                                <MdQuestionAnswer /> FAQ {index + 1}
+                                            </h4>
+                                            {faqs.length > 1 && (
+                                                <button
+                                                    type="button"
+                                                    className="faq-btn-danger"
+                                                    onClick={() => removeFaq(index)}
+                                                >
+                                                    <MdDelete /> Remove
+                                                </button>
+                                            )}
+                                        </div>
 
-                            {faqs.length > 1 && (
+                                        {/* Question */}
+                                        <div className="faq-form-row">
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdTextFields />
+                                                    Question (English)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <input
+                                                    className="faq-input"
+                                                    type="text"
+                                                    placeholder="Enter question in English"
+                                                    value={faq.question.en}
+                                                    onChange={(e) => handleQuestionChange(index, 'en', e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdTextFields />
+                                                    Question (Kannada)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <input
+                                                    className="faq-input"
+                                                    type="text"
+                                                    placeholder="ಪ್ರಶ್ನೆ ನಮೂದಿಸಿ"
+                                                    value={faq.question.kn}
+                                                    onChange={(e) => handleQuestionChange(index, 'kn', e.target.value)}
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Answer */}
+                                        <div className="faq-form-row">
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdDescription />
+                                                    Answer (English)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <CKEditorWrapper
+                                                    data={faq.answer.en}
+                                                    onChange={(data) => handleAnswerChange(index, 'en', data)}
+                                                />
+                                            </div>
+                                            <div className="faq-form-group">
+                                                <label className="faq-label">
+                                                    <MdDescription />
+                                                    Answer (Kannada)
+                                                    <span className="faq-label__required">*</span>
+                                                </label>
+                                                <CKEditorWrapper
+                                                    data={faq.answer.kn}
+                                                    onChange={(data) => handleAnswerChange(index, 'kn', data)}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+
                                 <button
                                     type="button"
-                                    onClick={() => removeFaq(index)}
-                                    className="text-red-500 hover:text-red-700"
+                                    className="faq-add-btn"
+                                    onClick={addNewFaq}
                                 >
-                                    Remove
+                                    <MdAddCircleOutline /> Add FAQ Item
                                 </button>
-                            )}
-                        </div>
-
-
-                        <div className="mb-4">
-
-                            <div className="faq_col_wrapper mb-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">English</label>
-                                    <input
-                                        type="text"
-                                        value={faq.question.en}
-                                        onChange={(e) => handleQuestionChange(index, 'en', e.target.value)}
-                                        className="w-full p-2 border rounded"
-                                        required
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kannada</label>
-                                    <input
-                                        type="text"
-                                        value={faq.question.kn}
-                                        onChange={(e) => handleQuestionChange(index, 'kn', e.target.value)}
-                                        className="w-full p-2 border rounded"
-                                        required
-                                    />
-                                </div>
                             </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* ── Right sidebar ────────────────────────────── */}
+                <div className="faq-sidebar">
+                    {/* Info Card */}
+                    <div className="faq-section">
+                        <div className="faq-section__header">
+                            <h2 className="faq-section__title">
+                                <MdHelp />
+                                &nbsp;Information
+                            </h2>
                         </div>
-
-
-                        <div className="mb-4">
-
-                            <div className="faq_col_wrapper">
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">English</label>
-                                    <CKEditorWrapper
-                                        data={faq.answer.en}
-                                       
-
-                                        onChange={(data) => handleAnswerChange(index, 'en', data)}
-
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 mb-1">Kannada</label>
-                                    <CKEditorWrapper
-                                        data={faq.answer.kn}
-                                     
-
-                                        onChange={(data) => handleAnswerChange(index, 'kn', data)}
-
-                                    />
-                                </div>
-                            </div>
+                        <div className="faq-section__body">
+                            <p style={{ fontSize: '14px', color: '#666', lineHeight: 1.6, margin: 0 }}>
+                                Create frequently asked questions with bilingual support.
+                                Each FAQ item requires both English and Kannada questions and answers.
+                                Use the rich text editor for detailed answers.
+                            </p>
                         </div>
                     </div>
-                ))}
 
-
-                <div className="flex justify-between">
-                    <button
-                        type="button"
-                        onClick={addNewFaq}
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                    >
-                        Add New
-                    </button>
-
-                    <button
-                        type="submit"
-                        className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 flex items-center justify-center gap-2"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <>
-                                Submitting
-                                <BeatLoader color="#ffffff" size={10} />
-                            </>
-                        ) : (
-                            'Submit FAQ'
-                        )}
-                    </button>
+                    {/* Footer actions */}
+                    <div className="faq-footer">
+                        <button
+                            type="button"
+                            className="faq-btn-cancel"
+                            onClick={() => router.back()}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="faq-btn-submit"
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <>
+                                    <span>Adding...</span>
+                                    <BeatLoader color="#fff" size={8} />
+                                </>
+                            ) : (
+                                'Add FAQ'
+                            )}
+                        </button>
+                    </div>
                 </div>
-            </form>
-        </div>
-    );
-};
+            </div>
+        </form>
+    )
+}
 
-export default FaqFormCKEditor;
+export default AddFaq

@@ -1,0 +1,349 @@
+@use '../variables' as *;
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.policy-form {
+    position: relative;
+
+    .policy-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: $gap-2;
+        align-items: start;
+
+        .policy-main {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+
+        .policy-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: $gap;
+        }
+    }
+
+    /* ─── Section Card ─────────────────────────────────────────── */
+    .policy-section {
+        background: $white;
+        border-radius: $border-radius;
+        box-shadow: $box-shadow;
+        overflow: hidden;
+
+        .policy-section__header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid $tertiary-color;
+
+            .policy-section__title {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                font-size: $font-size-one;
+                font-weight: $font-weight-semi-bold;
+                color: $purple-dark;
+                margin: 0;
+            }
+
+            .policy-section__toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 20px;
+                height: 20px;
+                border: 1px solid #ddd;
+                border-radius: 50%;
+                background: $white;
+                cursor: pointer;
+                color: $gray-color;
+                font-size: 16px;
+                line-height: 1;
+                padding: 0;
+                transition: $transition;
+
+                &:hover {
+                    background: $tertiary-color;
+                    color: $dark-color;
+                }
+            }
+        }
+
+        .policy-section__body {
+            padding: 20px;
+
+            /* ─── Form Row / Group ─────────────────────────────────────── */
+            .policy-form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: $gap;
+                margin-bottom: $gap;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .policy-form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                margin-bottom: $gap;
+                overflow: hidden;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+            }
+
+            .policy-label {
+                font-size: $font-size-small;
+                font-weight: $font-weight-medium;
+                color: $dark-color;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+
+                svg {
+                    color: $purple;
+                    font-size: 15px;
+                    flex-shrink: 0;
+                }
+
+                .policy-label__required {
+                    color: $danger-color;
+                    margin-left: 1px;
+                }
+
+                .policy-label__optional {
+                    font-size: $font-size-extra-small;
+                    font-weight: $font-weight-regular;
+                    color: $gray-color;
+                }
+            }
+
+            .policy-input {
+                height: 40px;
+                padding: 0 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+
+            .policy-textarea {
+                padding: 10px 12px;
+                border: 1px solid #ddd;
+                border-radius: $border-radius;
+                font-size: $font-size-small;
+                font-family: $rubik;
+                color: $dark-color;
+                background: $white;
+                transition: $transition;
+                outline: none;
+                width: 100%;
+                box-sizing: border-box;
+                resize: vertical;
+                min-height: 90px;
+
+                &::placeholder {
+                    color: $gray-color;
+                }
+
+                &:focus {
+                    border-color: $purple;
+                    box-shadow: 0 0 0 3px rgba(117, 46, 129, 0.1);
+                }
+
+                &:disabled {
+                    background: $tertiary-color;
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+            }
+
+            /* ─── Body Items ───────────────────────────────────────────── */
+            .policy-body-item {
+                border: 1px solid #e8e8e8;
+                border-radius: $border-radius;
+                padding: 16px;
+                margin-bottom: $gap;
+                background: #fafafa;
+
+                &:last-child {
+                    margin-bottom: 0;
+                }
+
+                .policy-body-item__header {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    margin-bottom: 14px;
+                }
+
+                .policy-body-item__title {
+                    font-size: $font-size-small;
+                    font-weight: $font-weight-semi-bold;
+                    color: $purple-dark;
+                    margin: 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+
+                    svg {
+                        font-size: 15px;
+                    }
+                }
+            }
+
+            .policy-add-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 16px;
+                background: $white;
+                border: 1.5px dashed $purple;
+                border-radius: $border-radius;
+                color: $purple;
+                font-size: $font-size-small;
+                font-weight: $font-weight-medium;
+                font-family: $rubik;
+                cursor: pointer;
+                transition: $transition;
+                margin-bottom: $gap;
+
+                svg {
+                    font-size: 16px;
+                }
+
+                &:hover {
+                    background: $purple-light;
+                }
+            }
+
+            /* ─── Danger / Delete Button ───────────────────────────────── */
+            .policy-btn-danger {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                padding: 6px 12px;
+                background: #fff5f5;
+                border: 1px solid #ffd0d0;
+                border-radius: $border-radius;
+                color: $danger-color;
+                font-size: $font-size-extra-small;
+                font-weight: $font-weight-medium;
+                font-family: $rubik;
+                cursor: pointer;
+                transition: $transition;
+
+                svg {
+                    font-size: 13px;
+                }
+
+                &:hover:not(:disabled) {
+                    background: $danger-color;
+                    color: $white;
+                    border-color: $danger-color;
+                }
+
+                &:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                }
+            }
+        }
+    }
+
+    /* ─── Footer Actions ───────────────────────────────────────── */
+    .policy-footer {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 20px 0;
+
+        .policy-btn-cancel {
+            height: 40px;
+            padding: 0 20px;
+            border: 1px solid #ddd;
+            border-radius: $border-radius;
+            background: $white;
+            color: $dark-color;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+
+            &:hover {
+                background: $tertiary-color;
+            }
+        }
+
+        .policy-btn-submit {
+            height: 40px;
+            padding: 0 24px;
+            border: none;
+            border-radius: $border-radius;
+            background: $primary-color;
+            color: $white;
+            font-size: $font-size-small;
+            font-weight: $font-weight-medium;
+            font-family: $rubik;
+            cursor: pointer;
+            transition: $transition;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            &:hover:not(:disabled) {
+                background: $button-hover;
+            }
+
+            &:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+        }
+    }
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+    .policy-form {
+        .policy-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .policy-sidebar {
+            order: -1;
+        }
+
+        .policy-form-row {
+            grid-template-columns: 1fr !important;
+        }
+    }
+}
