@@ -41,7 +41,7 @@ const TermAndConditions = () => {
 
     useEffect(() => {
         setRightContent(
-            <Link href="/super-admin/terms-conditions/add-term" className="add-slider-btn">
+            <Link href="/super-admin/terms-conditions/add-term" className="list-header__action-btn">
                 <FaPlus />
                 Add Term
             </Link>
