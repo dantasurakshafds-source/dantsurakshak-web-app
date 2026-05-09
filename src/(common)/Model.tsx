@@ -1,11 +1,12 @@
 "use client";
 
- 
+import React from 'react';
+import { MdWarning } from 'react-icons/md';
 
 type ReusableModalProps = {
   isOpen: boolean;
   message: string;
-  id?: string; 
+  id?: string;
   onConfirm: (id?: string) => void;
   onCancel: () => void;
 };
@@ -20,15 +21,21 @@ const ReusableModal: React.FC<ReusableModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="p_o_wrapper" onClick={onCancel}>
-      <div className="p_o_inner" onClick={(e) => e.stopPropagation()}>
-        <p>{message}</p>
-        <div className="b_w_outer">
-          <button className="l_c_but" onClick={() => onConfirm(id)}>
-            Confirm
-          </button>
-          <button className="r_c_but" onClick={onCancel}>
+    <div className="modal-overlay" onClick={onCancel}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      
+        <div className="modal-icon">
+          <MdWarning />
+        </div>
+
+        <p className="modal-message">{message}</p>
+
+        <div className="modal-actions">
+          <button className="modal-btn modal-btn-cancel" onClick={onCancel}>
             Cancel
+          </button>
+          <button className="modal-btn modal-btn-confirm" onClick={() => onConfirm(id)}>
+            Confirm
           </button>
         </div>
       </div>
