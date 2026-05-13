@@ -16,10 +16,16 @@ export const LESION_CREATE = "lesion-created"
 export const EN = 'en'
 export const KN = 'kn'
 
-export const CLOUD_NAME ='do6qy56kf'
-export const API_KEY = '888443219665931'
-export const API_SECRET = 'YJE-bgUxrpRLrGcVqNICTqq_otA'
+// export const CLOUD_NAME ='do6qy56kf'
+// export const API_KEY = '888443219665931'
+// export const API_SECRET = 'YJE-bgUxrpRLrGcVqNICTqq_otA'
+// export const CLOUD_APP_NAME = "o_h_app"
+
+export const CLOUD_NAME ='dtjcsm2xa'
+export const API_KEY = '265688356769872'
+export const API_SECRET = '0d32l0DEPVJ0S99nbTzGnwlvuQE'
 export const CLOUD_APP_NAME = "o_h_app"
+
 
 export const VERIFIABLE_ROLES = ['admin', 'dantasurakshaks'];
 
