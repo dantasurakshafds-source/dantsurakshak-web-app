@@ -1,30 +1,151 @@
-name: Deploy Production
+name: Deploy to Production
+
 on:
   push:
     branches:
       - prod
+  pull_request:
+    branches:
+      - prod
+    types:
+      - closed
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+env:
+  DOCKER_IMAGE: dsdantasurakshafds/dantsurakshak-app:prod
 
 jobs:
-  deploy:
+  # ─────────────────────────────────────────────
+  # GUARD: Skip if PR was closed without merging
+  # ─────────────────────────────────────────────
+  check-merge:
+    name: Check Deploy Condition
     runs-on: ubuntu-latest
+    outputs:
+      should_deploy: ${{ steps.check.outputs.should_deploy }}
+    steps:
+      - name: Check deploy condition
+        id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ Direct push to prod — deploying."
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ PR merged into prod — deploying."
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "✅ Manual trigger — deploying."
+          else
+            echo "should_deploy=false" >> $GITHUB_OUTPUT
+            echo "⛔ PR closed without merging — skipping."
+          fi
+
+  # ─────────────────────────────────────────────
+  # JOB 1: Build & Push to Docker Hub
+  # Final image: dsdantasurakshafds/dantsurakshak-app:prod
+  # ─────────────────────────────────────────────
+  build:
+    name: Build & Push Docker Image
+    runs-on: ubuntu-latest
+    needs: check-merge
+    if: needs.check-merge.outputs.should_deploy == 'true'
 
     steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@v1.0.3
-
+      - name: Checkout prod branch
+        uses: actions/checkout@v4
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.PORT }}
+          ref: prod
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          no-cache: true
+          tags: dsdantasurakshafds/dantsurakshak-app:prod
+          build-args: |
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+
+  # ─────────────────────────────────────────────
+  # JOB 2: Deploy to VPS via SSH
+  # ─────────────────────────────────────────────
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout prod branch
+        uses: actions/checkout@v4
+        with:
+          ref: prod
+
+      - name: Copy docker-compose.yml to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "docker-compose.yml"
+          target: "/home/rdeveloper/dantsurakshak-web-app"
+
+      - name: SSH → Pull image & restart containers
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
           script: |
-            cd /home/dantsurakshak/dantsurakshak-web-app
+            set -e
+            cd /home/rdeveloper/dantsurakshak-web-app
 
-            git pull origin prod
+            # Write .env on VPS from GitHub Secrets (never stored in git)
+            cat > .env <<ENVEOF
+            NODE_ENV=production
+            MONGODB_URI=${{ secrets.MONGODB_URI }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+            NEXT_PUBLIC_SUPERADMIN_EMAIL=${{ secrets.NEXT_PUBLIC_SUPERADMIN_EMAIL }}
+            GMAIL=${{ secrets.GMAIL }}
+            GMAIL_PASS=${{ secrets.GMAIL_PASS }}
+            FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+            IMAGE_TAG=prod
+            ENVEOF
 
-            npm install
+            # Login to Docker Hub on VPS
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            npm run build
+            # ── STOP & REMOVE old containers ──────────────────
+            docker compose down --remove-orphans --volumes
 
-            pm2 restart 0
+            # ── REMOVE old image to force fresh pull ──────────
+            docker rmi dsdantasurakshafds/dantsurakshak-app:prod --force || true
+
+            # ── PULL brand new image ──────────────────────────
+            docker pull dsdantasurakshafds/dantsurakshak-app:prod
+
+            # ── START fresh container ─────────────────────────
+            docker compose up -d --force-recreate
+
+            # ── CLEAN UP all unused images & build cache ──────
+            docker image prune -af
+            docker builder prune -af || true
+
+            echo "✅ Fresh deploy done: dsdantasurakshafds/dantsurakshak-app:prod"

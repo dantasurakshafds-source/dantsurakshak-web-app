@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  nextjs:
+    image: dsdantasurakshafds/dantsurakshak-app:prod
+    container_name: dantsurakshak_app
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: ${MONGODB_URI}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_SUPERADMIN_EMAIL: ${NEXT_PUBLIC_SUPERADMIN_EMAIL}
+      GMAIL: ${GMAIL}
+      GMAIL_PASS: ${GMAIL_PASS}
+      FIREBASE_SERVICE_ACCOUNT: ${FIREBASE_SERVICE_ACCOUNT}
+    env_file:
+      - .env
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  app_network:
+    driver: bridge
