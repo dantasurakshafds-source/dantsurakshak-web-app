@@ -1,12 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI!;
-
-if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable in your .env file');
-}
-
- //@ts-expect-error ignore this message
+//@ts-expect-error ignore this message
 let cached = global.mongoose;
 
 if (!cached) {
@@ -16,6 +10,11 @@ if (!cached) {
 }
 
 export async function dbConnect(): Promise<typeof mongoose> {
+  const MONGODB_URI = process.env.MONGODB_URI;
+
+  if (!MONGODB_URI) {
+    throw new Error('Please define the MONGODB_URI environment variable in your .env file');
+  }
   if (cached.conn) {
     
     return cached.conn;

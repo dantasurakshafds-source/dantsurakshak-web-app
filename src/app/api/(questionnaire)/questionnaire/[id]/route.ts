@@ -1,4 +1,7 @@
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 import { NextRequest, NextResponse } from 'next/server';
 import Questionnaire from '@/models/Questionnaire';
 import { dbConnect } from '@/database/database';
@@ -6,10 +9,6 @@ import mongoose from 'mongoose';
 import { parseValue } from '@/utils/Constants';
 import { QuestionnaireTypes } from '@/utils/Types';
 import { uploadPhotoToCloudinary } from '@/utils/Cloudinary';
-
-
-await dbConnect();
-
 
 export async function GET(
   request: NextRequest,
@@ -57,6 +56,7 @@ export async function GET(
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const id = (await params).id;
   try {
+    await dbConnect();
     const deletedQuestionnaire = await Questionnaire.findByIdAndDelete(id);
     if (!deletedQuestionnaire) {
       return NextResponse.json(
@@ -79,6 +79,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    await dbConnect();
     const { id } = await params;
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
