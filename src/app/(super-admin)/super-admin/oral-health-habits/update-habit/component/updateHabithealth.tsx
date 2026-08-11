@@ -54,10 +54,9 @@ export default function EditHabit({ id }: UpdateDiseaseProps) {
   const [mainImageUrl, setMainImageUrl] = useState<string>('')
   const [repeater, setRepeater] = useState<RepeaterItem[]>([])
 
-  const response = habitData?.result || {}
-
   useEffect(() => {
-    if (habitData) {
+    if (habitData?.result) {
+      const response = habitData.result
       setMainTitle(response.habit_health_main_title || { en: '', kn: '' })
       setMainImageUrl(response.habit_health_main_image || '')
       const formattedRepeater = response.habit_health_repeater?.map((item: HabitHealthRepeaterItem) => ({
