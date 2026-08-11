@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { BeatLoader } from 'react-spinners'
 import OvalLoader from '@/(common)/OvalLoader'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'

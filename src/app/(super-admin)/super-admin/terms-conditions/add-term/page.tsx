@@ -3,7 +3,6 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { BeatLoader } from 'react-spinners'
 import OvalLoader from '@/(common)/OvalLoader'
 import { useCreateTermMutation } from '@/(store)/services/terms/termAndConditionsApi'
 import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper'

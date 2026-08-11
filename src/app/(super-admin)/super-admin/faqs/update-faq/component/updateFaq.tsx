@@ -5,7 +5,6 @@ import { useGetSinglegetFaqQuery, useUpdategetFaqMutation } from '@/(store)/serv
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Loader from '@/(common)/Loader'
-import { BeatLoader } from 'react-spinners'
 import OvalLoader from '@/(common)/OvalLoader'
 import { FaqRepeaterEntry } from '@/utils/Types'
 import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper'

@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { BeatLoader } from 'react-spinners'
 import OvalLoader from '@/(common)/OvalLoader'
 import { useGetSinglePrivacyPolicyQuery, useUpdatePrivacyPolicyMutation } from '@/(store)/services/privacy-policy/privacyPolicyApi'
 import Loader from '@/(common)/Loader'

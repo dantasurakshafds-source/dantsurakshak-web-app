@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { BeatLoader } from 'react-spinners'
 import OvalLoader from '@/(common)/OvalLoader'
 import { useGetSingleTermsQuery, useUpdateTermMutation } from '@/(store)/services/terms/termAndConditionsApi'
 import Loader from '@/(common)/Loader'

@@ -2,7 +2,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { BeatLoader } from "react-spinners";
 import OvalLoader from "@/(common)/OvalLoader";
 import { useCreateTextMutation } from "@/(store)/services/text-slider/textSliderApi";
 import { MdTextFields, MdCampaign } from "react-icons/md";
