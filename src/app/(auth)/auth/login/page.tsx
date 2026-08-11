@@ -6,31 +6,39 @@ import loginIlluStration from "@/images/oral-health-hero-banner.png";
 import vectorLogin from "@/images/oral-health-vector-1.png";
 import Image from "next/image";
 import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import OvalLoader from "@/(common)/OvalLoader";
 
 export default function SuperAdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
 
-    const result = await signIn("superadmin", {
-      redirect: true,
-      email,
-      password,
-    });
+    try {
+      const result = await signIn("superadmin", {
+        redirect: true,
+        email,
+        password,
+      });
 
-    console.log(result)
+      console.log(result)
 
-    if (result?.error) {
-      setError(result.error);
-    } else {
-      router.push("/super-admin/dashboard");
+      if (result?.error) {
+        setError(result.error);
+        setLoading(false);
+      } else {
+        router.push("/super-admin/dashboard");
+      }
+    } catch {
+      setLoading(false);
     }
   };
 
@@ -93,7 +101,16 @@ export default function SuperAdminLogin() {
             {/* <a className="forgot-password" href="#">Forgot Password?</a> */}
           </div>
 
-          <button className="login-button" type="submit">Login</button>
+          <button className="login-button" type="submit" disabled={loading}>
+            {loading ? (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: "8px" }}>
+                <span>Logging in...</span>
+                <OvalLoader height="20" width="20" color="#ffffff" ariaLabel="oval-loading" />
+              </span>
+            ) : (
+              "Login"
+            )}
+          </button>
 
           {/* <p className="signup-text">
             Don&apos;t have an account? <a href="#">Sign Up</a>

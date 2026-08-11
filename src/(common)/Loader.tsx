@@ -1,20 +1,34 @@
 
-import Image from "next/image"; 
-import siteLogo from "@/images/danta-suraksha-logo.png";
+"use client";
+
+import React from "react";
+import OvalLoader from "./OvalLoader";
 
 export default function Loader() {
-    return (
-        <>
-        <div className="custom-loader">
-            <div className="ripple-loader">
-                <span className="ring ring1"></span>
-                <span className="ring ring2"></span>
-                <span className="ring ring3"></span>
-                <div className="logo-wrapper">
-                    <Image src={siteLogo.src} alt="Logo" width={200} height={200} />
-                </div>
-            </div>
-        </div>
-        </>
-    );
+  return (
+    <div
+      className="main-page-loader"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "calc(100vh - 120px)",
+        width: "100%",
+        padding: "20px",
+        boxSizing: "border-box",
+      }}
+    >
+      <OvalLoader
+        visible={true}
+        height="100"
+        width="100"
+        color="url(#ovalGradient)"
+        secondaryColor="url(#ovalGradient)"
+        strokeWidth={2}
+        strokeWidthSecondary={2}
+        ariaLabel="oval-loading"
+      />
+    </div>
+  );
 }
+

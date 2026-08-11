@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { useGetSingleDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/services/disease/diseaseApi';
 import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
 import { BeatLoader } from 'react-spinners';
+import OvalLoader from '@/(common)/OvalLoader';
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete';
 import Loader from '@/(common)/Loader';
@@ -1505,11 +1506,12 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
               type="submit"
               className="disease-btn-submit"
               disabled={isUpdating}
+              style={{ fontWeight: 600 }}
             >
               {isUpdating ? (
                 <>
-                  <span>Updating...</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Updating...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 'Update Disease'

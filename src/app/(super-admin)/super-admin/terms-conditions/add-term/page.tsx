@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { BeatLoader } from 'react-spinners'
+import OvalLoader from '@/(common)/OvalLoader'
 import { useCreateTermMutation } from '@/(store)/services/terms/termAndConditionsApi'
 import CKEditorWrapper from '@/app/(super-admin)/(common)/editor/CKEditorWrapper'
 import {
@@ -250,11 +251,12 @@ export default function AddTerm() {
               type="submit"
               className="terms-btn-submit"
               disabled={creating}
+              style={{ fontWeight: 600 }}
             >
               {creating ? (
                 <>
-                  <span>Adding...</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Adding...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 'Add Terms'

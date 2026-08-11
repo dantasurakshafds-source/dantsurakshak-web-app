@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { useGetSingleSliderQuery, useUpdateSliderMutation } from '@/(store)/services/slider/sliderApi'
 import Loader from '@/(common)/Loader'
 import { BeatLoader } from 'react-spinners'
+import OvalLoader from '@/(common)/OvalLoader'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete'
 import { SBody } from '@/utils/Types'
@@ -769,14 +770,12 @@ const UpdateSlider: React.FC<UpdateSliderProps> = ({ id }) => {
               type="submit"
               className="banner-btn-submit"
               disabled={loading}
+              style={{ fontWeight: 600 }}
             >
               {loading ? (
                 <>
-                  <span>Updating...</span>
-                  <BeatLoader
-                    color="#fff"
-                    size={8}
-                  />
+                  <span style={{ fontWeight: 600 }}>Updating...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 "Update Banner"

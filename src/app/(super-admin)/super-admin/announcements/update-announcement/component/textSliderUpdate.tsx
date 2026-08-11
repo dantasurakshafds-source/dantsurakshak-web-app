@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { BeatLoader } from "react-spinners";
+import OvalLoader from "@/(common)/OvalLoader";
 import { useGetSingleTextQuery, useUpdateTextMutation } from "@/(store)/services/text-slider/textSliderApi";
 import Loader from "@/(common)/Loader";
 import { MdTextFields, MdCampaign } from "react-icons/md";
@@ -187,11 +188,12 @@ const UpdateAnnouncement = ({ id }: UpdateTextSliderProps) => {
                             type="submit"
                             className="announcement-btn-submit"
                             disabled={updating}
+                            style={{ fontWeight: 600 }}
                         >
                             {updating ? (
                                 <>
-                                    <span>Updating...</span>
-                                    <BeatLoader color="#fff" size={8} />
+                                    <span style={{ fontWeight: 600 }}>Updating...</span>
+                                    <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                                 </>
                             ) : (
                                 "Update Announcement"

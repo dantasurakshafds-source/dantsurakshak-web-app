@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Image from 'next/image'
 import { BeatLoader } from 'react-spinners'
+import OvalLoader from '@/(common)/OvalLoader'
 import { useCreateDentalEmergencyMutation } from '@/(store)/services/dental-emergency/dentalEmergencyApi'
 import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete'
@@ -971,11 +972,12 @@ export default function AddDentalEmergency() {
               type="submit"
               className="dental-btn-submit"
               disabled={isLoading}
+              style={{ fontWeight: 600 }}
             >
               {isLoading ? (
                 <>
-                  <span>Adding...</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Adding...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 'Add Dental Emergency'

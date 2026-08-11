@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useCreateSliderMutation } from "@/(store)/services/slider/sliderApi";
 import { BeatLoader } from "react-spinners";
+import OvalLoader from "@/(common)/OvalLoader";
 import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 import { useCloudinaryDelete } from "@/utils/useCloudinaryDelete";
 
@@ -820,11 +821,12 @@ const AddBanner: React.FC = () => {
               type="submit"
               className="banner-btn-submit"
               disabled={loading}
+              style={{ fontWeight: 600 }}
             >
               {loading ? (
                 <>
-                  <span>Saving…</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Saving…</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 "Save Banner"

@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react'
 import { BeatLoader } from 'react-spinners'
+import OvalLoader from '@/(common)/OvalLoader'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { useCreategetFaqMutation } from '@/(store)/services/faqs/faqsApi'
@@ -326,11 +327,12 @@ const AddFaq = () => {
                             type="submit"
                             className="faq-btn-submit"
                             disabled={isLoading}
+                            style={{ fontWeight: 600 }}
                         >
                             {isLoading ? (
                                 <>
-                                    <span>Adding...</span>
-                                    <BeatLoader color="#fff" size={8} />
+                                    <span style={{ fontWeight: 600 }}>Adding...</span>
+                                    <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                                 </>
                             ) : (
                                 'Add FAQ'

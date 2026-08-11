@@ -9,6 +9,7 @@ import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete'
 import Loader from '@/(common)/Loader'
 import { BeatLoader } from 'react-spinners'
+import OvalLoader from '@/(common)/OvalLoader'
 import {
   MdImage,
   MdTextFields,
@@ -659,11 +660,12 @@ export default function UpdateMythFact({ id }: UpdateMythFactProps) {
               type="submit"
               className="myth-btn-submit"
               disabled={isUpdating}
+              style={{ fontWeight: 600 }}
             >
               {isUpdating ? (
                 <>
-                  <span>Updating...</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Updating...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 'Update Myth & Fact'
