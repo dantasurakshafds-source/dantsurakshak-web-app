@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import { LesionModel } from '@/models/Lesion';
@@ -35,22 +34,14 @@ export async function PATCH(
     lesionData._id = String(lesionData._id);
 
  
-    const adminIds = lesion.send_to;
-    let adminUsers: any[] = [];
-    if (Array.isArray(adminIds) && adminIds.length > 0) {
-      adminUsers = await User.find({ _id: { $in: adminIds } });
-    }
+    const adminIds   = lesion.send_to;
+    const adminUsers = await User.find({ _id: { $in: adminIds } });
 
-    if (!adminUsers || adminUsers.length === 0) {
-      adminUsers = await User.find({
-        role: { $in: ['admin', 'super-admin', 'dantasurakshaks'] }
-      });
-    }
-
+   
     for (const admin of adminUsers) {
       if (
-        (admin.role === 'admin' || admin.role === 'dantasurakshaks' || admin.role === 'super-admin') &&
-        admin.isVerified !== false
+        (admin.role === "admin" || admin.role === "dantasurakshaks")
+        && admin.isVerified
       ) {
         const token = await createLesionVerificationToken(
           String(lesion._id),
