@@ -3,7 +3,6 @@ import { validateCredentials } from '@/utils/validateCredentials';
 import { signAppToken } from '@/utils/Jwt';
 import { Users } from '@/utils/Types';
 import { dbConnect } from '@/database/database';
-import bcrypt from 'bcryptjs';
 import User from '@/models/User';
 
 interface LoginRequestBody {

@@ -10,7 +10,7 @@ export async function validateCredentials(
  
     await dbConnect();
     const input = phoneOrEmail.trim();
-    let filter: any;
+    let filter: Record<string, unknown>;
 
     if (input.includes('@')) {
       filter = { email: input.toLowerCase() };

@@ -41,9 +41,10 @@ export async function POST(req: NextRequest) {
       status: 200,
       message: `OTP sent to your email (${cleanEmail}). Valid for 5 minutes.`,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to send email verification OTP.";
     return NextResponse.json(
-      { status: 500, error: err?.message || "Failed to send email verification OTP." },
+      { status: 500, error: errorMsg },
       { status: 500 }
     );
   }
