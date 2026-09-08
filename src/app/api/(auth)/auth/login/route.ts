@@ -9,6 +9,7 @@ import User from '@/models/User';
 interface LoginRequestBody {
   phoneNumber?: string;
   email?: string;
+  identifier?: string;
   password?: string;
   fcmToken?: string;
 }
@@ -16,39 +17,45 @@ interface LoginRequestBody {
 export async function POST(req: NextRequest) {
   await dbConnect();
   try {
-    const { phoneNumber, email, password, fcmToken }: LoginRequestBody = await req.json();
+    const body = await req.json();
+    console.log('[LOGIN API] Received payload:', { ...body, password: body.password ? '***' : undefined });
+    const { phoneNumber, email, identifier, password, fcmToken }: LoginRequestBody = body;
 
-    if (!phoneNumber && !(email && password)) {
+    const targetIdentifier = (identifier || email || phoneNumber || '').trim();
+    const cleanPassword = (password || '').trim();
+
+    if (!targetIdentifier) {
       return NextResponse.json(
-        { status: 404, error: 'Either phone number or email and password required' },
-
+        { status: 400, error: 'Email or phone number is required' },
+        { status: 400 }
       );
     }
 
-    const user = await validateCredentials(phoneNumber || email!) as unknown as Users | null;
+    if (!cleanPassword) {
+      return NextResponse.json(
+        { status: 400, error: 'Password is required' },
+        { status: 400 }
+      );
+    }
+
+    const isEmail = targetIdentifier.includes('@');
+    if (!isEmail) {
+      const rawDigits = targetIdentifier.replace(/\D/g, '');
+      if (rawDigits.slice(-10).length !== 10) {
+        return NextResponse.json(
+          { status: 400, error: 'Phone number must be a 10-digit number' },
+          { status: 400 }
+        );
+      }
+    }
+
+    const user = await validateCredentials(targetIdentifier, cleanPassword) as unknown as Users | null;
 
     if (!user) {
       return NextResponse.json(
-        { status: 404, error: phoneNumber ? 'Invalid phone number' : 'Invalid credentials' },
-
+        { status: 401, error: 'Invalid credentials' },
+        { status: 401 }
       );
-    }
-
-
-    // if (!user.isVerified) {
-    //   return NextResponse.json(
-    //     { status: 403, error: 'Please verify your email first' },
-    //   );
-    // }
-
-    if (email && password) {
-      const isPasswordValid = await bcrypt.compare(password, user.password || '');
-      if (!isPasswordValid) {
-        return NextResponse.json(
-          { status: 401, error: 'Invalid credentials' },
-          { status: 401 }
-        );
-      }
     }
 
     if ((user.role === 'admin' || user.role === 'dantasurakshaks') && user.status === 'pending') {
@@ -61,7 +68,7 @@ export async function POST(req: NextRequest) {
       });
 
       if (fcmToken) {
-        await User.findByIdAndUpdate(user._id, { fcmToken });  
+        await User.findByIdAndUpdate(user._id, { fcmToken });
       }
 
 

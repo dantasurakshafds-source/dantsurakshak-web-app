@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
         await dbConnect()
         const lang = getLanguage(request);
         const { page, skip, limit } = ReusePaginationMethod(request);
-        const allFaqs = await FaqModel.find().limit(limit).skip(skip).sort({createdAt:-1}).lean();
+        const allFaqs = await FaqModel.find().limit(limit).skip(skip).sort({ createdAt: -1 }).lean();
         const totalResults = await FaqModel.countDocuments();
 
         const localizedData = allFaqs.map((item) => {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
                 return {
                     _id: item._id,
                     faqs_title: { [lang]: item.faqs_title?.[lang] || '' },
-                    faqs_repeater: item.faqs_repeater?.map((entry:FAQRepeater) => ({
+                    faqs_repeater: item.faqs_repeater?.map((entry: FAQRepeater) => ({
                         question: { [lang]: entry.faqs_repeat_question?.[lang] || '' },
                         answer: { [lang]: entry.faqs_repeat_answer?.[lang] || '' },
                     })),

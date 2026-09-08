@@ -9,10 +9,40 @@ import { Users } from '@/utils/Types'
 
 export async function POST(req: NextRequest) {
   try {
-    const { name, email, password, phoneNumber, role,fcmToken} = await req.json()
+    const { name, email, password, phoneNumber, role, fcmToken } = await req.json()
     if (!name || !email || !password || !phoneNumber) {
       return NextResponse.json(
         { status: 400, error: 'All fields are required' },
+        { status: 400 }
+      )
+    }
+
+    // Phone number validation: must be a 10-digit number
+    const cleanPhoneDigits = String(phoneNumber).replace(/\D/g, '')
+    if (cleanPhoneDigits.slice(-10).length !== 10) {
+      return NextResponse.json(
+        { status: 400, error: 'Phone number must be a 10-digit number' },
+        { status: 400 }
+      )
+    }
+
+    // Password length validation: min 8, max 26 characters
+    if (password.length < 8 || password.length > 26) {
+      return NextResponse.json(
+        { status: 400, error: 'Password must be between 8 and 26 characters long' },
+        { status: 400 }
+      )
+    }
+
+    // Password strength: uppercase, lowercase, number, special char (e.g. !Aa7)
+    const hasUppercase = /[A-Z]/.test(password)
+    const hasLowercase = /[a-z]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
+    const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`]/.test(password)
+
+    if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
+      return NextResponse.json(
+        { status: 400, error: 'Password must contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (e.g. !Aa7)' },
         { status: 400 }
       )
     }
@@ -25,7 +55,18 @@ export async function POST(req: NextRequest) {
         { status: 409 }
       )
     }
-    if (await User.findOne({ phoneNumber })) {
+    const last10Digits = cleanPhoneDigits.slice(-10)
+    const existingPhone = await User.findOne({
+      $or: [
+        { phoneNumber: String(phoneNumber).trim() },
+        { phoneNumber: last10Digits },
+        { phoneNumber: `+91${last10Digits}` },
+        { phoneNumber: `91${last10Digits}` },
+        { phoneNumber: Number(last10Digits) },
+        { phoneNumber: Number(`91${last10Digits}`) },
+      ],
+    })
+    if (existingPhone) {
       return NextResponse.json(
         { status: 409, error: 'Phone number already in use' },
         { status: 409 }
@@ -46,7 +87,7 @@ export async function POST(req: NextRequest) {
       phoneNumber,
       role: finalRole,
       status,
-      isVerified: false,
+      isVerified: true,
       fcmToken: fcmToken || "",
     })
 
@@ -58,28 +99,36 @@ export async function POST(req: NextRequest) {
     }
 
  
-    const superAdmins = await User.find({ role: 'superadmin' }).select('email')
+    const superAdmins = await User.find({ role: 'super-admin' }).select('email')
     const superAdminEmails = superAdmins.map(admin => admin.email)
 
  
     if (status === 'pending') {
       const tokenForRoleApproval = await createVerificationToken(newUser._id as string)
-      await sendApprovalEmail(
-        userToSend, 
-        'register', 
-        tokenForRoleApproval,
-        superAdminEmails
-      )
+      try {
+        await sendApprovalEmail(
+          userToSend, 
+          'register', 
+          tokenForRoleApproval,
+          superAdminEmails
+        )
+      } catch (emailErr) {
+        console.error('Email send failed during admin approval notification:', emailErr)
+      }
     }
 
  
     if (!newUser.isVerified) {
       const verificationToken = await createVerificationToken(newUser._id as string)
-      await sendApprovalEmail(
-        userToSend,
-        'registerverificationcode',
-        verificationToken
-      )
+      try {
+        await sendApprovalEmail(
+          userToSend,
+          'registerverificationcode',
+          verificationToken
+        )
+      } catch (emailErr) {
+        console.error('Email send failed during verification code email:', emailErr)
+      }
     }
 
     const baseUser = {
