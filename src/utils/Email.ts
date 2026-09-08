@@ -6,7 +6,7 @@ import {
   RegisterVerificationEmailData,
 } from './Types';
 
-const HOST = 'http://dantsurakshak.sparkweb.co.in';
+const HOST = 'https://dantsurakshak-web-app.vercel.app';
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
