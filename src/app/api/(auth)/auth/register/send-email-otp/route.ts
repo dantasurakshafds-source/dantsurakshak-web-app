@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
 
     await sendApprovalEmail(
       { email: cleanEmail },
-      "forgotPassword",
+      "registerEmailOtp",
       otp
     );
 

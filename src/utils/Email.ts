@@ -119,6 +119,7 @@ export const sendApprovalEmail = async (
     | 'adminlesionfeedback'
     | 'adminQuestionaryfeedback'
     | 'registerverificationcode'
+    | 'registerEmailOtp'
     | 'forgotPassword',
   token?: string,
   recipients?: string[]
@@ -134,7 +135,7 @@ export const sendApprovalEmail = async (
     const bodyHtml = `
       <p style="margin-top: 0; color: #334155;">Hello,</p>
       <p style="color: #475569; margin-bottom: 20px;">
-        We received a request to reset the password for your <strong>Dant Surakshak</strong> account. Use the verification code below to complete your reset request:
+        We received a request to reset the password for your <strong>Dant Surakshak</strong> account. Use the verification code below to set your new password:
       </p>
 
       <!-- OTP Highlight Box -->
@@ -147,13 +148,43 @@ export const sendApprovalEmail = async (
       </div>
 
       <div style="background-color: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin-top: 20px; font-size: 12px; color: #92400E;">
-        ⏱️ <strong>Note:</strong> This verification code is valid for 10 minutes. If you did not request a password reset, please ignore this email.
+        ⏱️ <strong>Note:</strong> This verification code is valid for 20 minutes. If you did not request a password reset, please ignore this email.
       </div>
     `;
 
     htmlContent = renderEmailTemplate({
-      title: 'Password Reset Request',
-      subtitle: 'Use the OTP code below to verify your account',
+      title: 'Reset Password Request',
+      subtitle: 'Use the OTP code below to reset your account password',
+      bodyHtml,
+    });
+  }
+
+  // 2. REGISTER EMAIL OTP VERIFICATION
+  else if (type === 'registerEmailOtp') {
+    subject = 'Email Verification Code - Dant Surakshak';
+    const bodyHtml = `
+      <p style="margin-top: 0; color: #334155;">Hello,</p>
+      <p style="color: #475569; margin-bottom: 20px;">
+        Thank you for joining <strong>Dant Surakshak</strong>. Use the verification code below to verify your email address and complete registration:
+      </p>
+
+      <!-- OTP Highlight Box -->
+      <div style="text-align: center; margin: 28px 0;">
+        <div style="display: inline-block; background-color: rgba(86, 35, 94, 0.05); border: 2px dashed #56235E; border-radius: 10px; padding: 16px 36px;">
+          <span style="font-family: 'Courier New', Courier, monospace; font-size: 32px; font-weight: 800; color: #56235E; letter-spacing: 8px;">
+            ${token}
+          </span>
+        </div>
+      </div>
+
+      <div style="background-color: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px; padding: 12px 16px; margin-top: 20px; font-size: 12px; color: #92400E;">
+        ⏱️ <strong>Note:</strong> This verification code is valid for 5 minutes. If you did not initiate registration, please ignore this email.
+      </div>
+    `;
+
+    htmlContent = renderEmailTemplate({
+      title: 'Email Address Verification',
+      subtitle: 'Verify your email address to complete registration',
       bodyHtml,
     });
   }
