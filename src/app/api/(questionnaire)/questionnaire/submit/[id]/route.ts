@@ -29,7 +29,7 @@ export async function PATCH(
     }
 
     const questionnaireData = JSON.parse(JSON.stringify(questionnaire));
-    let adminUsers = [];
+    let adminUsers: any[] = [];
     if (Array.isArray(questionnaire.send_to) && questionnaire.send_to.length > 0) {
       adminUsers = await User.find({ _id: { $in: questionnaire.send_to } });
     }

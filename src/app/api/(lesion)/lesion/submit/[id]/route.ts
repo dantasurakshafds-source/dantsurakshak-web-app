@@ -36,7 +36,7 @@ export async function PATCH(
 
  
     const adminIds = lesion.send_to;
-    let adminUsers = [];
+    let adminUsers: any[] = [];
     if (Array.isArray(adminIds) && adminIds.length > 0) {
       adminUsers = await User.find({ _id: { $in: adminIds } });
     }
