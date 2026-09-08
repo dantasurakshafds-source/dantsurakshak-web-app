@@ -33,14 +33,17 @@ export async function PATCH(
 
     for (const adminUser of adminUsers) {
       if (
-        (adminUser.role === 'admin' || adminUser.role === 'dantasurakshaks') &&
-        adminUser.isVerified
+        (adminUser.role === 'admin' ||
+          adminUser.role === 'dantasurakshaks' ||
+          adminUser.role === 'super-admin') &&
+        adminUser.isVerified !== false
       ) {
         const token = await createQuestionnaireVerificationToken(
           String(questionnaire._id),
           String(adminUser._id)
         );
 
+        // 1. Send Email in isolated try/catch so mail errors don't block push notifications
         try {
           await sendApprovalEmail(
             questionnaireData,
@@ -49,69 +52,73 @@ export async function PATCH(
             [adminUser.email]
           );
           console.log(`Approval email sent to: ${adminUser.email}`);
+        } catch (emailError) {
+          console.error(`Email send failed for ${adminUser.email}:`, emailError);
+        }
 
-          // 🔔 Push notification
-          if (adminUser.fcmToken) {
-            const message = {
+        // 2. 🔔 FCM Push notification
+        if (adminUser.fcmToken) {
+          const message = {
+            notification: {
+              title: 'New Questionnaire Submitted',
+              //@ts-expect-error ignore this
+              body: `A questionnaire from ${questionnaire.submitted_by?.name || 'a patient'} has been submitted for your approval.`,
+            },
+            token: adminUser.fcmToken,
+            data: {
+              id: questionnaire._id.toString(),
+              type: 'questionnaire',
+            },
+            android: {
+              priority: 'high',
               notification: {
-                title: 'New Questionnaire Submitted',
-                //@ts-expect-error ignore this 
-                body: `A questionnaire from ${questionnaire.submitted_by.name} has been submitted for your approval.`,
+                channelId: 'fcm_default_channel',
+                sound: 'default',
               },
-              token: adminUser.fcmToken,
-              data: {
-                id: questionnaire._id.toString(),
-                type: 'questionnaire',
-              },
-              android: {
-                priority: 'high',
-                notification: {
-                  channelId: 'fcm_default_channel',
+            },
+            apns: {
+              payload: {
+                aps: {
                   sound: 'default',
                 },
               },
-              apns: {
-                payload: {
-                  aps: {
-                    sound: 'default',
-                  },
-                },
-              },
-            };
+            },
+          };
 
-            try {
-              //@ts-expect-error ignore this 
-              await admin.messaging().send(message);
-              console.log(`Push notification sent to: ${adminUser.name}`);
-            } catch (pushError) {
-              //@ts-expect-error ignore this 
-              console.error(`Push notification failed for ${adminUser.email}:`, pushError.message);
-              //@ts-expect-error ignore this 
-              const errorCode = pushError?.errorInfo?.code;
-              if (
-                errorCode === 'messaging/registration-token-not-registered' ||
-                errorCode === 'messaging/invalid-argument'
-              ) {
-                console.warn(`Invalid FCM token for ${adminUser.email}. Consider removing it.`);
-              }
+          try {
+            //@ts-expect-error ignore this
+            await admin.messaging().send(message);
+            console.log(`✅ Push notification sent to: ${adminUser.name}`);
+          } catch (pushError) {
+            //@ts-expect-error ignore this
+            console.error(`❌ Push notification failed for ${adminUser.email}:`, pushError.message);
+            //@ts-expect-error ignore this
+            const errorCode = pushError?.errorInfo?.code;
+            if (
+              errorCode === 'messaging/registration-token-not-registered' ||
+              errorCode === 'messaging/invalid-argument'
+            ) {
+              console.warn(`Invalid FCM token for ${adminUser.email}.`);
             }
-          } else {
-            console.log(`No FCM token for ${adminUser.name}`);
           }
+        } else {
+          console.log(`⚠️ No FCM token for admin: ${adminUser.name}`);
+        }
 
-          // 📥 Create backend notification
+        // 3. 📥 Create backend notification record in MongoDB
+        try {
           await Notifications.create({
             userId: adminUser._id,
             title: 'New Questionnaire Submitted',
-            //@ts-expect-error ignore this 
-            message: `A questionnaire from ${questionnaire.submitted_by.name} has been submitted for your approval.`,
+            //@ts-expect-error ignore this
+            message: `A questionnaire from ${questionnaire.submitted_by?.name || 'a patient'} has been submitted for your approval.`,
             questionnaire_Id: questionnaire._id,
             icon: 'assignment',
             read: false,
             createdAt: new Date(),
           });
-        } catch (err) {
-          console.error(`Failed for ${adminUser.email}:`, err);
+        } catch (dbNotifErr) {
+          console.error(`Failed to create DB notification for ${adminUser.email}:`, dbNotifErr);
         }
       }
     }
