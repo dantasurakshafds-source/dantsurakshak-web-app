@@ -29,7 +29,17 @@ export async function PATCH(
     }
 
     const questionnaireData = JSON.parse(JSON.stringify(questionnaire));
-    const adminUsers = await User.find({ _id: { $in: questionnaire.send_to } });
+    let adminUsers = [];
+    if (Array.isArray(questionnaire.send_to) && questionnaire.send_to.length > 0) {
+      adminUsers = await User.find({ _id: { $in: questionnaire.send_to } });
+    }
+
+    // Fallback: If send_to is empty or yielded no matching users, fetch all Admin & Super-Admin users!
+    if (!adminUsers || adminUsers.length === 0) {
+      adminUsers = await User.find({
+        role: { $in: ['admin', 'super-admin', 'dantasurakshaks'] }
+      });
+    }
 
     for (const adminUser of adminUsers) {
       if (

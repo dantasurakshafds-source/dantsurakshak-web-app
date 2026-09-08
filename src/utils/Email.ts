@@ -74,11 +74,10 @@ const renderEmailTemplate = ({
               <h2 style="margin: 0; color: #1E293B; font-size: 20px; font-weight: 700; line-height: 1.3;">
                 ${title}
               </h2>
-              ${
-                subtitle
-                  ? `<p style="margin: 6px 0 0 0; color: #64748B; font-size: 13px; line-height: 1.4;">${subtitle}</p>`
-                  : ''
-              }
+              ${subtitle
+      ? `<p style="margin: 6px 0 0 0; color: #64748B; font-size: 13px; line-height: 1.4;">${subtitle}</p>`
+      : ''
+    }
             </td>
           </tr>
 
@@ -203,16 +202,15 @@ export const sendApprovalEmail = async (
         Thank you for registering on <strong>Dant Surakshak</strong>. Please verify your email address to complete your account setup and access the platform.
       </p>
 
-      ${
-        token
-          ? `
+      ${token
+        ? `
         <div style="text-align: center; margin: 30px 0;">
           <a href="${approvalLink}" target="_blank" style="display: inline-block; background-color: #56235E; color: #FFFFFF; font-weight: 600; font-size: 14px; text-decoration: none; padding: 13px 32px; border-radius: 8px; box-shadow: 0 4px 10px rgba(86, 35, 94, 0.25);">
             Verify Email Address
           </a>
         </div>
       `
-          : ''
+        : ''
       }
 
       <p style="font-size: 12px; color: #64748B; margin-top: 24px;">
@@ -263,9 +261,8 @@ export const sendApprovalEmail = async (
         </tr>
       </table>
 
-      ${
-        token
-          ? `
+      ${token
+        ? `
         <div style="text-align: center; margin: 28px 0 10px 0;">
           <a href="${approvalLink}" target="_blank" style="display: inline-block; background-color: #10B981; color: #FFFFFF; font-weight: 600; font-size: 13px; text-decoration: none; padding: 11px 24px; border-radius: 6px; margin-right: 10px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);">
             ✓ Approve User
@@ -275,7 +272,7 @@ export const sendApprovalEmail = async (
           </a>
         </div>
       `
-          : ''
+        : ''
       }
     `;
 
@@ -304,16 +301,15 @@ export const sendApprovalEmail = async (
         <pre style="margin: 0; white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>
       </div>
 
-      ${
-        token
-          ? `
+      ${token
+        ? `
         <div style="text-align: center; margin: 28px 0 10px 0;">
           <a href="${approvalLink}" target="_blank" style="display: inline-block; background-color: #10B981; color: #FFFFFF; font-weight: 600; font-size: 13px; text-decoration: none; padding: 11px 24px; border-radius: 6px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);">
             ✓ Approve Lesion Record
           </a>
         </div>
       `
-          : ''
+        : ''
       }
     `;
 
@@ -342,16 +338,15 @@ export const sendApprovalEmail = async (
         <pre style="margin: 0; white-space: pre-wrap;">${JSON.stringify(data, null, 2)}</pre>
       </div>
 
-      ${
-        token
-          ? `
+      ${token
+        ? `
         <div style="text-align: center; margin: 28px 0 10px 0;">
           <a href="${approvalLink}" target="_blank" style="display: inline-block; background-color: #10B981; color: #FFFFFF; font-weight: 600; font-size: 13px; text-decoration: none; padding: 11px 24px; border-radius: 6px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);">
             ✓ Approve Questionnaire
           </a>
         </div>
       `
-          : ''
+        : ''
       }
     `;
 
@@ -452,8 +447,8 @@ export const sendApprovalEmail = async (
     type === 'registerverificationcode' || type === 'forgotPassword'
       ? (data as RegisterVerificationEmailData).email
       : recipients && recipients.length
-      ? recipients.join(',')
-      : process.env.SUPERADMIN_EMAIL!;
+        ? recipients.join(',')
+        : process.env.SUPERADMIN_EMAIL!;
 
   if (!toEmails) {
     throw new Error('No recipients for email');
