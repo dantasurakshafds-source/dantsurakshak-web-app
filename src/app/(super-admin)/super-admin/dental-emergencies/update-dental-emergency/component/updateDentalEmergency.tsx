@@ -260,38 +260,31 @@ export default function EditDentalEmergency({ id }: UpdateDiseaseProps) {
     }
 
     try {
-      // Upload images if new ones are selected
-      let finalTitleImageUrl = titleImageUrl;
-      if (titleImageFile) {
-        const res = await uploadToCloudinary(titleImageFile, 'image');
-        finalTitleImageUrl = res.secure_url;
-      }
-
-      let finalIconUrl = iconUrl;
-      if (iconFile) {
-        const res = await uploadToCloudinary(iconFile, 'image');
-        finalIconUrl = res.secure_url;
-      }
-
-      let finalInnerIconUrl = innerIconUrl;
-      if (innerIconFile) {
-        const res = await uploadToCloudinary(innerIconFile, 'image');
-        finalInnerIconUrl = res.secure_url;
-      }
-
       const fd = new FormData();
 
       // Main
       fd.append('dental_emergency_title', JSON.stringify(title));
-      fd.append('dental_emergency_image', finalTitleImageUrl);
+      if (titleImageFile) {
+        fd.append('dental_emergency_image_file', titleImageFile);
+      } else if (titleImageUrl) {
+        fd.append('dental_emergency_image_url', titleImageUrl);
+      }
       fd.append('dental_emergency_heading', JSON.stringify(heading));
       fd.append('dental_emergency_para', JSON.stringify(para));
-      if (finalIconUrl) fd.append('dental_emergency_icon', finalIconUrl);
+      if (iconFile) {
+        fd.append('dental_emergency_icon_file', iconFile);
+      } else if (iconUrl) {
+        fd.append('dental_emergency_icon_url', iconUrl);
+      }
 
       // Inner
       fd.append('dental_emergency_inner_title', JSON.stringify(innerTitle));
       fd.append('dental_emergency_inner_para', JSON.stringify(innerPara));
-      if (finalInnerIconUrl) fd.append('dental_emergency_inner_icon', finalInnerIconUrl);
+      if (innerIconFile) {
+        fd.append('dental_emergency_inner_icon_file', innerIconFile);
+      } else if (innerIconUrl) {
+        fd.append('dental_emergency_inner_icon_url', innerIconUrl);
+      }
 
       // Emergency
       fd.append('dental_emer_title', JSON.stringify(emerTitle));

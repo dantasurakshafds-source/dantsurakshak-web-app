@@ -124,9 +124,12 @@ export async function PUT(
     const formData = await req.formData()
 
     // 1) Handle optional image replacement
-    const imageFile = formData.get('myth_fact_image') as File | null
-    if (imageFile && imageFile.size > 0) {
-      item.myth_fact_image = await uploadPhotoToCloudinary(imageFile)
+    const imageField = formData.get('myth_fact_image')
+    if (imageField instanceof File && imageField.size > 0) {
+      item.myth_fact_image = await uploadPhotoToCloudinary(imageField)
+    } else {
+      const existingUrl = formData.get('myth_fact_image_url')?.toString()
+      if (existingUrl) item.myth_fact_image = existingUrl
     }
 
     // 2) JSON parser helper

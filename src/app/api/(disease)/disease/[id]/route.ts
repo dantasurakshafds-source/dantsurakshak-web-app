@@ -142,10 +142,21 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       if (val !== undefined) (disease)[key] = val;
     }
 
-    const mainImg = formData.get('disease_main_image') as File;
-    if (mainImg?.size) disease.disease_main_image = await uploadPhotoToCloudinary(mainImg);
-    const iconFile = formData.get('disease_icon') as File;
-    if (iconFile?.size) disease.disease_icon = await uploadPhotoToCloudinary(iconFile);
+    const mainImgField = formData.get('disease_main_image');
+    if (mainImgField instanceof File && mainImgField.size > 0) {
+      disease.disease_main_image = await uploadPhotoToCloudinary(mainImgField);
+    } else {
+      const existingUrl = formData.get('disease_main_image_url')?.toString();
+      if (existingUrl) disease.disease_main_image = existingUrl;
+    }
+
+    const iconField = formData.get('disease_icon');
+    if (iconField instanceof File && iconField.size > 0) {
+      disease.disease_icon = await uploadPhotoToCloudinary(iconField);
+    } else {
+      const existingIconUrl = formData.get('disease_icon_url')?.toString();
+      if (existingIconUrl) disease.disease_icon = existingIconUrl;
+    }
 
 
     const repeaterKeys = ['common_cause', 'symptoms', 'prevention_tips', 'treatment_option'];

@@ -109,8 +109,8 @@ export async function PUT(
     await Notifications.create({
       userId: submitter._id,
       title: 'Questionnaire Feedback Submitted',
-      message: `Admin ( ${submitter?.name} )  has responded to your questionnaire with feedback.`,
-      questionnaireId: updated._id,
+      message: `Admin has responded to your questionnaire with feedback.`,
+      questionnaire_Id: updated._id,
       icon: 'feedback',
       read: false,
       createdAt: new Date(),

@@ -145,17 +145,13 @@ export default function EditHabit({ id }: UpdateDiseaseProps) {
     }
 
     try {
-      let finalImageUrl = mainImageUrl
-      if (mainImage) {
-        const res = await uploadToCloudinary(mainImage, 'image')
-        finalImageUrl = res.secure_url
-      }
-
       const formData = new FormData()
       formData.append('habit_health_main_title', JSON.stringify(mainTitle))
       formData.append('habit_health_repeater', JSON.stringify(repeater))
-      if (finalImageUrl) {
-        formData.append('habit_health_main_image', finalImageUrl)
+      if (mainImage) {
+        formData.append('habit_health_main_image', mainImage)
+      } else if (mainImageUrl) {
+        formData.append('habit_health_main_image_url', mainImageUrl)
       }
 
       const result = await updateHabit({ id, formData }).unwrap()

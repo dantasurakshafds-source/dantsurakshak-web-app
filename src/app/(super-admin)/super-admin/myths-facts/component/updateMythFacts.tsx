@@ -192,15 +192,13 @@ export default function UpdateMythFact({ id }: UpdateMythFactProps) {
     }
 
     try {
-      let finalImageUrl = imageUrl
-      if (imageFile) {
-        const res = await uploadToCloudinary(imageFile, 'image')
-        finalImageUrl = res.secure_url
-      }
-
       const formData = new FormData()
 
-      if (finalImageUrl) formData.append('myth_fact_image', finalImageUrl)
+      if (imageFile) {
+        formData.append('myth_fact_image', imageFile)
+      } else if (imageUrl) {
+        formData.append('myth_fact_image_url', imageUrl)
+      }
 
       // Top-level
       formData.append('myth_fact_title', JSON.stringify(title))
