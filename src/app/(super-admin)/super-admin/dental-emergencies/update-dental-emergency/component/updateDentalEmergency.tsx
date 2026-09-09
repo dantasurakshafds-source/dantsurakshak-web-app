@@ -9,7 +9,6 @@ import OvalLoader from '@/(common)/OvalLoader';
 import Loader from '@/(common)/Loader';
 import { useGetSingleDentalEmergencyQuery, useUpdateDentalEmergencyMutation } from '@/(store)/services/dental-emergency/dentalEmergencyApi';
 import { Language, DentalEmerRepeater, DentalEmerDescriptionRepeater } from '@/utils/Types';
-import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete';
 import { MdImage, MdTextFields, MdDescription, MdAddCircleOutline, MdDelete, MdClose, MdCloudUpload, MdEmergency, MdInfo, MdList, MdTitle } from "react-icons/md";
 

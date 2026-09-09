@@ -8,7 +8,6 @@ import { useGetSingleDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/
 import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
 import { BeatLoader } from 'react-spinners';
 import OvalLoader from '@/(common)/OvalLoader';
-import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete';
 import Loader from '@/(common)/Loader';
 import { CauseItem, CauseRepeater, PreventionTipsItem, PreventionTipsRepeater, SymptomsItem, SymptomsRepeater, TreatmentOptionItem, TreatmentOptionRepeater } from '@/utils/Types';
