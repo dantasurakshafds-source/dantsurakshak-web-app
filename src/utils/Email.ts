@@ -6,7 +6,16 @@ import {
   RegisterVerificationEmailData,
 } from './Types';
 
-const HOST = 'https://dantsurakshak-web-app.vercel.app';
+
+const getHost = (): string => {
+  let host = process.env.NEXT_PUBLIC_SEND_EMAIL_URL || '';
+
+  if (!host.startsWith('http://') && !host.startsWith('https://')) {
+    host = `https://${host}`;
+  }
+
+  return host.replace(/\/+$/, '');
+};
 
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -123,6 +132,7 @@ export const sendApprovalEmail = async (
   token?: string,
   recipients?: string[]
 ): Promise<nodemailer.SentMessageInfo> => {
+  const HOST = getHost();
   let approvalLink = '';
   let rejectionLink = '';
   let subject = '';
