@@ -454,10 +454,10 @@ export const sendApprovalEmail = async (
   }
 
   const toEmails =
-    type === 'registerverificationcode' || type === 'forgotPassword'
-      ? (data as RegisterVerificationEmailData).email
-      : recipients && recipients.length
-        ? recipients.join(',')
+    recipients && recipients.length
+      ? recipients.join(',')
+      : type === 'registerverificationcode' || type === 'forgotPassword' || type === 'registerEmailOtp'
+        ? (data as RegisterVerificationEmailData).email
         : process.env.SUPERADMIN_EMAIL!;
 
   if (!toEmails) {
