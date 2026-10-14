@@ -90,22 +90,7 @@ jobs:
     needs: build
 
     steps:
-      - name: Checkout prod branch
-        uses: actions/checkout@v4
-        with:
-          ref: prod
-
-      - name: Copy docker-compose.yml to VPS
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          port: ${{ secrets.VPS_PORT }}
-          source: "docker-compose.yml"
-          target: "/home/rdeveloper/dantsurakshak-web-app"
-
-      - name: SSH → Pull image & restart containers
+      - name: SSH - Deploy (write files, pull image, restart)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -114,39 +99,64 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
+            mkdir -p /home/rdeveloper/dantsurakshak-web-app
             cd /home/rdeveloper/dantsurakshak-web-app
 
-            # Write .env on VPS from GitHub Secrets (never stored in git)
-            cat > .env <<ENVEOF
-            NODE_ENV=production
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-            SUPERADMIN_EMAIL=${{ secrets.SUPERADMIN_EMAIL }}
-            GMAIL=${{ secrets.GMAIL }}
-            GMAIL_PASS=${{ secrets.GMAIL_PASS }}
-            FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-            IMAGE_TAG=prod
-            ENVEOF
+            # Write docker-compose.yml via SSH (no SCP/SFTP needed)
+            printf '%s\n' \
+              'version: "3.9"' \
+              'services:' \
+              '  nextjs:' \
+              '    image: dsdantasurakshafds/dantsurakshak-app:prod' \
+              '    container_name: dantsurakshak_app' \
+              '    restart: always' \
+              '    ports:' \
+              '      - "3000:3000"' \
+              '    env_file:' \
+              '      - .env' \
+              '    networks:' \
+              '      - app_network' \
+              '    healthcheck:' \
+              '      test: ["CMD", "wget", "-qO-", "http://localhost:3000"]' \
+              '      interval: 30s' \
+              '      timeout: 10s' \
+              '      retries: 3' \
+              '      start_period: 40s' \
+              'networks:' \
+              '  app_network:' \
+              '    driver: bridge' \
+              > docker-compose.yml
 
-            # Login to Docker Hub on VPS
+            # Write .env from GitHub Secrets (line by line, no indentation issues)
+            printf 'NODE_ENV=production\n' > .env
+            printf 'MONGODB_URI=${{ secrets.MONGODB_URI }}\n' >> .env
+            printf 'NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}\n' >> .env
+            printf 'NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}\n' >> .env
+            printf 'NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}\n' >> .env
+            printf 'SUPERADMIN_EMAIL=${{ secrets.SUPERADMIN_EMAIL }}\n' >> .env
+            printf 'NEXT_PUBLIC_SUPERADMIN_EMAIL=${{ secrets.NEXT_PUBLIC_SUPERADMIN_EMAIL }}\n' >> .env
+            printf 'GMAIL=${{ secrets.GMAIL }}\n' >> .env
+            printf 'GMAIL_PASS=${{ secrets.GMAIL_PASS }}\n' >> .env
+            printf 'FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}\n' >> .env
+            printf 'IMAGE_TAG=prod\n' >> .env
+
+            # Login to Docker Hub
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            # ── STOP & REMOVE old containers ──────────────────
+            # STOP & REMOVE old containers
             docker compose down --remove-orphans --volumes
 
-            # ── REMOVE old image to force fresh pull ──────────
+            # REMOVE old image to force fresh pull
             docker rmi dsdantasurakshafds/dantsurakshak-app:prod --force || true
 
-            # ── PULL brand new image ──────────────────────────
+            # PULL brand new image
             docker pull dsdantasurakshafds/dantsurakshak-app:prod
 
-            # ── START fresh container ─────────────────────────
+            # START fresh container
             docker compose up -d --force-recreate
 
-            # ── CLEAN UP all unused images & build cache ──────
+            # CLEAN UP unused images & build cache
             docker image prune -af
             docker builder prune -af || true
 
-            echo "✅ Fresh deploy done: dsdantasurakshafds/dantsurakshak-app:prod"
+            echo "Fresh deploy done: dsdantasurakshafds/dantsurakshak-app:prod"
