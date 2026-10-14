@@ -90,7 +90,22 @@ jobs:
     needs: build
 
     steps:
-      - name: SSH → Write files, pull image & restart containers
+      - name: Checkout prod branch
+        uses: actions/checkout@v4
+        with:
+          ref: prod
+
+      - name: Copy docker-compose.yml to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT }}
+          source: "docker-compose.yml"
+          target: "/home/rdeveloper/dantsurakshak-web-app"
+
+      - name: SSH → Pull image & restart containers
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -99,42 +114,15 @@ jobs:
           port: ${{ secrets.VPS_PORT }}
           script: |
             set -e
-            mkdir -p /home/rdeveloper/dantsurakshak-web-app
             cd /home/rdeveloper/dantsurakshak-web-app
 
-            # ── Write docker-compose.yml inline (no SCP needed) ──
-            cat > docker-compose.yml << 'COMPOSEEOF'
-            version: "3.9"
-            services:
-              nextjs:
-                image: dsdantasurakshafds/dantsurakshak-app:prod
-                container_name: dantsurakshak_app
-                restart: always
-                ports:
-                  - "3000:3000"
-                env_file:
-                  - .env
-                networks:
-                  - app_network
-                healthcheck:
-                  test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
-                  interval: 30s
-                  timeout: 10s
-                  retries: 3
-                  start_period: 40s
-            networks:
-              app_network:
-                driver: bridge
-            COMPOSEEOF
-
-            # ── Write .env from GitHub Secrets (never stored in git) ──
-            cat > .env << ENVEOF
+            # Write .env on VPS from GitHub Secrets (never stored in git)
+            cat > .env <<ENVEOF
             NODE_ENV=production
             MONGODB_URI=${{ secrets.MONGODB_URI }}
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
             NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_SUPERADMIN_EMAIL=${{ secrets.NEXT_PUBLIC_SUPERADMIN_EMAIL }}
             SUPERADMIN_EMAIL=${{ secrets.SUPERADMIN_EMAIL }}
             GMAIL=${{ secrets.GMAIL }}
             GMAIL_PASS=${{ secrets.GMAIL_PASS }}
@@ -142,25 +130,22 @@ jobs:
             IMAGE_TAG=prod
             ENVEOF
 
-            # Strip leading whitespace from .env values (heredoc indentation fix)
-            sed -i 's/^[[:space:]]*//' .env
-
-            # ── Login to Docker Hub on VPS ─────────────────────
+            # Login to Docker Hub on VPS
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            # ── STOP & REMOVE old containers ───────────────────
+            # ── STOP & REMOVE old containers ──────────────────
             docker compose down --remove-orphans --volumes
 
-            # ── REMOVE old image to force fresh pull ───────────
+            # ── REMOVE old image to force fresh pull ──────────
             docker rmi dsdantasurakshafds/dantsurakshak-app:prod --force || true
 
-            # ── PULL brand new image ───────────────────────────
+            # ── PULL brand new image ──────────────────────────
             docker pull dsdantasurakshafds/dantsurakshak-app:prod
 
-            # ── START fresh container ──────────────────────────
+            # ── START fresh container ─────────────────────────
             docker compose up -d --force-recreate
 
-            # ── CLEAN UP unused images & build cache ───────────
+            # ── CLEAN UP all unused images & build cache ──────
             docker image prune -af
             docker builder prune -af || true
 
