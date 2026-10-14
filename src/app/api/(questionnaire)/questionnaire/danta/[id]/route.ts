@@ -28,6 +28,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
                     { path: 'assignTo', select: 'name phoneNumber' },
                     { path: 'submitted_by', select: 'name' },
                 ])
+                .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
                 .lean(),

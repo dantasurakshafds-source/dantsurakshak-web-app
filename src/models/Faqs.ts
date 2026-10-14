@@ -10,7 +10,7 @@ export interface IFaq extends Document {
       kn: string;
     };
     faqs_repeat_answer: {
-      en: string;  
+      en: string;
       kn: string;
     };
   }>;

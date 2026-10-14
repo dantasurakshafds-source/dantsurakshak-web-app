@@ -139,18 +139,24 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
         const processImg = async <K extends keyof DentalEmergencyTypes>(
             fileKey: string,
-            docKey: K
+            docKey: K,
+            urlFallbackKey?: string
         ) => {
             const file = formData.get(fileKey);
             if (file instanceof File && file.size > 0) {
-                updateData[docKey] = (await uploadPhotoToCloudinary(file)) as  DentalEmergencyTypes[typeof docKey];
+                updateData[docKey] = (await uploadPhotoToCloudinary(file)) as DentalEmergencyTypes[typeof docKey];
+            } else if (urlFallbackKey) {
+                const existingUrl = formData.get(urlFallbackKey)?.toString();
+                if (existingUrl) {
+                    updateData[docKey] = existingUrl as DentalEmergencyTypes[typeof docKey];
+                }
             }
         };
 
 
-        await processImg('dental_emergency_image_file', 'dental_emergency_image');
-        await processImg('dental_emergency_icon_file', 'dental_emergency_icon');
-        await processImg('dental_emergency_inner_icon_file', 'dental_emergency_inner_icon');
+        await processImg('dental_emergency_image_file', 'dental_emergency_image', 'dental_emergency_image_url');
+        await processImg('dental_emergency_icon_file', 'dental_emergency_icon', 'dental_emergency_icon_url');
+        await processImg('dental_emergency_inner_icon_file', 'dental_emergency_inner_icon', 'dental_emergency_inner_icon_url');
 
         const updated = await DentalEmergency.findByIdAndUpdate(
             id,

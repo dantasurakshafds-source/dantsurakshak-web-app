@@ -687,8 +687,8 @@ export interface IFactsSection {
   myths_facts_right_fact: Language[];
 }
 
-export interface IMythFact{
-  _id:string;
+export interface IMythFact {
+  _id: string;
   myth_fact_image: string;
   myth_fact_title: Language;
   myth_fact_body: Language;

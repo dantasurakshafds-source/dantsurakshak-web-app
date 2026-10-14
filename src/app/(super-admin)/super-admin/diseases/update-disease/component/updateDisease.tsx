@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useGetSingleDiseasesQuery, useUpdateDiseasesMutation } from '@/(store)/services/disease/diseaseApi';
 import { useGetCategoriesQuery } from '@/(store)/services/category/categoryApi';
 import { BeatLoader } from 'react-spinners';
-import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
+import OvalLoader from '@/(common)/OvalLoader';
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete';
 import Loader from '@/(common)/Loader';
 import { CauseItem, CauseRepeater, PreventionTipsItem, PreventionTipsRepeater, SymptomsItem, SymptomsRepeater, TreatmentOptionItem, TreatmentOptionRepeater } from '@/utils/Types';
@@ -525,26 +525,22 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
 
       formData.append("category", selectedCategory);
 
-      // Upload images if new ones are selected
-      let finalMainImageUrl = diseaseMainImageUrl;
-      if (diseaseMainImage) {
-        const res = await uploadToCloudinary(diseaseMainImage, 'image');
-        finalMainImageUrl = res.secure_url;
-      }
-
-      let finalIconUrl = diseaseIconUrl;
-      if (diseaseIcon) {
-        const res = await uploadToCloudinary(diseaseIcon, 'image');
-        finalIconUrl = res.secure_url;
-      }
-
       // Main Fields
       formData.append('disease_main_title', JSON.stringify(diseaseMainTitle));
-      if (finalMainImageUrl) formData.append('disease_main_image', finalMainImageUrl);
+      // If new file selected, send File object; otherwise send existing URL string
+      if (diseaseMainImage) {
+        formData.append('disease_main_image', diseaseMainImage);
+      } else if (diseaseMainImageUrl) {
+        formData.append('disease_main_image_url', diseaseMainImageUrl);
+      }
       formData.append('disease_slug', JSON.stringify(diseaseSlug));
       formData.append('disease_title', JSON.stringify(diseaseTitle));
       formData.append('disease_description', JSON.stringify(diseaseDescription));
-      if (finalIconUrl) formData.append('disease_icon', finalIconUrl);
+      if (diseaseIcon) {
+        formData.append('disease_icon', diseaseIcon);
+      } else if (diseaseIconUrl) {
+        formData.append('disease_icon_url', diseaseIconUrl);
+      }
 
       // Tab Titles
       formData.append('common_cause_tab_title', JSON.stringify(commonCauseTabTitle));
@@ -1505,11 +1501,12 @@ const UpdateDisease = ({ id }: UpdateDiseaseProps) => {
               type="submit"
               className="disease-btn-submit"
               disabled={isUpdating}
+              style={{ fontWeight: 600 }}
             >
               {isUpdating ? (
                 <>
-                  <span>Updating...</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Updating...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 'Update Disease'

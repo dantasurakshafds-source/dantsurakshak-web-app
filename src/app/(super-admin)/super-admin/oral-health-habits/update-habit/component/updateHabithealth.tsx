@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Image from 'next/image'
 import { BeatLoader } from 'react-spinners'
+import OvalLoader from '@/(common)/OvalLoader'
 import { useGetSingleHabitHealthQuery, useUpdateHabitHealthMutation } from '@/(store)/services/habit-health/habitHealthApi'
-import { uploadToCloudinary } from '@/utils/uploadToCloudinary'
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete'
 import Loader from '@/(common)/Loader'
 import { HabitHealthRepeaterItem } from '@/utils/Types'
@@ -54,10 +54,9 @@ export default function EditHabit({ id }: UpdateDiseaseProps) {
   const [mainImageUrl, setMainImageUrl] = useState<string>('')
   const [repeater, setRepeater] = useState<RepeaterItem[]>([])
 
-  const response = habitData?.result || {}
-
   useEffect(() => {
-    if (habitData) {
+    if (habitData?.result) {
+      const response = habitData.result
       setMainTitle(response.habit_health_main_title || { en: '', kn: '' })
       setMainImageUrl(response.habit_health_main_image || '')
       const formattedRepeater = response.habit_health_repeater?.map((item: HabitHealthRepeaterItem) => ({
@@ -145,17 +144,13 @@ export default function EditHabit({ id }: UpdateDiseaseProps) {
     }
 
     try {
-      let finalImageUrl = mainImageUrl
-      if (mainImage) {
-        const res = await uploadToCloudinary(mainImage, 'image')
-        finalImageUrl = res.secure_url
-      }
-
       const formData = new FormData()
       formData.append('habit_health_main_title', JSON.stringify(mainTitle))
       formData.append('habit_health_repeater', JSON.stringify(repeater))
-      if (finalImageUrl) {
-        formData.append('habit_health_main_image', finalImageUrl)
+      if (mainImage) {
+        formData.append('habit_health_main_image', mainImage)
+      } else if (mainImageUrl) {
+        formData.append('habit_health_main_image_url', mainImageUrl)
       }
 
       const result = await updateHabit({ id, formData }).unwrap()
@@ -394,11 +389,12 @@ export default function EditHabit({ id }: UpdateDiseaseProps) {
               type="submit"
               className="habit-btn-submit"
               disabled={isUpdating}
+              style={{ fontWeight: 600 }}
             >
               {isUpdating ? (
                 <>
-                  <span>Updating...</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Updating...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 'Update Habit'

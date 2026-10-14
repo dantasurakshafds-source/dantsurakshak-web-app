@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import { dbConnect } from '@/database/database';
 import { LesionModel } from '@/models/Lesion';

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import ReusableModal from "@/(common)/Model";
+import OvalLoader from "@/(common)/OvalLoader";
 import { LogOut } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { FaBars, FaTooth } from "react-icons/fa";
@@ -16,16 +17,16 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-
 
   const { data: session } = useSession();
   const userName = session?.user?.name || "User";
   const firstLetter = userName.charAt(0).toUpperCase();
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/auth/login" });
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await signOut({ callbackUrl: "/auth/login" });
   };
 
   useEffect(() => {
@@ -72,12 +73,23 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
                 <div className="dropdown-menu">
                   <span
                     onClick={() => {
-                      setShowLogoutModal(true);
-                      setDropdownOpen(false);
+                      if (!isLoggingOut) {
+                        setShowLogoutModal(true);
+                        setDropdownOpen(false);
+                      }
                     }}
                     className="logout-button"
                   >
-                    <LogOut size={18} /> Logout
+                    {isLoggingOut ? (
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                        <OvalLoader height="16" width="16" color="#56235E" ariaLabel="oval-loading" />
+                        <span>Logging out...</span>
+                      </span>
+                    ) : (
+                      <>
+                        <LogOut size={18} /> Logout
+                      </>
+                    )}
                   </span>
                 </div>
               )}
@@ -97,8 +109,11 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
         <ReusableModal
           isOpen={showLogoutModal}
           message="Are you sure you want to logout?"
+          isLoading={isLoggingOut}
           onConfirm={handleLogout}
-          onCancel={() => setShowLogoutModal(false)}
+          onCancel={() => {
+            if (!isLoggingOut) setShowLogoutModal(false);
+          }}
         />
       </div>
     </div>

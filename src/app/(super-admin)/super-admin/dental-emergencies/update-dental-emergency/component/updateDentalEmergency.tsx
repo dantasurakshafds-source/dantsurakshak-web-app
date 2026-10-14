@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { BeatLoader } from 'react-spinners';
+import OvalLoader from '@/(common)/OvalLoader';
 import Loader from '@/(common)/Loader';
 import { useGetSingleDentalEmergencyQuery, useUpdateDentalEmergencyMutation } from '@/(store)/services/dental-emergency/dentalEmergencyApi';
 import { Language, DentalEmerRepeater, DentalEmerDescriptionRepeater } from '@/utils/Types';
-import { uploadToCloudinary } from '@/utils/uploadToCloudinary';
 import { useCloudinaryDelete } from '@/utils/useCloudinaryDelete';
 import { MdImage, MdTextFields, MdDescription, MdAddCircleOutline, MdDelete, MdClose, MdCloudUpload, MdEmergency, MdInfo, MdList, MdTitle } from "react-icons/md";
 
@@ -259,38 +259,31 @@ export default function EditDentalEmergency({ id }: UpdateDiseaseProps) {
     }
 
     try {
-      // Upload images if new ones are selected
-      let finalTitleImageUrl = titleImageUrl;
-      if (titleImageFile) {
-        const res = await uploadToCloudinary(titleImageFile, 'image');
-        finalTitleImageUrl = res.secure_url;
-      }
-
-      let finalIconUrl = iconUrl;
-      if (iconFile) {
-        const res = await uploadToCloudinary(iconFile, 'image');
-        finalIconUrl = res.secure_url;
-      }
-
-      let finalInnerIconUrl = innerIconUrl;
-      if (innerIconFile) {
-        const res = await uploadToCloudinary(innerIconFile, 'image');
-        finalInnerIconUrl = res.secure_url;
-      }
-
       const fd = new FormData();
 
       // Main
       fd.append('dental_emergency_title', JSON.stringify(title));
-      fd.append('dental_emergency_image', finalTitleImageUrl);
+      if (titleImageFile) {
+        fd.append('dental_emergency_image_file', titleImageFile);
+      } else if (titleImageUrl) {
+        fd.append('dental_emergency_image_url', titleImageUrl);
+      }
       fd.append('dental_emergency_heading', JSON.stringify(heading));
       fd.append('dental_emergency_para', JSON.stringify(para));
-      if (finalIconUrl) fd.append('dental_emergency_icon', finalIconUrl);
+      if (iconFile) {
+        fd.append('dental_emergency_icon_file', iconFile);
+      } else if (iconUrl) {
+        fd.append('dental_emergency_icon_url', iconUrl);
+      }
 
       // Inner
       fd.append('dental_emergency_inner_title', JSON.stringify(innerTitle));
       fd.append('dental_emergency_inner_para', JSON.stringify(innerPara));
-      if (finalInnerIconUrl) fd.append('dental_emergency_inner_icon', finalInnerIconUrl);
+      if (innerIconFile) {
+        fd.append('dental_emergency_inner_icon_file', innerIconFile);
+      } else if (innerIconUrl) {
+        fd.append('dental_emergency_inner_icon_url', innerIconUrl);
+      }
 
       // Emergency
       fd.append('dental_emer_title', JSON.stringify(emerTitle));
@@ -964,11 +957,12 @@ export default function EditDentalEmergency({ id }: UpdateDiseaseProps) {
               type="submit"
               className="dental-btn-submit"
               disabled={isLoading}
+              style={{ fontWeight: 600 }}
             >
               {isLoading ? (
                 <>
-                  <span>Updating...</span>
-                  <BeatLoader color="#fff" size={8} />
+                  <span style={{ fontWeight: 600 }}>Updating...</span>
+                  <OvalLoader height="20" width="20" color="#ffffff" strokeWidth={5} strokeWidthSecondary={5} ariaLabel="oval-loading" />
                 </>
               ) : (
                 'Update Emergency'
