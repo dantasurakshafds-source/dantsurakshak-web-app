@@ -117,18 +117,19 @@ jobs:
             cd /home/rdeveloper/dantsurakshak-web-app
 
             # Write .env on VPS from GitHub Secrets (never stored in git)
-            cat > .env <<ENVEOF
-            NODE_ENV=production
-            MONGODB_URI=${{ secrets.MONGODB_URI }}
-            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-            NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
-            NEXT_PUBLIC_SUPERADMIN_EMAIL=${{ secrets.NEXT_PUBLIC_SUPERADMIN_EMAIL }}
-            GMAIL=${{ secrets.GMAIL }}
-            GMAIL_PASS=${{ secrets.GMAIL_PASS }}
-            FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-            IMAGE_TAG=prod
-            ENVEOF
+            cat > .env << 'ENVEOF'
+NODE_ENV=production
+MONGODB_URI=${{ secrets.MONGODB_URI }}
+NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}
+NEXT_PUBLIC_SUPERADMIN_EMAIL=${{ secrets.NEXT_PUBLIC_SUPERADMIN_EMAIL }}
+SUPERADMIN_EMAIL=${{ secrets.SUPERADMIN_EMAIL }}
+GMAIL=${{ secrets.GMAIL }}
+GMAIL_PASS=${{ secrets.GMAIL_PASS }}
+FIREBASE_SERVICE_ACCOUNT=${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+IMAGE_TAG=prod
+ENVEOF
 
             # Login to Docker Hub on VPS
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
