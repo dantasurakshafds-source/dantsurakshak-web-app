@@ -359,11 +359,7 @@ const AddBanner: React.FC = () => {
           {/* Banner Image Section */}
           <div className="banner-section">
             <SectionHeader
-<<<<<<< HEAD
               title="Banner Image"
-=======
-              title="Banner Image *"
->>>>>>> main
               icon={<MdImage />}
               open={bannerOpen}
               onToggle={() => setBannerOpen((p) => !p)}
