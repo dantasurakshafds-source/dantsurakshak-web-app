@@ -28,10 +28,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-transporter
-  .verify()
-  .then(() => console.log('✅ Email transporter is ready'))
-  .catch((err) => console.error('❌ Email transporter error', err));
+
 
 /**
  * Renders a modern, responsive HTML email template using Dant Surakshak brand colors.
