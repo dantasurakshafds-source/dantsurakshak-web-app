@@ -21,7 +21,8 @@ export const KN = 'kn'
 // export const API_SECRET = 'YJE-bgUxrpRLrGcVqNICTqq_otA'
 // export const CLOUD_APP_NAME = "o_h_app"
 
-export const CLOUD_NAME ='dtjcsm2xa'
+
+export const CLOUD_NAME = 'dtjcsm2xa'
 export const API_KEY = '265688356769872'
 export const API_SECRET = '0d32l0DEPVJ0S99nbTzGnwlvuQE'
 export const CLOUD_APP_NAME = "o_h_app"
@@ -31,34 +32,34 @@ export const VERIFIABLE_ROLES = ['admin', 'dantasurakshaks'];
 
 
 export function parseValue(key: string, value: string) {
-    const numericFields = ['age', 'income'];
-    if (numericFields.includes(key)) {
-        const num = Number(value);
-        return isNaN(num) ? value : num;
-    }
-    return value;
+  const numericFields = ['age', 'income'];
+  if (numericFields.includes(key)) {
+    const num = Number(value);
+    return isNaN(num) ? value : num;
+  }
+  return value;
 }
 
 export async function getAdminsEmails(adminIds: string[]): Promise<string[]> {
-    const admins = await User.find({ _id: { $in: adminIds } });
-    return admins.map((admin) => admin.email);
+  const admins = await User.find({ _id: { $in: adminIds } });
+  return admins.map((admin) => admin.email);
 }
 
 
 // random verification tokens
 
 export const createVerificationToken = async (userId: string): Promise<string> => {
-    const token = crypto.randomBytes(32).toString('hex');
-    await VerificationToken.create({
-        userId,
-        token,
-        createdAt: new Date(),
-    });
-    return token;
+  const token = crypto.randomBytes(32).toString('hex');
+  await VerificationToken.create({
+    userId,
+    token,
+    createdAt: new Date(),
+  });
+  return token;
 };
 
 
- 
+
 // lessions
 export async function createLesionVerificationToken(
   lesionId: string,
@@ -84,15 +85,15 @@ export async function createQuestionnaireVerificationToken(
 
 
 export function renderConfirmationPage({
-    recordType,
-    action,
-    id,
-    redirectUrl
+  recordType,
+  action,
+  id,
+  redirectUrl
 }: ConfirmationPageParams): string {
 
-    const capitalizedAction = action.charAt(0).toUpperCase() + action.slice(1);
+  const capitalizedAction = action.charAt(0).toUpperCase() + action.slice(1);
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
   <html>
     <head>
       <meta charset="UTF-8" />
@@ -161,7 +162,7 @@ export const generatePDFBase64 = async (data: Record<string, unknown>): Promise<
 
 
 
- 
+
 export async function initiateOtp(phoneNumber: string, channels = ['SMS'], otpLength = 6, expiry = 7200) {
   const { NEXT_PUBLIC_OTPLESS_URL, NEXT_PUBLIC_OTPLESS_C_ID, NEXT_PUBLIC_OTPLESS_C_SEC } = process.env;
   if (!NEXT_PUBLIC_OTPLESS_URL || !NEXT_PUBLIC_OTPLESS_C_ID || !NEXT_PUBLIC_OTPLESS_C_SEC) {
