@@ -30,7 +30,6 @@ export const CLOUD_APP_NAME = "o_h_app"
 
 export const VERIFIABLE_ROLES = ['admin', 'dantasurakshaks'];
 
-
 export function parseValue(key: string, value: string) {
   const numericFields = ['age', 'income'];
   if (numericFields.includes(key)) {
