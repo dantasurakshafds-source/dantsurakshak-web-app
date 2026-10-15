@@ -24,7 +24,7 @@ export default function SuperAdminLogin() {
 
     try {
       const result = await signIn("superadmin", {
-        redirect: true,
+        redirect: false,
         email,
         password,
       });
