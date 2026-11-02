@@ -100,9 +100,7 @@ export default function PublicLegalLayout({
               </button>
             </div>
 
-            <Link href="/auth/login" className="login-nav-link">
-              Admin Login
-            </Link>
+ 
           </div>
         </div>
       </header>
