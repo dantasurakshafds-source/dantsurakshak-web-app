@@ -120,6 +120,7 @@ export default function SuperAdminLogin() {
           </p> */}
         </form>
 
+
         {/* <footer className="login-footer-links">
           <a href="#">Terms of Service</a>
           <a href="#">Privacy Policy</a>
