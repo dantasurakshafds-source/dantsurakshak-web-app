@@ -24,20 +24,25 @@ export default function SuperAdminLogin() {
 
     try {
       const result = await signIn("superadmin", {
-        redirect: true,
+        redirect: false,
+        callbackUrl: "/super-admin/dashboard",
         email,
         password,
       });
 
-      console.log(result)
+      console.log("signIn result:", result);
 
       if (result?.error) {
-        setError(result.error);
+        setError(result.error === "CredentialsSignin" ? "Invalid email or password" : result.error);
         setLoading(false);
+      } else if (result?.ok) {
+        window.location.href = result.url || "/super-admin/dashboard";
       } else {
-        router.push("/super-admin/dashboard");
+        setLoading(false);
       }
-    } catch {
+    } catch (err) {
+      console.error("Login catch error:", err);
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
     }
   };

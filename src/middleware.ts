@@ -36,11 +36,19 @@ export async function middleware(req: NextRequest) {
     }
 
  
-    const token = await getToken({ 
+    const hasSecureToken = req.cookies.has('__Secure-next-auth.session-token')
+    let token = await getToken({ 
       req, 
       secret,
+      secureCookie: hasSecureToken,
       raw: true  
     })
+    if (!token && !hasSecureToken) {
+      token = await getToken({ req, secret, secureCookie: false, raw: true })
+    }
+    if (!token) {
+      token = await getToken({ req, secret, raw: true })
+    }
     if (!token) {
       console.log('API: Unauthorized access attempt')
       return NextResponse.json({ 
@@ -54,11 +62,26 @@ export async function middleware(req: NextRequest) {
 
   try {
  
-    const session = await getToken({ 
+    const hasSecureToken = req.cookies.has('__Secure-next-auth.session-token')
+    let session = await getToken({ 
       req, 
       secret,
-      secureCookie: process.env.NODE_ENV === 'production'
+      secureCookie: hasSecureToken
     })
+
+    if (!session && !hasSecureToken) {
+      session = await getToken({ 
+        req, 
+        secret,
+        secureCookie: false
+      })
+    }
+    if (!session) {
+      session = await getToken({ 
+        req, 
+        secret 
+      })
+    }
 
     if (session) {
       if (pathname === '/auth/login') {
@@ -81,7 +104,7 @@ export async function middleware(req: NextRequest) {
         return NextResponse.next()
       }
       if (pathname.startsWith('/super-admin')) {
-        console.log('Unauthorized access to protected page, redirecting to login')
+        console.log(`Unauthorized access to protected page: ${pathname}, redirecting to login`)
         return NextResponse.redirect(new URL('/auth/login', req.url))
       }
       
