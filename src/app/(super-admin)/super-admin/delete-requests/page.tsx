@@ -24,7 +24,6 @@ import {
   Mail,
   Phone,
   Calendar,
-  AlertTriangle,
   X,
 } from "lucide-react";
 
@@ -132,7 +131,7 @@ export default function AccountDeletionRequestsPage() {
     setRejectModalOpen(true);
   };
 
-  // Execute reject/cancel request
+
   const handleConfirmReject = async () => {
     if (!selectedRequestId) return;
     try {

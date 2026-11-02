@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import sidebarLogo from '@/images/danta-suraksha-logo.png';
 import {
   ShieldAlert,
@@ -15,7 +14,6 @@ import {
   Calendar,
   FileText,
   ClipboardList,
-  ArrowRight,
   Info,
   Clock,
   Trash2,
