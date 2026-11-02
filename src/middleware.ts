@@ -11,121 +11,97 @@ const publicApi = [
   '/api/auth', 
 ]
 
- 
 const publicPages = [
   '/auth/login',
   '/auth/error',
-  '/api/auth', // NextAuth endpoints
+  '/api/auth',
 ]
 
 // Feedback path pattern
 const feedbackPath = /^\/api\/(?:lesion|questionnaire)\/[^\/]+\/feedback$/
 
+async function resolveToken(req: NextRequest, raw = false) {
+  const tokenVal =
+    req.cookies.get('next-auth.session-token')?.value?.trim() ||
+    req.cookies.get('__Secure-next-auth.session-token')?.value?.trim()
+
+  if (!tokenVal) {
+    return null
+  }
+
+  try {
+    let token = await getToken({ req, secret, secureCookie: false, raw } as Parameters<typeof getToken>[0])
+    if (!token) {
+      token = await getToken({ req, secret, secureCookie: true, raw } as Parameters<typeof getToken>[0])
+    }
+    return token
+  } catch (err) {
+    console.error('Error resolving token:', err)
+    return null
+  }
+}
+
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl
- 
+
   if (pathname.startsWith('/api')) {
- 
+    // Allow all public API routes
     if (
       publicApi.some(p => pathname.startsWith(p)) ||
       feedbackPath.test(pathname) ||
-      pathname.startsWith('/api/auth') 
+      pathname.startsWith('/api/auth')
     ) {
-      console.log('Public API route, allowing access')
       return NextResponse.next()
     }
 
- 
-    const hasSecureToken = req.cookies.has('__Secure-next-auth.session-token')
-    let token = await getToken({ 
-      req, 
-      secret,
-      secureCookie: hasSecureToken,
-      raw: true  
-    })
-    if (!token && !hasSecureToken) {
-      token = await getToken({ req, secret, secureCookie: false, raw: true })
-    }
-    if (!token) {
-      token = await getToken({ req, secret, raw: true })
-    }
+    // Protected API — require token
+    const token = await resolveToken(req, true)
     if (!token) {
       console.log('API: Unauthorized access attempt')
-      return NextResponse.json({ 
+      return NextResponse.json({
         error: 'Unauthorized',
         message: 'Authentication required'
       }, { status: 401 })
     }
-    
     return NextResponse.next()
   }
 
   try {
- 
-    const hasSecureToken = req.cookies.has('__Secure-next-auth.session-token')
-    let session = await getToken({ 
-      req, 
-      secret,
-      secureCookie: hasSecureToken
-    })
-
-    if (!session && !hasSecureToken) {
-      session = await getToken({ 
-        req, 
-        secret,
-        secureCookie: false
-      })
-    }
-    if (!session) {
-      session = await getToken({ 
-        req, 
-        secret 
-      })
-    }
+    const session = await resolveToken(req)
 
     if (session) {
+      // Already logged in — redirect away from login / root / super-admin root to dashboard
       if (pathname === '/auth/login') {
         console.log('Redirecting logged-in user from login page to dashboard')
         return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
       }
-      if (pathname === '/') {
-        return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
-      }
-      if (pathname === '/super-admin') {
+      if (pathname === '/' || pathname === '/dashboard' || pathname === '/super-admin') {
         return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
       }
       return NextResponse.next()
-    }
-    else {
-      if (
-        publicPages.some(p => pathname.startsWith(p)) ||
-        pathname === '/'
-      ) {
+    } else {
+      // Not logged in
+      // If user accesses root or /dashboard, redirect to /auth/login
+      if (pathname === '/' || pathname === '/dashboard') {
+        return NextResponse.redirect(new URL('/auth/login', req.url))
+      }
+      if (publicPages.some(p => pathname.startsWith(p))) {
         return NextResponse.next()
       }
       if (pathname.startsWith('/super-admin')) {
         console.log(`Unauthorized access to protected page: ${pathname}, redirecting to login`)
         return NextResponse.redirect(new URL('/auth/login', req.url))
       }
-      
       return NextResponse.next()
     }
   } catch (error) {
     console.error('Middleware error:', error)
     return NextResponse.next()
   }
-
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
     '/((?!_next/static|_next/image|favicon.ico|public/).*)',
   ],
 }
