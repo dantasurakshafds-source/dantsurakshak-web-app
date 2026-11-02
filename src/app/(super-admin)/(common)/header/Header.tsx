@@ -26,7 +26,37 @@ const Header: React.FC<HeaderProps> = ({ isMobile, openMenu, handleToggleSidebar
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    await signOut({ callbackUrl: "/auth/login" });
+    try {
+      // 1. Call dedicated server logout API to expire session cookies on server
+      await fetch("/api/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      }).catch((e) => console.error("Logout API error:", e));
+
+      // 2. Call NextAuth signOut to reset client session context
+      await signOut({ redirect: false }).catch((e) =>
+        console.error("NextAuth signOut error:", e)
+      );
+
+      // 3. Clear client-accessible cookies
+      if (typeof document !== "undefined") {
+        const cookies = document.cookie.split(";");
+        for (const cookie of cookies) {
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+          document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+        }
+      }
+
+      // 4. Clear any local/session storage
+      if (typeof window !== "undefined") {
+        sessionStorage.clear();
+      }
+    } finally {
+      // 5. Hard replace location to login page
+      window.location.replace("/auth/login");
+    }
   };
 
   useEffect(() => {

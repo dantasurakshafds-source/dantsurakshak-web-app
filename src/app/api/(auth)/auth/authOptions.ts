@@ -90,8 +90,9 @@ export const authOptions: NextAuthOptions = {
           } as CustomUser;
           
         } catch (err) {
-          if(err instanceof Error){
-            console.error('Superadmin authorize error');
+          if (err instanceof Error) {
+            console.error('Superadmin authorize error:', err.message);
+            throw err; // Re-throw the original error so NextAuth propagates it correctly
           }
           throw new Error('Authentication failed');
         }
@@ -149,11 +150,26 @@ export const authOptions: NextAuthOptions = {
         session.user.phoneNumber = token.phoneNumber as string;
         //@ts-expect-error ignore this error
         session.user.status = token.status as string;
-          //@ts-expect-error ignore this error
+        //@ts-expect-error ignore this error
         session.user.isVerified = token.isVerified as boolean;
       }
-      
       return session;
+    },
+
+    async redirect({ url, baseUrl }) {
+      // If url is relative, make it absolute
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // If url is on same origin, allow it
+      if (url.startsWith(baseUrl)) return url;
+      // Default: go to dashboard
+      return `${baseUrl}/super-admin/dashboard`;
+    },
+
+    async signIn({ user }) {
+      // Only allow super-admin role to sign in via this provider
+      const customUser = user as CustomUser;
+      if (!customUser.role) return false;
+      return true;
     }
   }
 };
