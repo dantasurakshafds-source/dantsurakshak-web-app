@@ -9,9 +9,8 @@ const publicApi = [
   '/api/lesion/verify',
   '/api/questionnaire/verify',
   '/api/auth',
-  '/api/privacy-policy',
-  '/api/terms',
-  '/api/term',
+  '/api/account-deletion/verify',
+  '/api/account-deletion/request',
 ]
 
 const publicPages = [
@@ -22,6 +21,8 @@ const publicPages = [
   '/terms-conditions',
   '/terms-and-conditions',
   '/term-and-conditions',
+  '/delete-account',
+  '/delete-user',
 ]
 
 // Feedback path pattern

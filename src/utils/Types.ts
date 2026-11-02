@@ -705,6 +705,64 @@ export interface Section {
   myths_facts_right_fact: Record<string, string>[];
 };
 
+export interface AccountDeletionRequestItem {
+  _id: string;
+  userId: string | { _id: string; name: string; email: string; phoneNumber?: string; role?: string };
+  name: string;
+  email: string;
+  phoneNumber: string;
+  reason?: string;
+  status: 'pending' | 'completed' | 'rejected';
+  lesionCount: number;
+  questionnaireCount: number;
+  requestedAt: string;
+  processedAt?: string;
+  processedBy?: string | { _id: string; name: string; email: string };
+  rejectionReason?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UserActivitySummary {
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    phoneNumber: string;
+    role: string;
+    createdAt: string;
+  };
+  lesionCount: number;
+  questionnaireCount: number;
+  recentLesions: Array<{
+    _id: string;
+    case_number?: string;
+    status: string;
+    location?: string;
+    createdAt: string;
+  }>;
+  recentQuestionnaires: Array<{
+    _id: string;
+    status: string;
+    createdAt: string;
+  }>;
+  hasPendingRequest: boolean;
+  pendingRequestId?: string;
+}
+
+export interface PaginatedAccountDeletionResponse {
+  requests: AccountDeletionRequestItem[];
+  total: number;
+  page: number;
+  limit: number;
+  counts: {
+    pending: number;
+    completed: number;
+    rejected: number;
+    total: number;
+  };
+}
+
 
 
 
