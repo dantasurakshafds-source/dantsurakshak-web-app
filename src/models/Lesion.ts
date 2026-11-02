@@ -79,3 +79,5 @@ lesionRecordSchema.pre<ILesionRecord & mongoose.Document>(
 );
 export const LesionModel: Model<ILesionRecord> =
   mongoose.models.LesionRecord || mongoose.model<ILesionRecord>('LesionRecord', lesionRecordSchema);
+
+export default LesionModel;
