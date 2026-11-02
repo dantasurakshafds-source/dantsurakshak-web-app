@@ -11,7 +11,6 @@ import QuestionnaireVerificationTokens from "@/models/QuestionnaireVerificationT
 
 export const PAGE_PER_PAGE_LIMIT = 10
 export const LESION_CREATE = "lesion-created"
-
 export const EN = 'en'
 export const KN = 'kn'
 
