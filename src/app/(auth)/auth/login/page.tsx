@@ -1,7 +1,6 @@
 "use client";
 import { useState, ChangeEvent, FormEvent } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import loginIlluStration from "@/images/oral-health-hero-banner.png";
 import vectorLogin from "@/images/oral-health-vector-1.png";
 import Image from "next/image";
@@ -14,7 +13,6 @@ export default function SuperAdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
