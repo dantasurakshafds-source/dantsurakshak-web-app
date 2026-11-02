@@ -10,13 +10,21 @@ if (!cached) {
 }
 
 export async function dbConnect(): Promise<typeof mongoose> {
-  const MONGODB_URI = process.env.MONGODB_URI;
+  let MONGODB_URI = (process.env.MONGODB_URI || process.env.MONGO_URI || '').trim();
+
+  // Strip accidental surrounding single or double quotes
+  MONGODB_URI = MONGODB_URI.replace(/^["']|["']$/g, '').trim();
 
   if (!MONGODB_URI) {
     throw new Error('Please define the MONGODB_URI environment variable in your .env file');
   }
+
+  if (!MONGODB_URI.startsWith('mongodb://') && !MONGODB_URI.startsWith('mongodb+srv://')) {
+    console.error(`Invalid MONGODB_URI scheme in environment: "${MONGODB_URI.substring(0, 25)}..."`);
+    throw new Error(`Invalid scheme in MONGODB_URI. Expected string starting with "mongodb://" or "mongodb+srv://", but got: "${MONGODB_URI.substring(0, 25)}..."`);
+  }
+
   if (cached.conn) {
-    
     return cached.conn;
   }
 

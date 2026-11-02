@@ -2,7 +2,6 @@ import User from "@/models/User"
 import VerificationToken from "@/models/VerificationToken";
 import crypto from 'crypto';
 import { ConfirmationPageParams } from "./Types";
-
 import PDFDocument from 'pdfkit';
 import { PassThrough } from 'stream';
 import path from 'path';
