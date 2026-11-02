@@ -8,13 +8,20 @@ const publicApi = [
   '/api/otpless',
   '/api/lesion/verify',
   '/api/questionnaire/verify',
-  '/api/auth', 
+  '/api/auth',
+  '/api/privacy-policy',
+  '/api/terms',
+  '/api/term',
 ]
 
 const publicPages = [
   '/auth/login',
   '/auth/error',
   '/api/auth',
+  '/privacy-policy',
+  '/terms-conditions',
+  '/terms-and-conditions',
+  '/term-and-conditions',
 ]
 
 // Feedback path pattern

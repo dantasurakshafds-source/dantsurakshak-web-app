@@ -39,6 +39,9 @@
 // lessons styling
 @use './lessons/lessons.scss' as *;
 
+// public legal pages styling
+@use './public-legal.scss' as *;
+
 
 * {
   margin: 0;
