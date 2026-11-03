@@ -4,6 +4,7 @@ import { sendApprovalEmail } from "@/utils/Email";
 import User from "@/models/User";           
 import OtpToken from "@/models/ForgotPassword";
 
+
 export async function POST(req: NextRequest) {
   const { email } = await req.json();
   if (!email) {
