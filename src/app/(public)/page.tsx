@@ -3,22 +3,15 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import {
   FaTooth,
-  FaUserCheck,
-  FaUserShield,
-  FaUserMd,
-  FaArrowRight,
-  FaLock,
-  FaClipboardCheck,
-  FaCamera,
-  FaComments,
-  FaCheckCircle,
   FaCheck,
   FaHeartbeat,
   FaShieldAlt,
   FaBookMedical,
+  FaComments,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { FiArrowUpRight } from "react-icons/fi";
+import CareWorkflowTabs from "@/components/public/CareWorkflowTabs";
 import ambassadorImg from "@/images/ambassador-portrait.jpg";
 
 export const metadata: Metadata = {
@@ -168,182 +161,8 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Horizontal Chain Flow Bar */}
-          <div className="chain-visualizer-bar">
-            <div className="chain-step-node">
-              <span className="node-num">01</span>
-              <span className="node-text">Community User</span>
-            </div>
-            <div className="chain-arrow">
-              <FaArrowRight size={14} />
-            </div>
-            <div className="chain-step-node">
-              <span className="node-num">02</span>
-              <span className="node-text">Danta Surakshak</span>
-            </div>
-            <div className="chain-arrow">
-              <FaArrowRight size={14} />
-            </div>
-            <div className="chain-step-node active-node">
-              <span className="node-num">03</span>
-              <span className="node-text">Admin (Exclusive Lock)</span>
-            </div>
-            <div className="chain-arrow">
-              <FaArrowRight size={14} />
-            </div>
-            <div className="chain-step-node">
-              <span className="node-num">04</span>
-              <span className="node-text">Hospital Dental Doctor</span>
-            </div>
-          </div>
-
-          {/* 4 Spacious Grid Cards */}
-          <div className="workflow-spacious-grid">
-            {/* Step 01: User */}
-            <div className="wf-spacious-card">
-              <div className="card-top-row">
-                <span className="step-pill">STEP 01</span>
-                <span className="role-sub">PATIENT &amp; PUBLIC</span>
-              </div>
-              <div className="icon-box">
-                <FaTooth size={22} />
-              </div>
-              <h3 className="card-title">Community User</h3>
-              <p className="card-desc">
-                Citizens explore dental disease education, daily teeth brushing routines,
-                and symptom checklists. They register their oral health concerns or receive free
-                field screening in their local community.
-              </p>
-              <ul className="card-check-list">
-                <li>
-                  <FaCheckCircle size={13} />
-                  <span>Learn disease symptoms, brushing &amp; flossing hygiene</span>
-                </li>
-                <li>
-                  <FaCheckCircle size={13} />
-                  <span>Participate in ambassador-guided oral screenings</span>
-                </li>
-                <li>
-                  <FaCheckCircle size={13} />
-                  <span>Receive doctor-verified diagnosis via field ambassador</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Step 02: Danta Surakshak */}
-            <div className="wf-spacious-card">
-              <div className="card-top-row">
-                <span className="step-pill">STEP 02</span>
-                <span className="role-sub">FIELD AMBASSADOR</span>
-              </div>
-              <div className="icon-box">
-                <FaUserCheck size={22} />
-              </div>
-              <h3 className="card-title">Danta Surakshak</h3>
-              <p className="card-desc">
-                Trained health ambassadors visit rural and urban households. Using the mobile
-                app, they capture high-resolution oral lesion photos and fill structured risk questionnaires.
-              </p>
-              <ul className="card-check-list">
-                <li>
-                  <FaCamera size={13} />
-                  <span>Captures clinical oral photographs &amp; lesion scans</span>
-                </li>
-                <li>
-                  <FaClipboardCheck size={13} />
-                  <span>Records patient habits, pain history &amp; tobacco risk</span>
-                </li>
-                <li>
-                  <FaArrowRight size={13} />
-                  <span>Submits complete case dossier to central admin queue</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Step 03: Admin */}
-            <div className="wf-spacious-card featured-admin-card">
-              <div className="card-top-row">
-                <span className="step-pill highlight-pill">STEP 03</span>
-                <span className="role-sub highlight-sub">EXCLUSIVE TAKEOVER</span>
-              </div>
-              <div className="icon-box highlight-icon">
-                <FaUserShield size={22} />
-              </div>
-              <h3 className="card-title">Admin</h3>
-              <p className="card-desc">
-                Multiple administrators monitor incoming screening submissions. When one admin
-                takes over a case, it locks exclusively to prevent duplicate interventions.
-              </p>
-              <ul className="card-check-list">
-                <li>
-                  <FaLock size={13} />
-                  <span>Exclusive case takeover (Remaining admins cannot alter)</span>
-                </li>
-                <li>
-                  <FaComments size={13} />
-                  <span>Physically consults with hospital dental doctors at MSRUAS</span>
-                </li>
-                <li>
-                  <FaCheckCircle size={13} />
-                  <span>Enters doctor feedback and sends resolution to ambassador</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Step 04: Doctor */}
-            <div className="wf-spacious-card">
-              <div className="card-top-row">
-                <span className="step-pill">STEP 04</span>
-                <span className="role-sub">HOSPITAL SPECIALIST</span>
-              </div>
-              <div className="icon-box">
-                <FaUserMd size={22} />
-              </div>
-              <h3 className="card-title">Hospital Dental Doctor</h3>
-              <p className="card-desc">
-                Dental surgeons and faculty at MSRUAS review the clinical photographs and symptom
-                data to provide expert clinical opinions, referral pathways, and treatment advice.
-              </p>
-              <ul className="card-check-list">
-                <li>
-                  <FaCheckCircle size={13} />
-                  <span>Expert diagnosis of oral lesions, caries, &amp; periodontitis</span>
-                </li>
-                <li>
-                  <FaCheckCircle size={13} />
-                  <span>Prescribes immediate clinical guidance &amp; hospital visit</span>
-                </li>
-                <li>
-                  <FaArrowRight size={13} />
-                  <span>Closes feedback loop: Admin inputs advice for patient</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Exclusive Takeover Architecture Feature Box */}
-          <div className="takeover-architecture-banner">
-            <div className="takeover-icon-col">
-              <div className="lock-circle">
-                <FaLock size={20} />
-              </div>
-            </div>
-            <div className="takeover-content-col">
-              <span className="takeover-kicker">GOVERNANCE &amp; PATIENT INTEGRITY</span>
-              <h4 className="takeover-headline">
-                Why Exclusive Admin Takeover Protects Patients
-              </h4>
-              <p className="takeover-body">
-                In our central queue, multiple qualified administrators operate simultaneously. To
-                prevent overlapping inquiries, conflicting medical advice, or duplicate hospital visits,
-                the system assigns an <strong>exclusive lock</strong> to the administrator who claims the
-                patient dossier. Remaining administrators cannot modify or interfere. The claiming admin
-                takes personal responsibility: liaising physically with the hospital doctor at MSRUAS,
-                recording the doctor&apos;s authoritative clinical opinion, and replying to the questionnaire
-                so the field ambassador can convey precise guidance to the patient.
-              </p>
-            </div>
-          </div>
+          {/* Interactive Care Continuum Tabs */}
+          <CareWorkflowTabs />
         </div>
       </section>
 
