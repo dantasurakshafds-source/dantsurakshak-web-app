@@ -7,13 +7,14 @@
 
 .delete-account-page {
   width: 100%;
+  background-color: #faf8f5;
   box-sizing: border-box;
 
   /* ─── Hero Banner ─────────────────────────────────────── */
   .da-hero {
-    background: linear-gradient(180deg, #f3e6f5 0%, #fcf6fd 100%);
+    background: #faf8f5;
     padding: 40px 24px 32px;
-    border-bottom: 1px solid #ebd4ed;
+    border-bottom: 1px solid #ebe5dc;
 
     .da-hero-inner {
       max-width: 1400px;
@@ -155,8 +156,8 @@
   .da-card {
     background: #ffffff;
     border-radius: 14px;
-    border: 1px solid #eedbf0;
-    box-shadow: 0 4px 18px rgba(86, 35, 94, 0.06);
+    border: 1px solid #ebe5dc;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.04);
     padding: 32px;
     box-sizing: border-box;
 

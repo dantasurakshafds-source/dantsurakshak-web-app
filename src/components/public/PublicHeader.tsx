@@ -13,12 +13,14 @@ export default function PublicHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
+    { href: "/", label: "Home" },
     { href: "/privacy-policy", label: "Privacy Policy" },
     { href: "/terms-conditions", label: "Terms & Conditions" },
     { href: "/delete-account", label: "Account Delete Request" },
   ];
 
   const isActive = (href: string) => {
+    if (href === "/" && pathname === "/") return true;
     if (href === "/privacy-policy" && pathname?.startsWith("/privacy-policy")) return true;
     if (
       href === "/terms-conditions" &&

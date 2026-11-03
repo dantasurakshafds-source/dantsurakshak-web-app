@@ -80,22 +80,21 @@ export async function middleware(req: NextRequest) {
     const session = await resolveToken(req)
 
     if (session) {
-      // Already logged in — redirect away from login / root / super-admin root to dashboard
+      // Already logged in — redirect away from login
       if (pathname === '/auth/login') {
         console.log('Redirecting logged-in user from login page to dashboard')
         return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
       }
-      if (pathname === '/' || pathname === '/dashboard' || pathname === '/super-admin') {
+      if (pathname === '/dashboard' || pathname === '/super-admin') {
         return NextResponse.redirect(new URL('/super-admin/dashboard', req.url))
       }
       return NextResponse.next()
     } else {
       // Not logged in
-      // If user accesses root or /dashboard, redirect to /auth/login
-      if (pathname === '/' || pathname === '/dashboard') {
+      if (pathname === '/dashboard') {
         return NextResponse.redirect(new URL('/auth/login', req.url))
       }
-      if (publicPages.some(p => pathname.startsWith(p))) {
+      if (pathname === '/' || publicPages.some(p => pathname.startsWith(p))) {
         return NextResponse.next()
       }
       if (pathname.startsWith('/super-admin')) {

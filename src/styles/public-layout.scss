@@ -9,7 +9,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #fcf8fd;
+  background-color: #faf8f5;
   color: $dark-color;
   font-family: $rubik;
 
@@ -202,7 +202,7 @@
 /* ─── Footer ────────────────────────────────────────────── */
 .public-footer {
   background: #ffffff;
-  border-top: 1px solid #eedbf0;
+  border-top: 1px solid #ebe5dc;
   padding: 36px 24px 28px;
   margin-top: auto;
   width: 100%;
@@ -224,14 +224,14 @@
       justify-content: center;
 
       a {
-        color: $purple-dark;
+        color: #475569;
         text-decoration: none;
         font-size: 14px;
         font-weight: 500;
         transition: color 0.2s ease;
 
         &:hover {
-          color: #C1392D;
+          color: $purple-dark;
           text-decoration: underline;
         }
       }

@@ -4,9 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import {
   FaTooth,
-  FaShieldAlt,
-  FaFileContract,
-  FaCalendarAlt,
   FaGlobe,
   FaChevronRight,
 } from "react-icons/fa";
@@ -36,33 +33,12 @@ export default function PublicLegalLayout({
   pageType,
   titleEn,
   titleKn,
-  updatedAt,
   sections,
   isLoading,
 }: PublicLegalLayoutProps) {
   const [lang, setLang] = useState<"en" | "kn">("en");
 
-  const formattedDate = updatedAt
-    ? new Date(updatedAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })
-    : new Date().toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      });
-
   const pageTitle = lang === "en" ? titleEn : titleKn;
-  const badgeText =
-    pageType === "privacy"
-      ? lang === "en"
-        ? "Official Privacy Policy"
-        : "ಅಧಿಕೃತ ಗೌಪ್ಯತಾ ನೀತಿ"
-      : lang === "en"
-      ? "Official Terms & Conditions"
-      : "ಅಧಿಕೃತ ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು";
 
   return (
     <div className="legal-page-wrapper">
