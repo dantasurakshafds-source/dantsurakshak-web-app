@@ -2,10 +2,15 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { FaTooth, FaShieldAlt, FaFileContract, FaCalendarAlt, FaGlobe, FaChevronRight } from "react-icons/fa";
-import dantaLogo from "@/images/danta-suraksha-logo.png";
-import msruasLogo from "@/images/r-u-o-a-s.png";
+import {
+  FaTooth,
+  FaShieldAlt,
+  FaFileContract,
+  FaCalendarAlt,
+  FaGlobe,
+  FaChevronRight,
+} from "react-icons/fa";
+import OvalLoader from "@/(common)/OvalLoader";
 
 export interface LegalSection {
   heading: {
@@ -61,28 +66,22 @@ export default function PublicLegalLayout({
 
   return (
     <div className="legal-page-wrapper">
-      {/* Top Navbar */}
-      <header className="legal-navbar">
-        <div className="legal-navbar-inner">
-          <Link href="/" className="brand-group">
-            <Image
-              src={dantaLogo.src}
-              alt="Danta Surakshak Logo"
-              width={140}
-              height={44}
-              className="brand-logo-img"
-              priority
-            />
-            <div className="brand-text-col">
-              <span className="brand-title">Danta Surakshak</span>
-              <span className="brand-subtitle">
-                Faculty of Dental Sciences, MSRUAS
+      {/* Hero Banner */}
+      <section className="legal-hero">
+        <div className="legal-hero-inner">
+          <div className="hero-left-col">
+            
+            <h1 className="hero-title">{pageTitle}</h1>
+            <div className="hero-meta">
+              
+              <span>
+                <FaGlobe size={13} />
+                {lang === "en" ? "Language: English" : "ಭಾಷೆ: ಕನ್ನಡ"}
               </span>
             </div>
-          </Link>
+          </div> 
 
-          <div className="header-actions">
-            {/* Language Switcher */}
+          <div className="hero-right-col">
             <div className="lang-switcher" aria-label="Language selection">
               <button
                 type="button"
@@ -99,34 +98,6 @@ export default function PublicLegalLayout({
                 ಕನ್ನಡ
               </button>
             </div>
-
- 
-          </div>
-        </div>
-      </header>
-
-      {/* Hero Banner */}
-      <section className="legal-hero">
-        <div className="legal-hero-inner">
-          <div className="badge">
-            {pageType === "privacy" ? (
-              <FaShieldAlt size={14} />
-            ) : (
-              <FaFileContract size={14} />
-            )}
-            <span>{badgeText}</span>
-          </div>
-          <h1 className="hero-title">{pageTitle}</h1>
-          <div className="hero-meta">
-            <span>
-              <FaCalendarAlt size={13} />
-              {lang === "en" ? "Last Updated:" : "ಕೊನೆಯದಾಗಿ ನವೀಕರಿಸಲಾಗಿದೆ:"}{" "}
-              {formattedDate}
-            </span>
-            <span>
-              <FaGlobe size={13} />
-              {lang === "en" ? "Language: English" : "ಭಾಷೆ: ಕನ್ನಡ"}
-            </span>
           </div>
         </div>
       </section>
@@ -173,8 +144,11 @@ export default function PublicLegalLayout({
           <article className="legal-content-card">
             {isLoading ? (
               <div className="empty-state">
-                <h3>Loading...</h3>
-                <p>Fetching latest document details...</p>
+                <div style={{ display: "flex", justifyContent: "center", marginBottom: "14px" }}>
+                  <OvalLoader height="36" width="36" color="#56235E" ariaLabel="loading" />
+                </div>
+                <h3>Loading Document...</h3>
+                <p>Fetching latest details from server...</p>
               </div>
             ) : sections.length === 0 ? (
               <div className="empty-state">
@@ -213,32 +187,6 @@ export default function PublicLegalLayout({
           </article>
         </div>
       </main>
-
-      {/* Footer */}
-      <footer className="legal-footer">
-        <div className="legal-footer-inner">
-          <div className="footer-links">
-            <Link href="/privacy-policy">Privacy Policy</Link>
-            <Link href="/terms-conditions">Terms & Conditions</Link>
-            <Link href="/auth/login">Portal Login</Link>
-          </div>
-          <Image
-            src={msruasLogo.src}
-            alt="MSRUAS Logo"
-            width={160}
-            height={45}
-            style={{ objectFit: "contain", margin: "6px 0", maxWidth: "100%" }}
-          />
-          <p className="footer-credit">
-            © {new Date().getFullYear()}{" "}
-            <strong>Danta Surakshak (Oral Health Initiative)</strong>. All
-            rights reserved.
-            <br />
-            Faculty of Dental Sciences, M.S. Ramaiah University of Applied
-            Sciences (MSRUAS), Bengaluru.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

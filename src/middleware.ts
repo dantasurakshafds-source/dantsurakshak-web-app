@@ -11,6 +11,8 @@ const publicApi = [
   '/api/auth',
   '/api/account-deletion/verify',
   '/api/account-deletion/request',
+  '/api/privacy-policy/get',
+  '/api/terms/get',
 ]
 
 const publicPages = [

@@ -1,0 +1,884 @@
+@use './variables' as *;
+
+/* =========================================================
+   ACCOUNT DELETION PAGE STYLING
+   Max width: 1400px - Matches Admin Panel Styling & Design Tokens
+   ========================================================= */
+
+.delete-account-page {
+  width: 100%;
+  box-sizing: border-box;
+
+  /* ─── Hero Banner ─────────────────────────────────────── */
+  .da-hero {
+    background: linear-gradient(180deg, #f3e6f5 0%, #fcf6fd 100%);
+    padding: 40px 24px 32px;
+    border-bottom: 1px solid #ebd4ed;
+
+    .da-hero-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      width: 100%;
+      box-sizing: border-box;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .da-hero-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+        max-width: 820px;
+
+        .da-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: #ffffff;
+          color: $purple-dark;
+          padding: 6px 16px;
+          border-radius: 20px;
+          font-size: 13px;
+          font-weight: 600;
+          box-shadow: 0 2px 6px rgba(86, 35, 94, 0.08);
+          border: 1px solid #eed9f0;
+          margin-bottom: 12px;
+
+          svg {
+            color: $purple-dark;
+          }
+        }
+
+        .da-title {
+          font-size: 32px;
+          font-weight: 700;
+          color: $purple-dark;
+          margin: 0 0 10px 0;
+          letter-spacing: -0.5px;
+          text-align: left;
+
+          @media (max-width: 640px) {
+            font-size: 24px;
+          }
+        }
+
+        .da-subtitle {
+          font-size: 14.5px;
+          color: #555555;
+          line-height: 1.6;
+          margin: 0;
+          text-align: left;
+
+          strong {
+            color: $purple-dark;
+            font-weight: 600;
+          }
+        }
+      }
+
+      .da-hero-right {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+
+        .lang-switcher {
+          display: inline-flex;
+          background: rgba(86, 35, 94, 0.08);
+          border: 1px solid #eedbf0;
+          border-radius: 20px;
+          padding: 4px;
+          gap: 4px;
+
+          button {
+            border: none;
+            background: transparent;
+            color: $purple-dark;
+            padding: 6px 14px;
+            font-size: 13.5px;
+            font-weight: 500;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: $rubik;
+
+            &.active {
+              background: #ffffff;
+              color: $purple-dark;
+              font-weight: 700;
+              box-shadow: 0 2px 6px rgba(86, 35, 94, 0.18);
+            }
+
+            &:hover:not(.active) {
+              background: rgba(86, 35, 94, 0.08);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /* ─── Main Container ──────────────────────────────────── */
+  .da-body-container {
+    max-width: 1400px;
+    margin: 36px auto;
+    padding: 0 24px;
+    width: 100%;
+    box-sizing: border-box;
+
+    @media (max-width: 640px) {
+      padding: 0 16px;
+      margin: 24px auto;
+    }
+  }
+
+  /* ─── Step 1: Two Column Layout ───────────────────────── */
+  .da-two-col-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 32px;
+    align-items: start;
+
+    @media (max-width: 992px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* ─── Standard Card ───────────────────────────────────── */
+  .da-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #eedbf0;
+    box-shadow: 0 4px 18px rgba(86, 35, 94, 0.06);
+    padding: 32px;
+    box-sizing: border-box;
+
+    @media (max-width: 640px) {
+      padding: 22px 18px;
+    }
+
+    .card-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: $purple-dark;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-desc {
+      font-size: 13.5px;
+      color: #666666;
+      line-height: 1.5;
+      margin: 0 0 22px 0;
+    }
+  }
+
+  /* ─── Info/Alert Banners ───────────────────────────────── */
+  .da-alert-error {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 14px;
+    line-height: 1.45;
+    margin-bottom: 20px;
+
+    svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: #b91c1c;
+    }
+  }
+
+  .da-alert-warning {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+
+    svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: #b45309;
+    }
+  }
+
+  .da-alert-info {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    color: #4b1e52;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin-bottom: 22px;
+
+    svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+      color: $purple-dark;
+    }
+  }
+
+  /* ─── Forms & Inputs ──────────────────────────────────── */
+  .da-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        svg {
+          color: $purple-dark;
+        }
+
+        .req {
+          color: #dc2626;
+        }
+      }
+
+      .input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+
+        .input-icon {
+          position: absolute;
+          left: 14px;
+          color: #752E81;
+          pointer-events: none;
+        }
+
+        input {
+          width: 100%;
+          padding: 12px 14px 12px 42px;
+          font-size: 14.5px;
+          border-radius: 8px;
+          border: 1px solid #d1d5db;
+          outline: none;
+          background: #ffffff;
+          color: $dark-color;
+          font-family: $rubik;
+          transition: all 0.2s ease;
+          box-sizing: border-box;
+
+          &:focus {
+            border-color: $purple-dark;
+            box-shadow: 0 0 0 3px rgba(86, 35, 94, 0.12);
+          }
+
+          &::placeholder {
+            color: #9ca3af;
+          }
+        }
+      }
+
+      textarea {
+        width: 100%;
+        padding: 12px 14px;
+        font-size: 14px;
+        border-radius: 8px;
+        border: 1px solid #d1d5db;
+        outline: none;
+        background: #ffffff;
+        color: $dark-color;
+        font-family: $rubik;
+        resize: vertical;
+        transition: all 0.2s ease;
+        box-sizing: border-box;
+
+        &:focus {
+          border-color: $purple-dark;
+          box-shadow: 0 0 0 3px rgba(86, 35, 94, 0.12);
+        }
+
+        &::placeholder {
+          color: #9ca3af;
+        }
+      }
+    }
+  }
+
+  /* ─── Buttons (Matches Admin Buttons) ─────────────────── */
+  .btn-primary-gradient {
+    background: $primary-color;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 13px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: $rubik;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.3s ease, transform 0.15s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(86, 35, 94, 0.2);
+
+    &:hover:not(:disabled) {
+      background: $button-hover;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(86, 35, 94, 0.25);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-secondary {
+    background: #ffffff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: $rubik;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+      color: $dark-color;
+    }
+  }
+
+  .btn-danger {
+    background: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: $rubik;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(220, 38, 38, 0.2);
+
+    &:hover:not(:disabled) {
+      background: #b91c1c;
+      transform: translateY(-1px);
+    }
+
+    &:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+  }
+
+  /* ─── Guide / Sidebar Card ────────────────────────────── */
+  .da-guide-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #eedbf0;
+    box-shadow: 0 4px 18px rgba(86, 35, 94, 0.05);
+    padding: 30px;
+    box-sizing: border-box;
+
+    .guide-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: $purple-dark;
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f2e1f4;
+    }
+
+    .guide-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+
+      .step-item {
+        display: flex;
+        gap: 12px;
+
+        .step-num {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          background: #faf0fc;
+          color: $purple-dark;
+          border: 1px solid #e7cceb;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 13px;
+          flex-shrink: 0;
+        }
+
+        .step-text {
+          font-size: 13.5px;
+          color: #4b5563;
+          line-height: 1.5;
+
+          strong {
+            color: #1f2937;
+            display: block;
+            margin-bottom: 2px;
+          }
+        }
+      }
+    }
+
+    .erased-list-title {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .erased-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 20px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      li {
+        font-size: 13px;
+        color: #555;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        svg {
+          color: #16a34a;
+          flex-shrink: 0;
+        }
+      }
+    }
+
+    .contact-note {
+      font-size: 12.5px;
+      color: #6b7280;
+      line-height: 1.5;
+      border-top: 1px solid #f2e1f4;
+      padding-top: 14px;
+      margin: 0;
+    }
+  }
+
+  /* ─── Step 2: Account Details Layout ──────────────────── */
+  .da-account-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .da-user-profile-banner {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #eedbf0;
+    box-shadow: 0 4px 18px rgba(86, 35, 94, 0.05);
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+
+    .profile-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+
+      .profile-avatar {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f7ecf8 0%, #ecd4ee 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $purple-dark;
+        border: 2px solid #ecd9ee;
+      }
+
+      .profile-info {
+        .profile-name {
+          font-size: 20px;
+          font-weight: 700;
+          color: #1f2937;
+          margin: 0 0 4px 0;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .role-badge {
+          font-size: 11px;
+          font-weight: 700;
+          background: $primary-color;
+          color: #ffffff;
+          padding: 2px 10px;
+          border-radius: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .profile-meta-row {
+          display: flex;
+          align-items: center;
+          gap: 18px;
+          flex-wrap: wrap;
+          font-size: 13.5px;
+          color: #6b7280;
+
+          span {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+          }
+        }
+      }
+    }
+  }
+
+  /* ─── Data Stats Grid (Matches Admin Dashboard Stats) ─── */
+  .da-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid #eedbf0;
+      border-radius: 12px;
+      padding: 22px 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 2px 10px rgba(86, 35, 94, 0.04);
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: translateY(-2px);
+      }
+
+      .stat-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: #faf0fc;
+        border: 1px solid #eed9f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $purple-dark;
+        flex-shrink: 0;
+      }
+
+      .stat-data {
+        .stat-value {
+          font-size: 26px;
+          font-weight: 700;
+          color: $purple-dark;
+          line-height: 1.1;
+          margin-bottom: 4px;
+        }
+
+        .stat-title {
+          font-size: 13.5px;
+          color: #4b5563;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  /* ─── Activity Preview Table ──────────────────────────── */
+  .da-records-card {
+    background: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #eedbf0;
+    box-shadow: 0 4px 18px rgba(86, 35, 94, 0.05);
+    padding: 26px 28px;
+
+    .records-header {
+      font-size: 16px;
+      font-weight: 700;
+      color: $purple-dark;
+      margin: 0 0 14px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .records-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      border-top: 1px solid #f3f4f6;
+
+      .record-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 13.5px;
+        flex-wrap: wrap;
+        gap: 8px;
+
+        .case-tag {
+          font-weight: 600;
+          color: #1f2937;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .status-pill {
+          font-size: 11.5px;
+          font-weight: 600;
+          padding: 3px 10px;
+          border-radius: 12px;
+          background: #e0f2fe;
+          color: #0369a1;
+          text-transform: capitalize;
+        }
+
+        .date-text {
+          font-size: 12.5px;
+          color: #9ca3af;
+        }
+      }
+    }
+  }
+
+  /* ─── Action Rows ─────────────────────────────────────── */
+  .da-actions-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 8px;
+
+    .right-actions {
+      display: flex;
+      gap: 12px;
+    }
+  }
+
+  /* ─── Step 3: Success Screen ──────────────────────────── */
+  .da-success-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #dcfce7;
+    box-shadow: 0 6px 24px rgba(22, 163, 74, 0.08);
+    padding: 50px 32px;
+    text-align: center;
+    max-width: 760px;
+    margin: 0 auto;
+
+    .success-icon-bubble {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #dcfce7;
+      color: #16a34a;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .success-heading {
+      font-size: 24px;
+      font-weight: 700;
+      color: #15803d;
+      margin: 0 0 12px 0;
+    }
+
+    .success-desc {
+      font-size: 15px;
+      color: #4b5563;
+      line-height: 1.6;
+      margin: 0 0 24px 0;
+    }
+
+    .reference-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 14px 22px;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 28px;
+
+      .ref-label {
+        font-size: 12px;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .ref-id {
+        font-size: 17px;
+        font-family: monospace;
+        font-weight: 700;
+        color: #0f172a;
+      }
+    }
+  }
+
+  /* ─── Confirmation Modal ──────────────────────────────── */
+  .da-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    backdrop-filter: blur(2px);
+
+    .da-modal-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 32px;
+      max-width: 500px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+      animation: modalFadeIn 0.2s ease-out;
+
+      .modal-icon-bubble {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: #fee2e2;
+        color: #dc2626;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 18px;
+      }
+
+      .modal-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 10px 0;
+      }
+
+      .modal-message {
+        font-size: 14px;
+        color: #4b5563;
+        line-height: 1.55;
+        margin: 0 0 26px 0;
+
+        strong {
+          color: #111827;
+        }
+      }
+
+      .modal-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+      }
+    }
+  }
+
+  /* ─── Bottom Policy Note ──────────────────────────────── */
+  .da-policy-footer-note {
+    margin-top: 32px;
+    padding: 20px 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #eedbf0;
+
+    h4 {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+      font-weight: 600;
+      color: $purple-dark;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+    }
+  }
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

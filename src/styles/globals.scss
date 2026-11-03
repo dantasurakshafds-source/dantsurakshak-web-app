@@ -41,6 +41,8 @@
 
 // public legal pages styling
 @use './public-legal.scss' as *;
+@use './public-layout.scss' as *;
+@use './delete-account.scss' as *;
 
 
 * {
