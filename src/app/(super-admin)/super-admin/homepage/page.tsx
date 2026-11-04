@@ -2,13 +2,10 @@
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
-  Layers,
-  Plus,
   Pencil,
   Trash2,
   CheckCircle2,
   XCircle,
-  RefreshCw,
 } from "lucide-react";
 import { toast } from "sonner";
 import OvalLoader from "@/(common)/OvalLoader";
@@ -77,7 +74,8 @@ export default function SuperAdminHomePageManager() {
   }, [fetchSections]);
 
   // Open Create
-  const handleOpenCreate = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _handleOpenCreate = () => {
     setEditingSection({
       sectionKey: "",
       title: "",
@@ -205,24 +203,18 @@ export default function SuperAdminHomePageManager() {
       <div style={styles.header}>
         <div>
           <div style={styles.headerTitleRow}>
-            <Layers size={24} color="#56235E" />
-            <h1 style={styles.headerTitle}>Home Page Sections</h1>
+             
           </div>
-          <p style={styles.headerSubtitle}>
-            Manage dynamic sections, titles, and content displayed on the public Home page (<code>/</code>).
-          </p>
+          
         </div>
 
-        <div style={styles.headerActions}>
-          <button style={styles.refreshBtn} onClick={fetchSections} title="Refresh list">
-            <RefreshCw size={15} />
-            <span>Refresh</span>
-          </button>
+        {/* <div style={styles.headerActions}>
+           
           <button style={styles.createBtn} onClick={handleOpenCreate}>
             <Plus size={16} />
             <span>Add New Section</span>
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Search & Stats Bar */}
@@ -236,11 +228,7 @@ export default function SuperAdminHomePageManager() {
           placeholder="Search by title or section key..."
         />
 
-        <div style={styles.statsPill}>
-          <span>Total Sections: <strong>{sections.length}</strong></span>
-          <span style={{ color: "#d1d5db" }}>|</span>
-          <span style={{ color: "#16a34a" }}>Active: <strong>{sections.filter((s) => s.isActive).length}</strong></span>
-        </div>
+       
       </div>
 
       {/* Content Table */}

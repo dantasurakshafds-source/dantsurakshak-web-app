@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import {
-  ShieldAlert,
   Search,
   CheckCircle2,
   AlertTriangle,
@@ -179,14 +178,7 @@ export default function DeleteAccountPage() {
       <section className="da-hero">
         <div className="da-hero-inner">
           <div className="da-hero-left">
-            <div className="da-badge">
-              <ShieldAlert size={14} />
-              <span>
-                {lang === "en"
-                  ? "Google Play Account Deletion Policy"
-                  : "ಗೂಗಲ್ ಪ್ಲೇ ಖಾತೆ ಅಳಿಸುವಿಕೆ ನೀತಿ"}
-              </span>
-            </div>
+            
             <h1 className="da-title">
               {lang === "en"
                 ? "Account & Data Deletion Portal"
@@ -620,20 +612,7 @@ export default function DeleteAccountPage() {
           </div>
         )}
 
-        {/* Bottom Policy Details Box */}
-        <div className="da-policy-footer-note">
-          <h4>
-            <Info size={16} />
-            {lang === "en"
-              ? "Data Deletion Policy & Retention Terms"
-              : "ಡೇಟಾ ಅಳಿಸುವಿಕೆ ನೀತಿ ಮತ್ತು ಧಾರಣ ನಿಯಮಗಳು"}
-          </h4>
-          <p>
-            {lang === "en"
-              ? "Upon Super Admin execution of the deletion request, the following records are permanently erased: user login credentials, full name, email address, phone number, submitted lesion photographs stored on cloud servers, questionnaire entries, and push notification tokens. This action is irreversible. For any support, please contact the Faculty of Dental Sciences, MSRUAS."
-              : "ಸೂಪರ್ ಅಡ್ಮಿನ್ ಅಳಿಸುವಿಕೆ ವಿನಂತಿಯನ್ನು ಕಾರ್ಯಗತಗೊಳಿಸಿದ ನಂತರ, ಈ ಕೆಳಗಿನ ದಾಖಲೆಗಳನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲಾಗುತ್ತದೆ: ಬಳಕೆದಾರರ ಲಾಗಿನ್ ವಿವರಗಳು, ಹೆಸರು, ಇಮೇಲ್, ಮೊಬೈಲ್ ಸಂಖ್ಯೆ, ಕ್ಲೌಡ್ ಸರ್ವರ್‌ನಲ್ಲಿರುವ ಫೋಟೋಗಳು ಮತ್ತು ಅಧಿಸೂಚನೆ ಟೋಕನ್‌ಗಳು. ಈ ಕ್ರಿಯೆಯನ್ನು ಹಿಂತಿರುಗಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ."}
-          </p>
-        </div>
+       
       </main>
 
       {/* CONFIRMATION MODAL */}

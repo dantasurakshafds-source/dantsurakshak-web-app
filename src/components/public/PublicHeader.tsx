@@ -1,22 +1,29 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { HiMenu, HiX } from "react-icons/hi";
-import { FiLogIn } from "react-icons/fi";
+import {
+  FiHome,
+  FiShield,
+  FiFileText,
+  FiUserX,
+  FiLogIn,
+  FiX,
+} from "react-icons/fi";
 import dantaLogo from "@/images/danta-suraksha-logo.png";
 
 export default function PublicHeader() {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const navLinks = [
-    { href: "/", label: "Home" },
-    { href: "/privacy-policy", label: "Privacy Policy" },
-    { href: "/terms-conditions", label: "Terms & Conditions" },
-    { href: "/delete-account", label: "Account Delete Request" },
+    { href: "/", label: "Home", icon: <FiHome size={19} /> },
+    { href: "/privacy-policy", label: "Privacy Policy", icon: <FiShield size={19} /> },
+    { href: "/terms-conditions", label: "Terms & Conditions", icon: <FiFileText size={19} /> },
+    { href: "/delete-account", label: "Account Delete Request", icon: <FiUserX size={19} /> },
   ];
 
   const isActive = (href: string) => {
@@ -39,76 +46,147 @@ export default function PublicHeader() {
     return false;
   };
 
+  // Track scroll position past 150px (sticky & 35% transparent)
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 150);
+    };
+
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Close drawer on Escape key and lock body scroll
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setDrawerOpen(false);
+    };
+
+    if (drawerOpen) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [drawerOpen]);
+
   return (
-    <header className="public-header">
+    <header className={`public-header ${isScrolled ? "is-scrolled" : ""}`}>
       <div className="public-header-inner">
-        {/* Brand Link */}
-        <Link href="/" className="brand-group" onClick={() => setMobileMenuOpen(false)}>
+        {/* Only Logo on the Header (70px height & width) */}
+        <Link
+          href="/"
+          className="header-logo-container"
+          aria-label="Danta Surakshak Home"
+          onClick={() => setDrawerOpen(false)}
+        >
           <Image
             src={dantaLogo.src}
             alt="Danta Surakshak Logo"
-            width={140}
-            height={44}
-            className="brand-logo-img"
+            width={70}
+            height={70}
+            className="header-brand-logo"
             priority
           />
-          <div className="brand-text-col">
-            <span className="brand-title">Danta Surakshak</span>
-           
-          </div> 
         </Link>
 
-        {/* Desktop Navigation */}
-        <nav className="nav-desktop">
-          {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`nav-link ${isActive(item.href) ? "active" : ""}`}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link href="/auth/login" className="login-btn">
-            <FiLogIn size={15} />
-            <span>Go To  Login</span>
-          </Link>
-        </nav>
-
-        {/* Mobile Hamburger Button */}
+        {/* Modern Toggle Button: 3 lines (- - _) */}
         <button
           type="button"
-          className="mobile-menu-btn"
-          aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="header-drawer-toggle-btn"
+          aria-label={drawerOpen ? "Close navigation menu" : "Open navigation menu"}
+          onClick={() => setDrawerOpen(!drawerOpen)}
         >
-          {mobileMenuOpen ? <HiX size={22} /> : <HiMenu size={22} />}
+          <span className="bar bar-top" />
+          <span className="bar bar-mid" />
+          <span className="bar bar-bot" />
         </button>
       </div>
 
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div className="mobile-drawer">
-          {navLinks.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`mobile-nav-link ${isActive(item.href) ? "active" : ""}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {item.label}
-            </Link>
-          ))}
-          <Link
-            href="/auth/login"
-            className="mobile-login-btn"
-            onClick={() => setMobileMenuOpen(false)}
+      {/* Backdrop Overlay */}
+      <div
+        className={`drawer-backdrop ${drawerOpen ? "open" : ""}`}
+        onClick={() => setDrawerOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* Modern Right-to-Left Half Drawer */}
+      <aside
+        className={`header-half-drawer ${drawerOpen ? "open" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Site Navigation"
+      >
+        {/* Drawer Header */}
+        <div className="drawer-header">
+          <div className="drawer-brand">
+            <div className="drawer-logo-wrap">
+              <Image
+                src={dantaLogo.src}
+                alt="Danta Surakshak Logo"
+                width={50}
+                height={50}
+                className="drawer-logo"
+              />
+            </div>
+            <div className="drawer-brand-text">
+              <span className="drawer-title">Danta Surakshak</span>
+              <span className="drawer-subtitle">
+                Faculty of Dental Sciences, RUAS
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            className="drawer-close-btn"
+            aria-label="Close menu"
+            onClick={() => setDrawerOpen(false)}
           >
-            <FiLogIn size={16} />
-            <span>Go To  Login</span>
-          </Link>
+            <FiX size={22} />
+          </button>
         </div>
-      )}
+
+        {/* Drawer Navigation Links */}
+        <div className="drawer-body">
+          <span className="drawer-section-label">MAIN NAVIGATION</span>
+          <nav className="drawer-nav">
+            {navLinks.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`drawer-nav-item ${active ? "active" : ""}`}
+                  onClick={() => setDrawerOpen(false)}
+                >
+                  <span className="nav-item-icon">{item.icon}</span>
+                  <span className="nav-item-label">{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="drawer-divider" />
+
+          {/* Login Action */}
+          <div className="drawer-auth-section">
+            <Link
+              href="/auth/login"
+              className="drawer-login-btn"
+              onClick={() => setDrawerOpen(false)}
+            >
+              <FiLogIn size={18} />
+              <span>Go To Login</span>
+            </Link>
+          </div>
+        </div>
+      </aside>
     </header>
   );
 }
