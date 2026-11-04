@@ -177,11 +177,14 @@ export interface Questionnaire {
   submitted_by?: {
     name?: string;
     phoneNumber?: string;
+    email?: string;
   };
   assignTo?: {
     name?: string;
     phoneNumber?: string;
+    email?: string;
   };
+  email?: string;
   demographics?: string;
   name?: string;
   age?: number;

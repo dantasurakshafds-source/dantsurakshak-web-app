@@ -5,18 +5,34 @@ import { useGetUsersQuery } from "@/(store)/services/user/userApi";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { Users } from "@/utils/Types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { FaUsers } from "react-icons/fa";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 
 
 
 export default function UserLists() {
-      const [page, setPage] = useState(1) 
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: userData, isLoading: ambassadorLoading } = useGetUsersQuery({
     page: page,
     limit: PAGE_PER_ITEMS,
     role: 'user'
   });
+
+  const filteredUsers = useMemo(() => {
+    const list: Users[] = userData?.users ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter(
+      (u: Users) =>
+        u.name?.toLowerCase().includes(q) ||
+        u.email?.toLowerCase().includes(q) ||
+        u.phoneNumber?.toLowerCase().includes(q)
+    );
+  }, [userData?.users, searchTerm]);
 
 
   const { setRightContent } = useBreadcrumb();
@@ -38,11 +54,20 @@ export default function UserLists() {
  
    const totalResults = userData?.total ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   return (
     <div className="ambassa_outer outer_wrapper">
       <div className="ambassa_inner">
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+          <AdminSearchBar
+            value={searchTerm}
+            onChange={(val) => {
+              setSearchTerm(val);
+              setPage(1);
+            }}
+            placeholder="Search users by name, email, phone..."
+          />
+        </div>
         <div className="ambassa_wrapper">
           <div className="users-table-container">
             <table className="users-table">
@@ -56,39 +81,35 @@ export default function UserLists() {
                 </tr>
               </thead>
               <tbody>
-                {userData?.users.map((ele: Users, index: number) => (
-                  <tr key={ele._id}>
-                    <td>{index + 1}</td>
-                    <td>{ele.name}</td>
-                    <td>{ele.email}</td>
-                    <td>{ele.phoneNumber}</td>
-                    <td className={`role-cell ${ele.role}`}>{ele.role}</td>
-                  </tr>
-                ))}
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((ele: Users, index: number) => (
+                    <tr key={ele._id}>
+                      <td>{(page - 1) * PAGE_PER_ITEMS + index + 1}</td>
+                      <td>{ele.name}</td>
+                      <td>{ele.email}</td>
+                      <td>{ele.phoneNumber}</td>
+                      <td className={`role-cell ${ele.role}`}>{ele.role}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage="No users found."
+                    colSpan={5}
+                  />
+                )}
               </tbody>
             </table>
           </div>
         </div>
-        <div className="pagination_steps">
-          {shouldShowPagination && (
-            <div className="pagination-controls mt-4 flex items-center justify-center space-x-4">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === 1 ? 'disable_prev' : ''}`}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === totalPages ? 'disable_next' : ''}`}
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
+
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalResults={totalResults}
+          onPageChange={setPage}
+          threshold={10}
+        />
       </div>
     </div>
   );

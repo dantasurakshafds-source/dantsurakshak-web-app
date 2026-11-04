@@ -1,11 +1,14 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import ReusableModal from "@/(common)/Model";
-import { FaEdit, FaPlus, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { MdCampaign } from "react-icons/md";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { useDeleteTextMutation, useGetTextsQuery } from "@/(store)/services/text-slider/textSliderApi";
 import { AppTextSlider } from "@/utils/Types";
@@ -14,11 +17,23 @@ import { toast } from "sonner";
 const AnnouncementList = () => {
 
     const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
     const { setRightContent } = useBreadcrumb();
     const { data: announcementsData, isLoading, refetch } = useGetTextsQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
     const [deleteAnnouncement] = useDeleteTextMutation();
     const [showModal, setShowModal] = useState(false);
     const [selectedAnnouncementId, setSelectedAnnouncementId] = useState<string | null>(null);
+
+    const filteredAnnouncements = useMemo(() => {
+        const list = announcementsData?.result ?? [];
+        if (!searchTerm.trim()) return list;
+        const q = searchTerm.toLowerCase();
+        return list.filter((a: AppTextSlider) => {
+            const textEn = typeof a.text === "string" ? a.text : a.text?.en || "";
+            const textKn = typeof a.text === "object" ? a.text?.kn || "" : "";
+            return textEn.toLowerCase().includes(q) || textKn.toLowerCase().includes(q);
+        });
+    }, [announcementsData?.result, searchTerm]);
 
     const handleDelete = async (id: string) => {
         try {
@@ -42,7 +57,6 @@ const AnnouncementList = () => {
 
     const totalResults = announcementsData?.totalResults ?? 0;
     const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-    const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
     useEffect(() => {
         setRightContent(
@@ -62,6 +76,16 @@ const AnnouncementList = () => {
 
     return (
         <div className="list-container">
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+                <AdminSearchBar
+                    value={searchTerm}
+                    onChange={(val) => {
+                        setSearchTerm(val);
+                        setPage(1);
+                    }}
+                    placeholder="Search announcements..."
+                />
+            </div>
             {announcementsData?.result?.length === 0 ? (
                 <div className="list-empty">
                     <div className="list-empty-icon">
@@ -82,56 +106,50 @@ const AnnouncementList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {announcementsData?.result?.map((announcement: AppTextSlider) => (
-                                    <tr key={announcement._id}>
-                                        <td><span className="text-truncate">{announcement.slider_text?.en || 'N/A'}</span></td>
-                                        <td><span className="text-truncate">{announcement.slider_text?.kn || 'N/A'}</span></td>
-                                        <td>
-                                            <div className="table-actions">
-                                                <Link
-                                                    href={`/super-admin/announcements/update-announcement/${announcement._id}`}
-                                                    className="action-edit"
-                                                >
-                                                    <FaEdit />
-                                                </Link>
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedAnnouncementId(announcement._id);
-                                                        setShowModal(true);
-                                                    }}
-                                                    className="action-delete"
-                                                >
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {filteredAnnouncements && filteredAnnouncements.length > 0 ? (
+                                    filteredAnnouncements.map((announcement: AppTextSlider) => (
+                                        <tr key={announcement._id}>
+                                            <td><span className="text-truncate">{announcement.slider_text?.en || 'N/A'}</span></td>
+                                            <td><span className="text-truncate">{announcement.slider_text?.kn || 'N/A'}</span></td>
+                                            <td>
+                                                <div className="table-actions">
+                                                    <Link
+                                                        href={`/super-admin/announcements/update-announcement/${announcement._id}`}
+                                                        className="action-edit"
+                                                    >
+                                                        <FaEdit />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedAnnouncementId(announcement._id);
+                                                            setShowModal(true);
+                                                        }}
+                                                        className="action-delete"
+                                                    >
+                                                        <FaTrash />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <AdminEmptyState
+                                        searchTerm={searchTerm}
+                                        defaultMessage="No announcements found."
+                                        colSpan={3}
+                                    />
+                                )}
                             </tbody>
                         </table>
                     </div>
 
-                    {shouldShowPagination && (
-                        <div className="pagination">
-                            <button
-                                onClick={() => setPage(page - 1)}
-                                disabled={page === 1}
-                                className="pagination-btn"
-                            >
-                                <FaChevronLeft /> Prev
-                            </button>
-                            <span className="pagination-info">
-                                Page {page} of {totalPages}
-                            </span>
-                            <button
-                                onClick={() => setPage(page + 1)}
-                                disabled={page === totalPages}
-                                className="pagination-btn"
-                            >
-                                Next <FaChevronRight />
-                            </button>
-                        </div>
-                    )}
+                    <AdminPagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        totalResults={totalResults}
+                        onPageChange={setPage}
+                        threshold={10}
+                    />
                 </>
             )}
 

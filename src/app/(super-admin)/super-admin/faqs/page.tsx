@@ -1,12 +1,15 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import ReusableModal from "@/(common)/Model";
 import { ReplacedFaqType } from "@/utils/Types";
-import { FaEdit, FaPlus, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { MdQuestionAnswer } from "react-icons/md";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { useDeletegetFaqMutation, useGetFaqsQuery } from "@/(store)/services/faqs/faqsApi";
 import { toast } from "sonner";
@@ -14,10 +17,22 @@ import { toast } from "sonner";
 const FaqsList = () => {
   const { setRightContent } = useBreadcrumb();
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: faqsData, isLoading, refetch } = useGetFaqsQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
   const [deleteFaq] = useDeletegetFaqMutation();
   const [showModal, setShowModal] = useState(false);
   const [selectedFaqId, setSelectedFaqId] = useState<string | null>(null);
+
+  const filteredFaqs = useMemo(() => {
+    const list = faqsData?.result ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter(
+      (f: ReplacedFaqType) =>
+        f.question?.toLowerCase().includes(q) ||
+        f.answer?.toLowerCase().includes(q)
+    );
+  }, [faqsData?.result, searchTerm]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -51,12 +66,21 @@ const FaqsList = () => {
 
   const totalResults = faqsData?.totalResults ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   if (isLoading) return <Loader />;
 
   return (
     <div className="list-container">
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={(val) => {
+            setSearchTerm(val);
+            setPage(1);
+          }}
+          placeholder="Search FAQs by question or answer..."
+        />
+      </div>
       {faqsData?.result?.length === 0 ? (
         <div className="list-empty">
           <div className="list-empty-icon">
@@ -78,57 +102,51 @@ const FaqsList = () => {
                 </tr>
               </thead>
               <tbody>
-                {faqsData?.result?.map((faq: ReplacedFaqType) => (
-                  <tr key={faq._id}>
-                    <td><span className="text-truncate">{faq?.faqs_title?.en || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{faq?.faqs_title?.kn || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{faq?.faqs_repeater?.length || 0} items</span></td>
-                    <td>
-                      <div className="table-actions">
-                        <Link
-                          href={`/super-admin/faqs/update-faq/${faq._id}`}
-                          className="action-edit"
-                        >
-                          <FaEdit />
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setSelectedFaqId(faq._id);
-                            setShowModal(true);
-                          }}
-                          className="action-delete"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredFaqs && filteredFaqs.length > 0 ? (
+                  filteredFaqs.map((faq: ReplacedFaqType) => (
+                    <tr key={faq._id}>
+                      <td><span className="text-truncate">{faq?.faqs_title?.en || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{faq?.faqs_title?.kn || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{faq?.faqs_repeater?.length || 0} items</span></td>
+                      <td>
+                        <div className="table-actions">
+                          <Link
+                            href={`/super-admin/faqs/update-faq/${faq._id}`}
+                            className="action-edit"
+                          >
+                            <FaEdit />
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedFaqId(faq._id);
+                              setShowModal(true);
+                            }}
+                            className="action-delete"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage="No FAQs found."
+                    colSpan={4}
+                  />
+                )}
               </tbody>
             </table>
           </div>
 
-          {shouldShowPagination && (
-            <div className="pagination">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className="pagination-btn"
-              >
-                <FaChevronLeft /> Prev
-              </button>
-              <span className="pagination-info">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className="pagination-btn"
-              >
-                Next <FaChevronRight />
-              </button>
-            </div>
-          )}
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalResults={totalResults}
+            onPageChange={setPage}
+            threshold={10}
+          />
         </>
       )}
 

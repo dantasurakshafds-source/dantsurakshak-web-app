@@ -1,12 +1,15 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ReusableModal from "@/(common)/Model";
-import { FaEdit, FaPlus, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { MdHealthAndSafety } from "react-icons/md";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { useDeleteHabitHealthMutation, useGetHabitHealthQuery } from "@/(store)/services/habit-health/habitHealthApi";
 import { HabitsHealthType } from "@/utils/Types";
@@ -15,10 +18,22 @@ import { toast } from "sonner";
 const HabitHealthList = () => {
     const { setRightContent } = useBreadcrumb();
     const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
     const { data: habitsData, isLoading, refetch } = useGetHabitHealthQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
     const [deleteHabit] = useDeleteHabitHealthMutation();
     const [showModal, setShowModal] = useState(false);
     const [selectedHabitId, setSelectedHabitId] = useState<string | null>(null);
+
+    const filteredHabits = useMemo(() => {
+        const list = habitsData?.result ?? [];
+        if (!searchTerm.trim()) return list;
+        const q = searchTerm.toLowerCase();
+        return list.filter((h: HabitsHealthType) => {
+            const titleEn = typeof h.habit_title === "string" ? h.habit_title : h.habit_title?.en || "";
+            const titleKn = typeof h.habit_title === "object" ? h.habit_title?.kn || "" : "";
+            return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q);
+        });
+    }, [habitsData?.result, searchTerm]);
 
     const handleDelete = async (id: string) => {
         try {
@@ -53,12 +68,21 @@ const HabitHealthList = () => {
 
     const totalResults = habitsData?.totalResults ?? 0;
     const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-    const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
     if (isLoading) return <Loader />;
 
     return (
         <div className="list-container">
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+                <AdminSearchBar
+                    value={searchTerm}
+                    onChange={(val) => {
+                        setSearchTerm(val);
+                        setPage(1);
+                    }}
+                    placeholder="Search oral habits..."
+                />
+            </div>
             {habitsData?.result?.length === 0 ? (
                 <div className="list-empty">
                     <div className="list-empty-icon">
@@ -80,68 +104,62 @@ const HabitHealthList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {habitsData?.result?.map((habit: HabitsHealthType) => (
-                                    <tr key={habit._id}>
-                                        <td>
-                                            <div className="table-img">
-                                                <Image
-                                                    src={habit.habit_health_main_image}
-                                                    alt={habit.habit_health_main_title?.en || "Habit"}
-                                                    width={80}
-                                                    height={50}
-                                                />
-                                            </div>
-                                        </td>
-                                        <td><span className="text-truncate">{habit.habit_health_main_title?.en || 'N/A'}</span></td>
-                                        <td><span className="text-truncate">{habit.habit_health_main_title?.kn || 'N/A'}</span></td>
-                                        <td>
-                                            <div className="table-actions">
-                                                <Link
-                                                    href={`/super-admin/oral-health-habits/update-habit/${habit._id}`}
-                                                    className="action-edit"
-                                                >
-                                                    <FaEdit />
-                                                </Link>
-                                                <button
-                                                    onClick={() => {
-                                                        if (habit._id) {
-                                                            setSelectedHabitId(habit._id);
-                                                        }
-                                                        setShowModal(true);
-                                                    }}
-                                                    className="action-delete"
-                                                >
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {filteredHabits && filteredHabits.length > 0 ? (
+                                    filteredHabits.map((habit: HabitsHealthType) => (
+                                        <tr key={habit._id}>
+                                            <td>
+                                                <div className="table-img">
+                                                    <Image
+                                                        src={habit.habit_health_main_image}
+                                                        alt={habit.habit_health_main_title?.en || "Habit"}
+                                                        width={80}
+                                                        height={50}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td><span className="text-truncate">{habit.habit_health_main_title?.en || 'N/A'}</span></td>
+                                            <td><span className="text-truncate">{habit.habit_health_main_title?.kn || 'N/A'}</span></td>
+                                            <td>
+                                                <div className="table-actions">
+                                                    <Link
+                                                        href={`/super-admin/oral-health-habits/update-habit/${habit._id}`}
+                                                        className="action-edit"
+                                                    >
+                                                        <FaEdit />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => {
+                                                            if (habit._id) {
+                                                                setSelectedHabitId(habit._id);
+                                                            }
+                                                            setShowModal(true);
+                                                        }}
+                                                        className="action-delete"
+                                                    >
+                                                        <FaTrash />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <AdminEmptyState
+                                        searchTerm={searchTerm}
+                                        defaultMessage="No oral health habits found."
+                                        colSpan={4}
+                                    />
+                                )}
                             </tbody>
                         </table>
                     </div>
 
-                    {shouldShowPagination && (
-                        <div className="pagination">
-                            <button
-                                onClick={() => setPage(page - 1)}
-                                disabled={page === 1}
-                                className="pagination-btn"
-                            >
-                                <FaChevronLeft /> Prev
-                            </button>
-                            <span className="pagination-info">
-                                Page {page} of {totalPages}
-                            </span>
-                            <button
-                                onClick={() => setPage(page + 1)}
-                                disabled={page === totalPages}
-                                className="pagination-btn"
-                            >
-                                Next <FaChevronRight />
-                            </button>
-                        </div>
-                    )}
+                    <AdminPagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        totalResults={totalResults}
+                        onPageChange={setPage}
+                        threshold={10}
+                    />
                 </>
             )}
 

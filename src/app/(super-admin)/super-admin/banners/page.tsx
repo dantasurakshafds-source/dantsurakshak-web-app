@@ -1,25 +1,45 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useDeleteSliderMutation, useGetSlidersQuery } from '@/(store)/services/slider/sliderApi';
 import ReusableModal from '@/(common)/Model';
 import { Slide } from '@/utils/Types';
-import { FaEdit, FaPlus, FaTrash, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaEdit, FaPlus, FaTrash } from 'react-icons/fa';
 import { MdImage } from 'react-icons/md';
 import { useBreadcrumb } from '@/provider/BreadcrumbContext';
 import Loader from '@/(common)/Loader';
+import AdminPagination from '@/(common)/AdminPagination';
+import AdminSearchBar from '@/(common)/AdminSearchBar';
+import { AdminEmptyState } from '@/(common)/AdminEmptyState';
 import { PAGE_PER_ITEMS } from '@/utils/const';
 import { toast } from 'sonner';
 
 const BannersList = () => {
   const { setRightContent } = useBreadcrumb();
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState('');
   const { data: sliders, isLoading, refetch } = useGetSlidersQuery({ page: page, limit: PAGE_PER_ITEMS });
   const [deleteSlider] = useDeleteSliderMutation();
   const [showModal, setShowModal] = useState(false);
   const [selectedSliderId, setSelectedSliderId] = useState<string | null>(null);
+
+  const filteredSliders = useMemo(() => {
+    const list = sliders?.result ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter((s: Slide) => {
+      const textEn = typeof s.text === 'string' ? s.text : s.text?.en || '';
+      const textKn = typeof s.text === 'object' ? s.text?.kn || '' : '';
+      const descEn = typeof s.description === 'string' ? s.description : s.description?.en || '';
+      return (
+        textEn.toLowerCase().includes(q) ||
+        textKn.toLowerCase().includes(q) ||
+        descEn.toLowerCase().includes(q)
+      );
+    });
+  }, [sliders?.result, searchTerm]);
 
   useEffect(() => {
     setRightContent(
@@ -54,12 +74,21 @@ const BannersList = () => {
 
   const totalResults = sliders?.totalResults ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   if (isLoading) return <Loader />;
 
   return (
     <div className="list-container">
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={(val) => {
+            setSearchTerm(val);
+            setPage(1);
+          }}
+          placeholder="Search campaigns & banners..."
+        />
+      </div>
       {sliders?.result?.length === 0 ? (
         <div className="list-empty">
           <div className="list-empty-icon">
@@ -83,68 +112,62 @@ const BannersList = () => {
                 </tr>
               </thead>
               <tbody>
-                {sliders?.result?.map((slider: Slide) => (
-                  <tr key={slider._id}>
-                    <td>
-                      <div className="table-img">
-                        <Image
-                          src={slider.sliderImage}
-                          alt="Banner"
-                          width={80}
-                          height={50}
-                        />
-                      </div>
-                    </td>
-                    <td><span className="text-truncate">{slider.text?.en || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{slider.text?.kn || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{slider.description?.en || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{slider.description?.kn || 'N/A'}</span></td>
-                    <td>
-                      <div className="table-actions">
-                        <Link
-                          href={`/super-admin/banners/update-banner/${slider._id}`}
-                          className="action-edit"
-                        >
-                          <FaEdit />
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setSelectedSliderId(slider._id);
-                            setShowModal(true);
-                          }}
-                          className="action-delete"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredSliders && filteredSliders.length > 0 ? (
+                  filteredSliders.map((slider: Slide) => (
+                    <tr key={slider._id}>
+                      <td>
+                        <div className="table-img">
+                          <Image
+                            src={slider.sliderImage}
+                            alt="Banner"
+                            width={80}
+                            height={50}
+                          />
+                        </div>
+                      </td>
+                      <td><span className="text-truncate">{slider.text?.en || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{slider.text?.kn || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{slider.description?.en || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{slider.description?.kn || 'N/A'}</span></td>
+                      <td>
+                        <div className="table-actions">
+                          <Link
+                            href={`/super-admin/banners/update-banner/${slider._id}`}
+                            className="action-edit"
+                          >
+                            <FaEdit />
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedSliderId(slider._id);
+                              setShowModal(true);
+                            }}
+                            className="action-delete"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage="No banners found."
+                    colSpan={6}
+                  />
+                )}
               </tbody>
             </table>
           </div>
 
-          {shouldShowPagination && (
-            <div className="pagination">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className="pagination-btn"
-              >
-                <FaChevronLeft /> Prev
-              </button>
-              <span className="pagination-info">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className="pagination-btn"
-              >
-                Next <FaChevronRight />
-              </button>
-            </div>
-          )}
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalResults={totalResults}
+            onPageChange={setPage}
+            threshold={10}
+          />
         </>
       )}
 

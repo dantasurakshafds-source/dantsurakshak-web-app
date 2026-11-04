@@ -1,22 +1,38 @@
 "use client";
 
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Users } from "@/utils/Types";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import { FaUserTie } from "react-icons/fa";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 
 
 
 export default function ManageAmbassadors() {
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: ambassadorData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
     page: page,
     limit: PAGE_PER_ITEMS,
     role: 'dantasurakshaks'
   });
+
+  const filteredAmbassadors = useMemo(() => {
+    const list: Users[] = ambassadorData?.users ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter(
+      (a: Users) =>
+        a.name?.toLowerCase().includes(q) ||
+        a.email?.toLowerCase().includes(q) ||
+        a.phoneNumber?.toLowerCase().includes(q)
+    );
+  }, [ambassadorData?.users, searchTerm]);
   const { setRightContent } = useBreadcrumb();
   useEffect(() => {
     if (!ambassadorData) return;
@@ -68,11 +84,20 @@ export default function ManageAmbassadors() {
 
   const totalResults = ambassadorData?.total ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   return (
     <div className="ambassa_outer outer_wrapper">
       <div className="ambassa_inner">
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+          <AdminSearchBar
+            value={searchTerm}
+            onChange={(val) => {
+              setSearchTerm(val);
+              setPage(1);
+            }}
+            placeholder="Search ambassadors by name, email, phone..."
+          />
+        </div>
         <div className="ambassa_wrapper">
           <div className="table-container">
             <table className="custom-table">
@@ -88,61 +113,55 @@ export default function ManageAmbassadors() {
                 </tr>
               </thead>
               <tbody>
-                {ambassadorData?.users.map((ele: Users, index: number) => (
-                  <tr key={ele._id}>
-                    <td>{index + 1}</td>
-                    <td>{ele.name}</td>
-                    <td>{ele.email}</td>
-                    <td>{ele.phoneNumber}</td>
-                    <td>{ele.role}</td>
-                    <td>{ele.status}</td>
-                    <td>
-                      <div className="aprove-reject-buttons">
-                        <button
-                          disabled={actionLoading || ele.status !== 'pending'}
-                          onClick={() => updateUser(ele._id, 'approved', ele.role)}
-                          className={`approve-btn ${ele.status === 'approved' ? 'disabled' : ''}`}
-                        >
-                          Approved
-                        </button>
-                        <button
-                          disabled={actionLoading || ele.status !== 'pending'}
-                          onClick={() => updateUser(ele._id, 'rejected', ele.role)}
-                          className={`reject-btn ${ele.status === 'rejected' ? 'disabled' : ''}`}
-                        >
-                          Rejected
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredAmbassadors.length > 0 ? (
+                  filteredAmbassadors.map((ele: Users, index: number) => (
+                    <tr key={ele._id}>
+                      <td>{(page - 1) * PAGE_PER_ITEMS + index + 1}</td>
+                      <td>{ele.name}</td>
+                      <td>{ele.email}</td>
+                      <td>{ele.phoneNumber}</td>
+                      <td>{ele.role}</td>
+                      <td>{ele.status}</td>
+                      <td>
+                        <div className="aprove-reject-buttons">
+                          <button
+                            disabled={actionLoading || ele.status !== 'pending'}
+                            onClick={() => updateUser(ele._id, 'approved', ele.role)}
+                            className={`approve-btn ${ele.status === 'approved' ? 'disabled' : ''}`}
+                          >
+                            Approved
+                          </button>
+                          <button
+                            disabled={actionLoading || ele.status !== 'pending'}
+                            onClick={() => updateUser(ele._id, 'rejected', ele.role)}
+                            className={`reject-btn ${ele.status === 'rejected' ? 'disabled' : ''}`}
+                          >
+                            Rejected
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage="No dental experts found."
+                    colSpan={7}
+                  />
+                )}
               </tbody>
             </table>
 
           </div>
         </div>
 
-        <div className="pagination_steps">
-          {shouldShowPagination && (
-            <div className="pagination-controls mt-4 flex items-center justify-center space-x-4">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === 1 ? 'disable_prev' : ''}`}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === totalPages ? 'disable_next' : ''}`}
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
-
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalResults={totalResults}
+          onPageChange={setPage}
+          threshold={10}
+        />
       </div>
     </div>
   );

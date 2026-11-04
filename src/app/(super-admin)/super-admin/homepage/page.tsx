@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
   Layers,
   Plus,
@@ -9,10 +9,13 @@ import {
   CheckCircle2,
   XCircle,
   RefreshCw,
-  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 import OvalLoader from "@/(common)/OvalLoader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
+import { PAGE_PER_ITEMS } from "@/utils/const";
 
 interface SectionItem {
   title?: string;
@@ -41,6 +44,7 @@ export default function SuperAdminHomePageManager() {
   const [sections, setSections] = useState<HomePageSectionType[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   // Modal states
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -180,11 +184,19 @@ export default function SuperAdminHomePageManager() {
     }
   };
 
-  const filteredSections = sections.filter(
-    (s) =>
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.sectionKey.toLowerCase().includes(search.toLowerCase()) ||
-      (s.subtitle && s.subtitle.toLowerCase().includes(search.toLowerCase()))
+  const filteredSections = useMemo(() => {
+    return sections.filter(
+      (s) =>
+        s.title.toLowerCase().includes(search.toLowerCase()) ||
+        s.sectionKey.toLowerCase().includes(search.toLowerCase()) ||
+        (s.subtitle && s.subtitle.toLowerCase().includes(search.toLowerCase()))
+    );
+  }, [sections, search]);
+
+  const totalPages = Math.ceil(filteredSections.length / PAGE_PER_ITEMS);
+  const paginatedSections = filteredSections.slice(
+    (page - 1) * PAGE_PER_ITEMS,
+    page * PAGE_PER_ITEMS
   );
 
   return (
@@ -215,16 +227,14 @@ export default function SuperAdminHomePageManager() {
 
       {/* Search & Stats Bar */}
       <div style={styles.filterBar}>
-        <div style={styles.searchWrapper}>
-          <Search size={16} color="#9ca3af" />
-          <input
-            type="text"
-            placeholder="Search by title or section key..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={styles.searchInput}
-          />
-        </div>
+        <AdminSearchBar
+          value={search}
+          onChange={(val) => {
+            setSearch(val);
+            setPage(1);
+          }}
+          placeholder="Search by title or section key..."
+        />
 
         <div style={styles.statsPill}>
           <span>Total Sections: <strong>{sections.length}</strong></span>
@@ -241,14 +251,15 @@ export default function SuperAdminHomePageManager() {
         </div>
       ) : filteredSections.length === 0 ? (
         <div style={styles.emptyContainer}>
-          <Layers size={48} color="#9ca3af" />
-          <h3 style={{ marginTop: "12px", color: "#374151" }}>No Sections Found</h3>
-          <p style={{ color: "#6b7280", fontSize: "14px", marginTop: "4px" }}>
-            Click &quot;Add New Section&quot; to create your first dynamic section or refresh to load defaults.
-          </p>
+          <AdminEmptyState
+            searchTerm={searchTerm}
+            defaultMessage="No homepage sections found."
+            isTableRow={false}
+          />
         </div>
       ) : (
-        <div style={styles.tableCard}>
+        <>
+          <div style={styles.tableCard}>
           <table style={styles.table}>
             <thead>
               <tr style={styles.tableHeaderRow}>
@@ -261,7 +272,7 @@ export default function SuperAdminHomePageManager() {
               </tr>
             </thead>
             <tbody>
-              {filteredSections.map((sec) => (
+              {paginatedSections.map((sec) => (
                 <tr key={sec._id} style={styles.tableRow}>
                   <td style={styles.td}>
                     <span style={styles.orderBadge}>#{sec.order}</span>
@@ -323,6 +334,16 @@ export default function SuperAdminHomePageManager() {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalResults={filteredSections.length}
+          onPageChange={setPage}
+          threshold={10}
+        />
+        </>
       )}
 
       {/* Edit / Create Modal */}

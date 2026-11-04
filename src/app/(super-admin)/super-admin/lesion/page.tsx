@@ -3,10 +3,16 @@
 import Loader from '@/(common)/Loader';
 import { useGetAllLesionsQuery } from '@/(store)/services/lesion/lesionApi';
 import { useBreadcrumb } from '@/provider/BreadcrumbContext';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { FaBook } from 'react-icons/fa';
+import AdminPagination from '@/(common)/AdminPagination';
+import AdminSearchBar from '@/(common)/AdminSearchBar';
+import { AdminEmptyState } from '@/(common)/AdminEmptyState';
+import { PAGE_PER_ITEMS } from '@/utils/const';
 
 export default function LesionList() {
+    const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState('');
     const { data, isLoading, isError } = useGetAllLesionsQuery({ page: 1, limit: 1000 });
     const { setRightContent } = useBreadcrumb();
 
@@ -23,13 +29,46 @@ export default function LesionList() {
         return () => setRightContent(null);
     }, [data, setRightContent]);
 
+    interface LesionItemType {
+        _id: string;
+        fullname?: string;
+        age?: string | number;
+        status?: string;
+        submitted_by?: string;
+        createdAt: string;
+    }
+
+    const filteredLesions = useMemo(() => {
+        const list: LesionItemType[] = data?.lesions ?? [];
+        if (!searchTerm.trim()) return list;
+        const q = searchTerm.toLowerCase();
+        return list.filter(
+            (lesion: LesionItemType) =>
+                lesion.fullname?.toLowerCase().includes(q) ||
+                lesion.status?.toLowerCase().includes(q) ||
+                lesion.submitted_by?.toLowerCase().includes(q)
+        );
+    }, [data?.lesions, searchTerm]);
+
+    const totalResults = filteredLesions.length;
+    const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
+    const paginatedLesions = filteredLesions.slice((page - 1) * PAGE_PER_ITEMS, page * PAGE_PER_ITEMS);
+
     if (isLoading) return <Loader />;
     if (isError) return <p className="lesion-status error">Failed to load lesions.</p>;
 
-    const lesions = data?.lesions ?? [];
-
     return (
         <div className="lesion-wrapper">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
+                <AdminSearchBar
+                    value={searchTerm}
+                    onChange={(val) => {
+                        setSearchTerm(val);
+                        setPage(1);
+                    }}
+                    placeholder="Search lesions by patient, status..."
+                />
+            </div>
             <div className="lesion-table-container">
                 <table className="lesion-table">
                     <thead>
@@ -42,18 +81,34 @@ export default function LesionList() {
                         </tr>
                     </thead>
                     <tbody>
-                        {lesions.map((lesion) => (
-                            <tr key={lesion._id}>
-                                <td>{lesion.fullname}</td>
-                                <td>{lesion.age}</td>
-                                <td>{lesion.status}</td>
-                                <td>{lesion.submitted_by}</td>
-                                <td>{new Date(lesion.createdAt).toLocaleString()}</td>
-                            </tr>
-                        ))}
+                        {paginatedLesions.length > 0 ? (
+                            paginatedLesions.map((lesion) => (
+                                <tr key={lesion._id}>
+                                    <td>{lesion.fullname}</td>
+                                    <td>{lesion.age}</td>
+                                    <td>{lesion.status}</td>
+                                    <td>{lesion.submitted_by}</td>
+                                    <td>{new Date(lesion.createdAt).toLocaleString()}</td>
+                                </tr>
+                            ))
+                        ) : (
+                            <AdminEmptyState
+                                searchTerm={searchTerm}
+                                defaultMessage="No lesion records found."
+                                colSpan={5}
+                            />
+                        )}
                     </tbody>
                 </table>
             </div>
+
+            <AdminPagination
+                currentPage={page}
+                totalPages={totalPages}
+                totalResults={totalResults}
+                onPageChange={setPage}
+                threshold={10}
+            />
         </div>
     );
 }

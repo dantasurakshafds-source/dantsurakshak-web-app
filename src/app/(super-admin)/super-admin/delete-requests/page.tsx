@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Loader from "@/(common)/Loader";
 import ReusableModal from "@/(common)/Model";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import {
   useGetAccountDeletionRequestsQuery,
   useDeleteUserAndRecordsMutation,
@@ -57,6 +60,7 @@ interface RequestDetailModalData {
 export default function AccountDeletionRequestsPage() {
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("pending");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Query requests
   const { data, isLoading, refetch } = useGetAccountDeletionRequestsQuery({
@@ -192,11 +196,23 @@ export default function AccountDeletionRequestsPage() {
     }
   };
 
+  const filteredRequests = useMemo(() => {
+    const list = data?.requests ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter(
+      (r) =>
+        r.name?.toLowerCase().includes(q) ||
+        r.email?.toLowerCase().includes(q) ||
+        r.phoneNumber?.toLowerCase().includes(q) ||
+        r.reason?.toLowerCase().includes(q)
+    );
+  }, [data?.requests, searchTerm]);
+
   if (isLoading && !data) return <Loader />;
 
   const totalResults = data?.total ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   return (
     <div className="ambassa_outer outer_wrapper">
@@ -205,11 +221,20 @@ export default function AccountDeletionRequestsPage() {
         <div style={customStyles.topHeaderBar}>
           <div>
             <h2 style={customStyles.headingTitle}>User Account Deletion Requests</h2>
-           
           </div>
 
-          {/* Filter Pills */}
-          <div style={customStyles.filterPillsContainer}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+            <AdminSearchBar
+              value={searchTerm}
+              onChange={(val) => {
+                setSearchTerm(val);
+                setPage(1);
+              }}
+              placeholder="Search by name, email, phone..."
+            />
+
+            {/* Filter Pills */}
+            <div style={customStyles.filterPillsContainer}>
             <button
               onClick={() => {
                 setStatusFilter("pending");
@@ -263,6 +288,7 @@ export default function AccountDeletionRequestsPage() {
             </button>
           </div>
         </div>
+      </div>
 
         {/* Requests Table */}
         <div className="ambassa_wrapper">
@@ -281,8 +307,8 @@ export default function AccountDeletionRequestsPage() {
                 </tr>
               </thead>
               <tbody>
-                {data?.requests && data.requests.length > 0 ? (
-                  data.requests.map((ele, index) => {
+                {filteredRequests && filteredRequests.length > 0 ? (
+                  filteredRequests.map((ele, index) => {
                     const statusClass =
                       ele.status === "completed"
                         ? "approved"
@@ -361,45 +387,25 @@ export default function AccountDeletionRequestsPage() {
                     );
                   })
                 ) : (
-                  <tr>
-                    <td colSpan={8} style={{ padding: "32px", textAlign: "center", color: "#6b7280" }}>
-                      No {statusFilter !== "all" ? statusFilter : ""} account deletion requests found.
-                    </td>
-                  </tr>
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage={`No ${statusFilter !== "all" ? statusFilter : ""} account deletion requests found.`}
+                    colSpan={8}
+                  />
                 )}
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* Pagination */}
-        <div className="pagination_steps">
-          {shouldShowPagination && (
-            <div className="pagination-controls mt-4 flex items-center justify-center space-x-4">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${
-                  page === 1 ? "disable_prev" : ""
-                }`}
-              >
-                Prev
-              </button>
-              <span style={{ fontSize: "14px", color: "#56235E", fontWeight: 600 }}>
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${
-                  page === totalPages ? "disable_next" : ""
-                }`}
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Pagination with First, Prev, Numbers, Next, Last */}
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalResults={totalResults}
+          onPageChange={setPage}
+          threshold={10}
+        />
       </div>
 
       {/* CONFIRM PERMANENT CASCADE DELETE MODAL */}

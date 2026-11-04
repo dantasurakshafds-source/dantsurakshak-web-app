@@ -1,11 +1,14 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ReusableModal from "@/(common)/Model";
-import { FaEdit, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { MdFactCheck } from "react-icons/md";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { IMythFact } from "@/utils/Types";
 import { useDeleteMythFactMutation, useGetMythFactsQuery } from "@/(store)/services/myth-facts/mythFactsApi";
@@ -13,10 +16,22 @@ import { toast } from "sonner";
 
 const MythFactsList = () => {
     const [page, setPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
     const { data: mythsData, isLoading, refetch } = useGetMythFactsQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
     const [deleteMyth] = useDeleteMythFactMutation();
     const [showModal, setShowModal] = useState(false);
     const [selectedMythId, setSelectedMythId] = useState<string | null>(null);
+
+    const filteredMyths = useMemo(() => {
+        const list = mythsData?.result ?? [];
+        if (!searchTerm.trim()) return list;
+        const q = searchTerm.toLowerCase();
+        return list.filter((m: IMythFact) => {
+            const titleEn = typeof m.myth_facts_title === "string" ? m.myth_facts_title : m.myth_facts_title?.en || "";
+            const titleKn = typeof m.myth_facts_title === "object" ? m.myth_facts_title?.kn || "" : "";
+            return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q);
+        });
+    }, [mythsData?.result, searchTerm]);
 
     const handleDelete = async (id: string) => {
         try {
@@ -40,12 +55,21 @@ const MythFactsList = () => {
 
     const totalResults = mythsData?.totalResults ?? 0;
     const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-    const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
     if (isLoading) return <Loader />;
 
     return (
         <div className="list-container">
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+                <AdminSearchBar
+                    value={searchTerm}
+                    onChange={(val) => {
+                        setSearchTerm(val);
+                        setPage(1);
+                    }}
+                    placeholder="Search dental myths & facts..."
+                />
+            </div>
             {mythsData?.result?.length === 0 ? (
                 <div className="list-empty">
                     <div className="list-empty-icon">
@@ -69,68 +93,62 @@ const MythFactsList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {mythsData?.result?.map((myth: IMythFact) => (
-                                    <tr key={myth._id}>
-                                        <td>
-                                            <div className="table-img">
-                                                <Image
-                                                    src={myth.myth_fact_image}
-                                                    alt={myth.myth_fact_title?.en || "Myth Fact"}
-                                                    width={80}
-                                                    height={50}
-                                                />
-                                            </div>
-                                        </td>
-                                        <td><span className="text-truncate">{myth.myth_fact_title?.en || 'N/A'}</span></td>
-                                        <td><span className="text-truncate">{myth.myth_fact_title?.kn || 'N/A'}</span></td>
-                                        <td><span className="text-truncate">{myth.myth_fact_heading?.en || 'N/A'}</span></td>
-                                        <td><span className="text-truncate">{myth.myth_fact_heading?.kn || 'N/A'}</span></td>
-                                        <td>
-                                            <div className="table-actions">
-                                                <Link
-                                                    href={`/super-admin/myths-facts/${myth._id}`}
-                                                    className="action-edit"
-                                                >
-                                                    <FaEdit />
-                                                </Link>
-                                                <button
-                                                    onClick={() => {
-                                                        setSelectedMythId(myth._id);
-                                                        setShowModal(true);
-                                                    }}
-                                                    className="action-delete"
-                                                >
-                                                    <FaTrash />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {filteredMyths && filteredMyths.length > 0 ? (
+                                    filteredMyths.map((myth: IMythFact) => (
+                                        <tr key={myth._id}>
+                                            <td>
+                                                <div className="table-img">
+                                                    <Image
+                                                        src={myth.myth_fact_image}
+                                                        alt={myth.myth_fact_title?.en || "Myth Fact"}
+                                                        width={80}
+                                                        height={50}
+                                                    />
+                                                </div>
+                                            </td>
+                                            <td><span className="text-truncate">{myth.myth_fact_title?.en || 'N/A'}</span></td>
+                                            <td><span className="text-truncate">{myth.myth_fact_title?.kn || 'N/A'}</span></td>
+                                            <td><span className="text-truncate">{myth.myth_fact_heading?.en || 'N/A'}</span></td>
+                                            <td><span className="text-truncate">{myth.myth_fact_heading?.kn || 'N/A'}</span></td>
+                                            <td>
+                                                <div className="table-actions">
+                                                    <Link
+                                                        href={`/super-admin/myths-facts/${myth._id}`}
+                                                        className="action-edit"
+                                                    >
+                                                        <FaEdit />
+                                                    </Link>
+                                                    <button
+                                                        onClick={() => {
+                                                            setSelectedMythId(myth._id);
+                                                            setShowModal(true);
+                                                        }}
+                                                        className="action-delete"
+                                                    >
+                                                        <FaTrash />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <AdminEmptyState
+                                        searchTerm={searchTerm}
+                                        defaultMessage="No myths & facts found."
+                                        colSpan={6}
+                                    />
+                                )}
                             </tbody>
                         </table>
                     </div>
 
-                    {shouldShowPagination && (
-                        <div className="pagination">
-                            <button
-                                onClick={() => setPage(page - 1)}
-                                disabled={page === 1}
-                                className="pagination-btn"
-                            >
-                                <FaChevronLeft /> Prev
-                            </button>
-                            <span className="pagination-info">
-                                Page {page} of {totalPages}
-                            </span>
-                            <button
-                                onClick={() => setPage(page + 1)}
-                                disabled={page === totalPages}
-                                className="pagination-btn"
-                            >
-                                Next <FaChevronRight />
-                            </button>
-                        </div>
-                    )}
+                    <AdminPagination
+                        currentPage={page}
+                        totalPages={totalPages}
+                        totalResults={totalResults}
+                        onPageChange={setPage}
+                        threshold={10}
+                    />
                 </>
             )}
 

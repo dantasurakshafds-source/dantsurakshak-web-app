@@ -12,8 +12,8 @@ export async function GET(req: NextRequest) {
 
     const questionnaires = await Questionnaire.find()
       .select('+questionary_type +diagnosis_notes +recomanded_actions +comments_or_notes +send_email_to_dantasurakshaks')
-      .populate('assignTo', 'name phoneNumber')
-      .populate('submitted_by', 'name phoneNumber')
+      .populate('assignTo', 'name phoneNumber email')
+      .populate('submitted_by', 'name phoneNumber email')
       .skip(skip)
       .sort({ createdAt: -1 })
       .limit(limit)

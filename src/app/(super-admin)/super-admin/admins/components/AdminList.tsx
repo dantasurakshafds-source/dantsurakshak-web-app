@@ -1,21 +1,46 @@
 "use client";
 
 import { useGetUsersQuery } from "@/(store)/services/user/userApi";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import { FaUserShield } from "react-icons/fa";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 
 
 
 export default function AdminLists() {
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: adminData, isLoading: ambassadorLoading, refetch: refetchAmbassadors } = useGetUsersQuery({
     page: page,
     limit: PAGE_PER_ITEMS,
     role: 'admin'
   });
+
+  interface AdminUserType {
+    _id: string;
+    name: string;
+    email: string;
+    phoneNumber?: string;
+    role: string;
+    status: string;
+  }
+
+  const filteredAdmins = useMemo(() => {
+    const list: AdminUserType[] = adminData?.users ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter(
+      (a: AdminUserType) =>
+        a.name?.toLowerCase().includes(q) ||
+        a.email?.toLowerCase().includes(q) ||
+        a.phoneNumber?.toLowerCase().includes(q)
+    );
+  }, [adminData?.users, searchTerm]);
   const { setRightContent } = useBreadcrumb();
   useEffect(() => {
     if (!adminData) return;
@@ -67,11 +92,20 @@ export default function AdminLists() {
 
   const totalResults = adminData?.total ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   return (
     <div className="ambassa_outer outer_wrapper">
       <div className="ambassa_inner">
+        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+          <AdminSearchBar
+            value={searchTerm}
+            onChange={(val) => {
+              setSearchTerm(val);
+              setPage(1);
+            }}
+            placeholder="Search admins by name, email, phone..."
+          />
+        </div>
         <div className="ambassa_wrapper">
           <div className="admin-table-outer" style={{ overflowX: "auto" }}>
             <table className="admin_table">
@@ -87,60 +121,55 @@ export default function AdminLists() {
                 </tr>
               </thead>
               <tbody>
-                {adminData?.users.map((ele, index) => (
-                  <tr key={ele._id}>
-                    <td>{index + 1}</td>
-                    <td>{ele.name}</td>
-                    <td>{ele.email}</td>
-                    <td>{ele.phoneNumber}</td>
-                    <td className={`role-cell ${ele.role}`}>{ele.role}</td>
-                    <td className={`status-cell ${ele.status}`}>{ele.status}</td>
+                {filteredAdmins.length > 0 ? (
+                  filteredAdmins.map((ele, index) => (
+                    <tr key={ele._id}>
+                      <td>{(page - 1) * PAGE_PER_ITEMS + index + 1}</td>
+                      <td>{ele.name}</td>
+                      <td>{ele.email}</td>
+                      <td>{ele.phoneNumber}</td>
+                      <td className={`role-cell ${ele.role}`}>{ele.role}</td>
+                      <td className={`status-cell ${ele.status}`}>{ele.status}</td>
 
-                    <td>
-                      <div className="aprove-reject-buttons">
-                        <button
-                          disabled={actionLoading || ele.status !== 'pending'}
-                          onClick={() => updateUser(ele._id, 'approved', ele.role)}
-                          className={`approve_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
-                        >
-                          Approved
-                        </button>
-                        <button
-                          disabled={actionLoading || ele.status !== 'pending'}
-                          onClick={() => updateUser(ele._id, 'rejected', ele.role)}
-                          className={`reject_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
-                        >
-                          Rejected
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      <td>
+                        <div className="aprove-reject-buttons">
+                          <button
+                            disabled={actionLoading || ele.status !== 'pending'}
+                            onClick={() => updateUser(ele._id, 'approved', ele.role)}
+                            className={`approve_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
+                          >
+                            Approved
+                          </button>
+                          <button
+                            disabled={actionLoading || ele.status !== 'pending'}
+                            onClick={() => updateUser(ele._id, 'rejected', ele.role)}
+                            className={`reject_btn ${ele.status !== 'pending' ? 'disabled' : ''}`}
+                          >
+                            Rejected
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage="No admin users found."
+                    colSpan={7}
+                  />
+                )}
               </tbody>
             </table>
           </div>
+        </div>
 
-        </div>
-        <div className="pagination_steps">
-          {shouldShowPagination && (
-            <div className="pagination-controls mt-4 flex items-center justify-center space-x-4">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === 1 ? 'disable_prev' : ''}`}
-              >
-                Prev
-              </button>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className={`px-3 py-1 border rounded disabled:opacity-50 ${page === totalPages ? 'disable_next' : ''}`}
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
+        <AdminPagination
+          currentPage={page}
+          totalPages={totalPages}
+          totalResults={totalResults}
+          onPageChange={setPage}
+          threshold={10}
+        />
       </div>
     </div>
   );

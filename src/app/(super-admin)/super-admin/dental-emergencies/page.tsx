@@ -1,12 +1,15 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import ReusableModal from "@/(common)/Model";
-import { FaEdit, FaPlus, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { MdEmergency } from "react-icons/md";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { useDeleteDentalEmergencyMutation, useGetDentalEmergenciesQuery } from "@/(store)/services/dental-emergency/dentalEmergencyApi";
 import { DentalEmergencyTypes } from "@/utils/Types";
@@ -15,10 +18,22 @@ import { toast } from "sonner";
 const DentalEmergencyList = () => {
   const { setRightContent } = useBreadcrumb();
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: emergenciesData, isLoading, refetch } = useGetDentalEmergenciesQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
   const [deleteEmergency] = useDeleteDentalEmergencyMutation();
   const [showModal, setShowModal] = useState(false);
   const [selectedEmergencyId, setSelectedEmergencyId] = useState<string | null>(null);
+
+  const filteredEmergencies = useMemo(() => {
+    const list = emergenciesData?.result ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter((e: DentalEmergencyTypes) => {
+      const titleEn = typeof e.emergency_title === "string" ? e.emergency_title : e.emergency_title?.en || "";
+      const titleKn = typeof e.emergency_title === "object" ? e.emergency_title?.kn || "" : "";
+      return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q);
+    });
+  }, [emergenciesData?.result, searchTerm]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -52,12 +67,21 @@ const DentalEmergencyList = () => {
 
   const totalResults = emergenciesData?.totalResults ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   if (isLoading) return <Loader />;
 
   return (
     <div className="list-container">
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={(val) => {
+            setSearchTerm(val);
+            setPage(1);
+          }}
+          placeholder="Search dental emergencies..."
+        />
+      </div>
       {emergenciesData?.result?.length === 0 ? (
         <div className="list-empty">
           <div className="list-empty-icon">
@@ -81,68 +105,62 @@ const DentalEmergencyList = () => {
                 </tr>
               </thead>
               <tbody>
-                {emergenciesData?.result?.map((emergency: DentalEmergencyTypes) => (
-                  <tr key={emergency._id}>
-                    <td>
-                      <div className="table-img">
-                        <Image
-                          src={emergency.dental_emergency_image}
-                          alt={emergency.dental_emergency_title?.en || "Emergency"}
-                          width={80}
-                          height={50}
-                        />
-                      </div>
-                    </td>
-                    <td><span className="text-truncate">{emergency.dental_emergency_title?.en || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{emergency.dental_emergency_title?.kn || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{emergency.dental_emergency_heading?.en || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{emergency.dental_emergency_heading?.kn || 'N/A'}</span></td>
-                    <td>
-                      <div className="table-actions">
-                        <Link
-                          href={`/super-admin/dental-emergencies/update-dental-emergency/${emergency._id}`}
-                          className="action-edit"
-                        >
-                          <FaEdit />
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setSelectedEmergencyId(emergency._id);
-                            setShowModal(true);
-                          }}
-                          className="action-delete"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredEmergencies && filteredEmergencies.length > 0 ? (
+                  filteredEmergencies.map((emergency: DentalEmergencyTypes) => (
+                    <tr key={emergency._id}>
+                      <td>
+                        <div className="table-img">
+                          <Image
+                            src={emergency.dental_emergency_image}
+                            alt={emergency.dental_emergency_title?.en || "Emergency"}
+                            width={80}
+                            height={50}
+                          />
+                        </div>
+                      </td>
+                      <td><span className="text-truncate">{emergency.dental_emergency_title?.en || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{emergency.dental_emergency_title?.kn || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{emergency.dental_emergency_heading?.en || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{emergency.dental_emergency_heading?.kn || 'N/A'}</span></td>
+                      <td>
+                        <div className="table-actions">
+                          <Link
+                            href={`/super-admin/dental-emergencies/update-dental-emergency/${emergency._id}`}
+                            className="action-edit"
+                          >
+                            <FaEdit />
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedEmergencyId(emergency._id);
+                              setShowModal(true);
+                            }}
+                            className="action-delete"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage="No dental emergencies found."
+                    colSpan={6}
+                  />
+                )}
               </tbody>
             </table>
           </div>
 
-          {shouldShowPagination && (
-            <div className="pagination">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className="pagination-btn"
-              >
-                <FaChevronLeft /> Prev
-              </button>
-              <span className="pagination-info">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className="pagination-btn"
-              >
-                Next <FaChevronRight />
-              </button>
-            </div>
-          )}
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalResults={totalResults}
+            onPageChange={setPage}
+            threshold={10}
+          />
         </>
       )}
 

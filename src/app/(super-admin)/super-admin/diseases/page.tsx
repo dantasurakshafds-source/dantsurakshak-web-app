@@ -1,25 +1,40 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useGetDiseasesQuery, useDeleteDiseaseMutation } from "@/(store)/services/disease/diseaseApi";
 import ReusableModal from "@/(common)/Model";
 import { DiseaseTypes } from "@/utils/Types";
-import { FaEdit, FaPlus, FaTrash, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { MdLocalHospital } from "react-icons/md";
 import { useBreadcrumb } from "@/provider/BreadcrumbContext";
 import Loader from "@/(common)/Loader";
+import AdminPagination from "@/(common)/AdminPagination";
+import AdminSearchBar from "@/(common)/AdminSearchBar";
+import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
 import { toast } from "sonner";
 
 const DiseaseList = () => {
   const { setRightContent } = useBreadcrumb();
   const [page, setPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
   const { data: diseasesData, isLoading, refetch } = useGetDiseasesQuery({ page: page, limit: PAGE_PER_ITEMS, lang: "en" });
   const [deleteDisease] = useDeleteDiseaseMutation();
   const [showModal, setShowModal] = useState(false);
   const [selectedDiseaseId, setSelectedDiseaseId] = useState<string | null>(null);
+
+  const filteredDiseases = useMemo(() => {
+    const list = diseasesData?.result ?? [];
+    if (!searchTerm.trim()) return list;
+    const q = searchTerm.toLowerCase();
+    return list.filter((d: DiseaseTypes) => {
+      const titleEn = typeof d.disease_main_title === "string" ? d.disease_main_title : d.disease_main_title?.en || "";
+      const titleKn = typeof d.disease_main_title === "object" ? d.disease_main_title?.kn || "" : "";
+      return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q);
+    });
+  }, [diseasesData?.result, searchTerm]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -54,12 +69,21 @@ const DiseaseList = () => {
 
   const totalResults = diseasesData?.totalResults ?? 0;
   const totalPages = Math.ceil(totalResults / PAGE_PER_ITEMS);
-  const shouldShowPagination = totalResults > PAGE_PER_ITEMS;
 
   if (isLoading) return <Loader />;
 
   return (
     <div className="list-container">
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+        <AdminSearchBar
+          value={searchTerm}
+          onChange={(val) => {
+            setSearchTerm(val);
+            setPage(1);
+          }}
+          placeholder="Search oral diseases..."
+        />
+      </div>
       {diseasesData?.result?.length === 0 ? (
         <div className="list-empty">
           <div className="list-empty-icon">
@@ -83,68 +107,62 @@ const DiseaseList = () => {
                 </tr>
               </thead>
               <tbody>
-                {diseasesData?.result?.map((disease: DiseaseTypes) => (
-                  <tr key={disease._id}>
-                    <td>
-                      <div className="table-img">
-                        <Image
-                          src={disease.disease_main_image}
-                          alt={disease.disease_slug?.en || "Disease"}
-                          width={80}
-                          height={50}
-                        />
-                      </div>
-                    </td>
-                    <td><span className="text-truncate">{disease.disease_main_title?.en || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{disease.disease_main_title?.kn || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{disease.disease_description?.en || 'N/A'}</span></td>
-                    <td><span className="text-truncate">{disease.disease_description?.kn || 'N/A'}</span></td>
-                    <td>
-                      <div className="table-actions">
-                        <Link
-                          href={`/super-admin/diseases/update-disease/${disease._id}`}
-                          className="action-edit"
-                        >
-                          <FaEdit />
-                        </Link>
-                        <button
-                          onClick={() => {
-                            setSelectedDiseaseId(disease._id);
-                            setShowModal(true);
-                          }}
-                          className="action-delete"
-                        >
-                          <FaTrash />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                {filteredDiseases && filteredDiseases.length > 0 ? (
+                  filteredDiseases.map((disease: DiseaseTypes) => (
+                    <tr key={disease._id}>
+                      <td>
+                        <div className="table-img">
+                          <Image
+                            src={disease.disease_main_image}
+                            alt={disease.disease_slug?.en || "Disease"}
+                            width={80}
+                            height={50}
+                          />
+                        </div>
+                      </td>
+                      <td><span className="text-truncate">{disease.disease_main_title?.en || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{disease.disease_main_title?.kn || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{disease.disease_description?.en || 'N/A'}</span></td>
+                      <td><span className="text-truncate">{disease.disease_description?.kn || 'N/A'}</span></td>
+                      <td>
+                        <div className="table-actions">
+                          <Link
+                            href={`/super-admin/diseases/update-disease/${disease._id}`}
+                            className="action-edit"
+                          >
+                            <FaEdit />
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedDiseaseId(disease._id);
+                              setShowModal(true);
+                            }}
+                            className="action-delete"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <AdminEmptyState
+                    searchTerm={searchTerm}
+                    defaultMessage="No diseases found."
+                    colSpan={6}
+                  />
+                )}
               </tbody>
             </table>
           </div>
 
-          {shouldShowPagination && (
-            <div className="pagination">
-              <button
-                onClick={() => setPage(page - 1)}
-                disabled={page === 1}
-                className="pagination-btn"
-              >
-                <FaChevronLeft /> Prev
-              </button>
-              <span className="pagination-info">
-                Page {page} of {totalPages}
-              </span>
-              <button
-                onClick={() => setPage(page + 1)}
-                disabled={page === totalPages}
-                className="pagination-btn"
-              >
-                Next <FaChevronRight />
-              </button>
-            </div>
-          )}
+          <AdminPagination
+            currentPage={page}
+            totalPages={totalPages}
+            totalResults={totalResults}
+            onPageChange={setPage}
+            threshold={10}
+          />
         </>
       )}
 
