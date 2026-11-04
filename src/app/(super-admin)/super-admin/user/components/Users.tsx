@@ -30,7 +30,7 @@ export default function UserLists() {
       (u: Users) =>
         u.name?.toLowerCase().includes(q) ||
         u.email?.toLowerCase().includes(q) ||
-        u.phoneNumber?.toLowerCase().includes(q)
+        String(u.phoneNumber || "").toLowerCase().includes(q)
     );
   }, [userData?.users, searchTerm]);
 

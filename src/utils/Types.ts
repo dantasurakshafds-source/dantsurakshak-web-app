@@ -227,8 +227,9 @@ export interface Questionnaire {
   diagnosis_notes?: string;
   recomanded_actions?: string;
   comments_or_notes?: string;
-  send_email_to_dantasurakshaks?: boolean
-  case_number?: string
+  send_email_to_dantasurakshaks?: boolean;
+  case_number?: string;
+  status?: string;
 }
 
 export interface QuestionnaireTypes {
@@ -275,8 +276,9 @@ export interface QuestionnaireTypes {
   diagnosis_notes?: string;
   recomanded_actions?: string;
   comments_or_notes?: string;
-  send_email_to_dantasurakshaks?: boolean
-  case_number?: string
+  send_email_to_dantasurakshaks?: boolean;
+  case_number?: string;
+  status?: string;
 }
 
 export interface WhatIsDiseaseDescriptionRepeater {

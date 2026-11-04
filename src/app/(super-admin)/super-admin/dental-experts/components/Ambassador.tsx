@@ -30,7 +30,7 @@ export default function ManageAmbassadors() {
       (a: Users) =>
         a.name?.toLowerCase().includes(q) ||
         a.email?.toLowerCase().includes(q) ||
-        a.phoneNumber?.toLowerCase().includes(q)
+        String(a.phoneNumber || "").toLowerCase().includes(q)
     );
   }, [ambassadorData?.users, searchTerm]);
   const { setRightContent } = useBreadcrumb();

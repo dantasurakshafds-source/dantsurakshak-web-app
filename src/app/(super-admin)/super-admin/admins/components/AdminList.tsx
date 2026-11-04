@@ -9,8 +9,7 @@ import AdminPagination from "@/(common)/AdminPagination";
 import AdminSearchBar from "@/(common)/AdminSearchBar";
 import { AdminEmptyState } from "@/(common)/AdminEmptyState";
 import { PAGE_PER_ITEMS } from "@/utils/const";
-
-
+import { Users } from "@/utils/Types";
 
 export default function AdminLists() {
   const [page, setPage] = useState(1);
@@ -21,24 +20,15 @@ export default function AdminLists() {
     role: 'admin'
   });
 
-  interface AdminUserType {
-    _id: string;
-    name: string;
-    email: string;
-    phoneNumber?: string;
-    role: string;
-    status: string;
-  }
-
   const filteredAdmins = useMemo(() => {
-    const list: AdminUserType[] = adminData?.users ?? [];
+    const list: Users[] = adminData?.users ?? [];
     if (!searchTerm.trim()) return list;
     const q = searchTerm.toLowerCase();
     return list.filter(
-      (a: AdminUserType) =>
+      (a: Users) =>
         a.name?.toLowerCase().includes(q) ||
         a.email?.toLowerCase().includes(q) ||
-        a.phoneNumber?.toLowerCase().includes(q)
+        String(a.phoneNumber || "").toLowerCase().includes(q)
     );
   }, [adminData?.users, searchTerm]);
   const { setRightContent } = useBreadcrumb();

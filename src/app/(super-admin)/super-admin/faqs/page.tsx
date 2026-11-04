@@ -27,11 +27,18 @@ const FaqsList = () => {
     const list = faqsData?.result ?? [];
     if (!searchTerm.trim()) return list;
     const q = searchTerm.toLowerCase();
-    return list.filter(
-      (f: ReplacedFaqType) =>
-        f.question?.toLowerCase().includes(q) ||
-        f.answer?.toLowerCase().includes(q)
-    );
+    return list.filter((f: ReplacedFaqType) => {
+      const titleEn = f.faqs_title?.en || "";
+      const titleKn = f.faqs_title?.kn || "";
+      const matchesRepeater = f.faqs_repeater?.some(
+        (r) =>
+          r.faqs_repeat_question?.en?.toLowerCase().includes(q) ||
+          r.faqs_repeat_question?.kn?.toLowerCase().includes(q) ||
+          r.faqs_repeat_answer?.en?.toLowerCase().includes(q) ||
+          r.faqs_repeat_answer?.kn?.toLowerCase().includes(q)
+      );
+      return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q) || matchesRepeater;
+    });
   }, [faqsData?.result, searchTerm]);
 
   const handleDelete = async (id: string) => {

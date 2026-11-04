@@ -252,7 +252,7 @@ export default function SuperAdminHomePageManager() {
       ) : filteredSections.length === 0 ? (
         <div style={styles.emptyContainer}>
           <AdminEmptyState
-            searchTerm={searchTerm}
+            searchTerm={search}
             defaultMessage="No homepage sections found."
             isTableRow={false}
           />

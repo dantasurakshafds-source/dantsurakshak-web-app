@@ -9,6 +9,7 @@ import AdminPagination from '@/(common)/AdminPagination';
 import AdminSearchBar from '@/(common)/AdminSearchBar';
 import { AdminEmptyState } from '@/(common)/AdminEmptyState';
 import { PAGE_PER_ITEMS } from '@/utils/const';
+import { Lesion } from '@/utils/Types';
 
 export default function LesionList() {
     const [page, setPage] = useState(1);
@@ -29,21 +30,12 @@ export default function LesionList() {
         return () => setRightContent(null);
     }, [data, setRightContent]);
 
-    interface LesionItemType {
-        _id: string;
-        fullname?: string;
-        age?: string | number;
-        status?: string;
-        submitted_by?: string;
-        createdAt: string;
-    }
-
     const filteredLesions = useMemo(() => {
-        const list: LesionItemType[] = data?.lesions ?? [];
+        const list: Lesion[] = data?.lesions ?? [];
         if (!searchTerm.trim()) return list;
         const q = searchTerm.toLowerCase();
         return list.filter(
-            (lesion: LesionItemType) =>
+            (lesion: Lesion) =>
                 lesion.fullname?.toLowerCase().includes(q) ||
                 lesion.status?.toLowerCase().includes(q) ||
                 lesion.submitted_by?.toLowerCase().includes(q)

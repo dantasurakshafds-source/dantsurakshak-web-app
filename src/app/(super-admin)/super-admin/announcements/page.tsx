@@ -29,8 +29,8 @@ const AnnouncementList = () => {
         if (!searchTerm.trim()) return list;
         const q = searchTerm.toLowerCase();
         return list.filter((a: AppTextSlider) => {
-            const textEn = typeof a.text === "string" ? a.text : a.text?.en || "";
-            const textKn = typeof a.text === "object" ? a.text?.kn || "" : "";
+            const textEn = a.slider_text?.en || "";
+            const textKn = a.slider_text?.kn || "";
             return textEn.toLowerCase().includes(q) || textKn.toLowerCase().includes(q);
         });
     }, [announcementsData?.result, searchTerm]);

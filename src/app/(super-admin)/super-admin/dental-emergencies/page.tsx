@@ -29,9 +29,16 @@ const DentalEmergencyList = () => {
     if (!searchTerm.trim()) return list;
     const q = searchTerm.toLowerCase();
     return list.filter((e: DentalEmergencyTypes) => {
-      const titleEn = typeof e.emergency_title === "string" ? e.emergency_title : e.emergency_title?.en || "";
-      const titleKn = typeof e.emergency_title === "object" ? e.emergency_title?.kn || "" : "";
-      return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q);
+      const titleEn = e.dental_emergency_title?.en || "";
+      const titleKn = e.dental_emergency_title?.kn || "";
+      const headingEn = e.dental_emergency_heading?.en || "";
+      const headingKn = e.dental_emergency_heading?.kn || "";
+      return (
+        titleEn.toLowerCase().includes(q) ||
+        titleKn.toLowerCase().includes(q) ||
+        headingEn.toLowerCase().includes(q) ||
+        headingKn.toLowerCase().includes(q)
+      );
     });
   }, [emergenciesData?.result, searchTerm]);
 

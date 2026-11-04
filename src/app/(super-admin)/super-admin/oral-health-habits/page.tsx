@@ -29,8 +29,8 @@ const HabitHealthList = () => {
         if (!searchTerm.trim()) return list;
         const q = searchTerm.toLowerCase();
         return list.filter((h: HabitsHealthType) => {
-            const titleEn = typeof h.habit_title === "string" ? h.habit_title : h.habit_title?.en || "";
-            const titleKn = typeof h.habit_title === "object" ? h.habit_title?.kn || "" : "";
+            const titleEn = h.habit_health_main_title?.en || "";
+            const titleKn = h.habit_health_main_title?.kn || "";
             return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q);
         });
     }, [habitsData?.result, searchTerm]);

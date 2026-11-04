@@ -27,9 +27,16 @@ const MythFactsList = () => {
         if (!searchTerm.trim()) return list;
         const q = searchTerm.toLowerCase();
         return list.filter((m: IMythFact) => {
-            const titleEn = typeof m.myth_facts_title === "string" ? m.myth_facts_title : m.myth_facts_title?.en || "";
-            const titleKn = typeof m.myth_facts_title === "object" ? m.myth_facts_title?.kn || "" : "";
-            return titleEn.toLowerCase().includes(q) || titleKn.toLowerCase().includes(q);
+            const titleEn = m.myth_fact_title?.en || "";
+            const titleKn = m.myth_fact_title?.kn || "";
+            const headingEn = m.myth_fact_heading?.en || "";
+            const headingKn = m.myth_fact_heading?.kn || "";
+            return (
+                titleEn.toLowerCase().includes(q) ||
+                titleKn.toLowerCase().includes(q) ||
+                headingEn.toLowerCase().includes(q) ||
+                headingKn.toLowerCase().includes(q)
+            );
         });
     }, [mythsData?.result, searchTerm]);
 
