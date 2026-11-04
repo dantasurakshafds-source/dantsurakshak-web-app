@@ -7,10 +7,8 @@ import {
   FaUserShield,
   FaUserMd,
   FaArrowRight,
-  FaArrowLeft,
   FaLock,
   FaCheckCircle,
-  FaCheck,
 } from "react-icons/fa";
 
 interface StageData {
@@ -131,8 +129,6 @@ export default function CareWorkflowTabs() {
     },
   ];
 
-  const current = stages[activeTab];
-
   return (
     <div className="care-workflow-tabs-container">
       {/* ─── 1. Interactive Tabs Bar (Matches Screenshot) ─── */}
@@ -205,7 +201,7 @@ export default function CareWorkflowTabs() {
 
               <div className="selector-footer">
                 <span className="click-hint">
-                  {isSelected ? "Stage Active (Viewing Details)" : "Click to inspect stage"}
+                  {isSelected ? "Stage Active" : "Click to select"}
                 </span>
                 <FaArrowRight size={11} />
               </div>
@@ -214,99 +210,7 @@ export default function CareWorkflowTabs() {
         })}
       </div>
 
-      {/* ─── 3. Active Tab Deep Dive & Clinical Dossier Panel ─── */}
-      <div
-        className="active-tab-panel"
-        id={`panel-${current.id}`}
-        role="tabpanel"
-        aria-labelledby={`tab-${current.id}`}
-      >
-        <div className="panel-inner-grid">
-          {/* Left Column: Role Details & Stepper */}
-          <div className="panel-text-col">
-            <div className="panel-badge-row">
-              <span className="panel-step-badge">ACTIVE STAGE {current.stepNum}</span>
-              <span className="panel-role-tag">{current.roleTag}</span>
-            </div>
-
-            <div className="panel-title-row">
-              <div className="panel-icon-bubble">{current.icon}</div>
-              <h3 className="panel-title">{current.title} Deep Dive</h3>
-            </div>
-
-            <p className="panel-description">{current.description}</p>
-
-            <div className="panel-checklist-wrap">
-              <h4 className="checklist-heading">Stage Responsibilities & Clinical Protocols:</h4>
-              <ul className="panel-checklist">
-                {current.checklist.map((resp, i) => (
-                  <li key={i}>
-                    <FaCheckCircle size={14} className="check-icon" />
-                    <span>{resp}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Stage Stepper Buttons */}
-            <div className="panel-stepper-controls">
-              <button
-                type="button"
-                className="stepper-btn prev-btn"
-                disabled={activeTab === 0}
-                onClick={() => setActiveTab((prev) => Math.max(0, prev - 1))}
-              >
-                <FaArrowLeft size={12} />
-                <span>Previous Stage</span>
-              </button>
-
-              <button
-                type="button"
-                className="stepper-btn next-btn"
-                disabled={activeTab === stages.length - 1}
-                onClick={() => setActiveTab((prev) => Math.min(stages.length - 1, prev + 1))}
-              >
-                <span>
-                  Next: {stages[Math.min(stages.length - 1, activeTab + 1)].title}
-                </span>
-                <FaArrowRight size={12} />
-              </button>
-            </div>
-          </div>
-
-          {/* Right Column: Interactive Clinical Dossier Card */}
-          <div className="panel-artifact-col">
-            <div className="artifact-card">
-              <div className="artifact-card-header">
-                <div>
-                  <span className="artifact-kicker">{current.mockBadge}</span>
-                  <h4 className="artifact-title">{current.mockTitle}</h4>
-                </div>
-                <div className="artifact-status-pill">
-                  <FaCheck size={10} />
-                  <span>SYNCHRONIZED</span>
-                </div>
-              </div>
-
-              <div className="artifact-details-grid">
-                {current.mockDetails.map((item, idx) => (
-                  <div key={idx} className="detail-row">
-                    <span className="detail-label">{item.label}</span>
-                    <span className="detail-value">{item.value}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="artifact-footer-note">
-                <FaLock size={12} />
-                <span>{current.mockNote}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 4. Exclusive Takeover Architecture Feature Box ─── */}
+      {/* ─── 3. Exclusive Takeover Architecture Feature Box ─── */}
       <div className="takeover-architecture-banner">
         <div className="takeover-icon-col">
           <div className="lock-circle">

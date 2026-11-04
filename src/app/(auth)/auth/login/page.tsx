@@ -1,10 +1,10 @@
 "use client";
 import { useState, ChangeEvent, FormEvent } from "react";
 import { signIn } from "next-auth/react";
+import Link from "next/link";
 import loginIlluStration from "@/images/oral-health-hero-banner.png";
-import vectorLogin from "@/images/oral-health-vector-1.png";
 import Image from "next/image";
-import { FiMail, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import OvalLoader from "@/(common)/OvalLoader";
 
 export default function SuperAdminLogin() {
@@ -13,7 +13,7 @@ export default function SuperAdminLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  
+
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -52,8 +52,8 @@ export default function SuperAdminLogin() {
   return (
     <div className="login-page">
       <div className="login-left">
-        <Image src={vectorLogin.src} alt="login-vector" width={100} height={100} className="login-vector" />
-        <h1 className="app-title">SecurePanel</h1>
+        
+         
         <p className="welcome-text">Welcome back, Super Admin</p>
         <p className="subtitle">Please login to manage your dashboard.</p>
 
@@ -115,9 +115,13 @@ export default function SuperAdminLogin() {
             )}
           </button>
 
-          {/* <p className="signup-text">
-            Don&apos;t have an account? <a href="#">Sign Up</a>
-          </p> */}
+          <p className="signup-text">
+            <Link href="/" style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+              
+              <span>Go to homepage</span>
+              <FiArrowRight size={16} />
+            </Link>
+          </p>
         </form>
 
 
@@ -126,10 +130,11 @@ export default function SuperAdminLogin() {
           <a href="#">Privacy Policy</a>
           <a href="#">Help</a>
         </footer> */}
+
       </div>
 
       <div className="login-right">
-        <Image src={loginIlluStration.src} alt="Login Illustration" width={500} height={500}/>
+        <Image src={loginIlluStration.src} alt="Login Illustration" width={500} height={500} />
       </div>
     </div>
   );

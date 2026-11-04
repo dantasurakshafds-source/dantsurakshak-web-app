@@ -205,9 +205,7 @@ export default function AccountDeletionRequestsPage() {
         <div style={customStyles.topHeaderBar}>
           <div>
             <h2 style={customStyles.headingTitle}>User Account Deletion Requests</h2>
-            <p style={customStyles.headingSubtitle}>
-              Manage user deletion requests submitted via the Google Play compliance web portal.
-            </p>
+           
           </div>
 
           {/* Filter Pills */}
@@ -652,7 +650,9 @@ const customStyles: { [key: string]: React.CSSProperties } = {
     borderRadius: "20px",
     fontSize: "13px",
     fontWeight: 600,
-    border: "1px solid #e5e7eb",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "#e5e7eb",
     backgroundColor: "#ffffff",
     color: "#4b5563",
     cursor: "pointer",

@@ -13,6 +13,25 @@ import { HiSparkles } from "react-icons/hi";
 import { FiArrowUpRight } from "react-icons/fi";
 import CareWorkflowTabs from "@/components/public/CareWorkflowTabs";
 import ambassadorImg from "@/images/ambassador-portrait.jpg";
+import { dbConnect } from "@/database/database";
+import HomePageSection from "@/models/HomePageSection";
+import { defaultHomeSections } from "@/utils/defaultHomeSections";
+
+export const revalidate = 60;
+
+async function getHomeSections() {
+  try {
+    await dbConnect();
+    const docs = await HomePageSection.find({ isActive: true }).sort({ order: 1 }).lean();
+    if (docs && docs.length > 0) {
+      return JSON.parse(JSON.stringify(docs));
+    }
+    return defaultHomeSections;
+  } catch (error) {
+    console.warn("Could not fetch homepage sections from DB, using defaults:", error);
+    return defaultHomeSections;
+  }
+}
 
 export const metadata: Metadata = {
   title: "Danta Surakshak | Oral Health Education & Community Care Platform - MSRUAS",
@@ -20,7 +39,11 @@ export const metadata: Metadata = {
     "Official portal of Danta Surakshak: An oral health care initiative by Faculty of Dental Sciences, Ramaiah University of Applied Sciences (MSRUAS). Connecting Users, Danta Surakshak ambassadors, Admins, and Hospital Dental Doctors.",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const sections = await getHomeSections();
+  const heroSec = sections.find((s: { sectionKey: string }) => s.sectionKey === "hero") || defaultHomeSections[0];
+  const workflowSec = sections.find((s: { sectionKey: string }) => s.sectionKey === "workflow") || defaultHomeSections[3];
+  const educationSec = sections.find((s: { sectionKey: string }) => s.sectionKey === "education") || defaultHomeSections[4];
   return (
     <div className="home-page">
       {/* ─── 1. EDITORIAL HERO SECTION (Matches Reference Design) ─── */}
@@ -29,21 +52,19 @@ export default function HomePage() {
           {/* Category Kicker */}
           <div className="hero-kicker-wrapper">
             <span className="hero-kicker">
-              DECISION INTELLIGENCE • COMMUNITY ORAL HEALTHCARE
+              {heroSec.subtitle || "DECISION INTELLIGENCE • COMMUNITY ORAL HEALTHCARE"}
             </span>
           </div>
 
           {/* Large Editorial Headline */}
           <h1 className="hero-editorial-title">
-            Oral health care, <br />
-            made durable.
+            {heroSec.title || "Oral health care, made durable."}
           </h1>
 
           {/* Subtitle */}
           <p className="hero-editorial-desc">
-            Danta Surakshak gives patients, community ambassadors, case administrators,
-            and hospital dental surgeons one synchronized platform for early lesion screening,
-            exclusive case ownership, and verified doctor feedback.
+            {heroSec.description ||
+              "Danta Surakshak gives patients, community ambassadors, case administrators, and hospital dental surgeons one synchronized platform for early lesion screening, exclusive case ownership, and verified doctor feedback."}
           </p>
 
           {/* Centered Action Buttons */}
@@ -153,11 +174,15 @@ export default function HomePage() {
       <section id="care-workflow" className="workflow-section">
         <div className="workflow-inner">
           <div className="section-header-editorial">
-            <span className="sec-kicker">THE 4-ROLE CONTINUUM</span>
-            <h2 className="sec-title">From community doorstep to hospital specialist.</h2>
+            <span className="sec-kicker">
+              {workflowSec.subtitle || "THE 4-ROLE CONTINUUM"}
+            </span>
+            <h2 className="sec-title">
+              {workflowSec.title || "From community doorstep to hospital specialist."}
+            </h2>
             <p className="sec-subtitle">
-              A synchronized 4-stage referral and feedback chain connecting the grassroot
-              community with university hospital dental surgeons without duplicate efforts or communication gaps.
+              {workflowSec.description ||
+                "A synchronized 4-stage referral and feedback chain connecting the grassroot community with university hospital dental surgeons without duplicate efforts or communication gaps."}
             </p>
           </div>
 
@@ -170,11 +195,15 @@ export default function HomePage() {
       <section id="disease-education" className="education-section">
         <div className="education-inner">
           <div className="section-header-editorial">
-            <span className="sec-kicker">PREVENTATIVE CARE &amp; AWARENESS</span>
-            <h2 className="sec-title">Dental Awareness &amp; Teeth Cleaning Library</h2>
+            <span className="sec-kicker">
+              {educationSec.subtitle || "PREVENTATIVE CARE & AWARENESS"}
+            </span>
+            <h2 className="sec-title">
+              {educationSec.title || "Dental Awareness & Teeth Cleaning Library"}
+            </h2>
             <p className="sec-subtitle">
-              Clear, clinically verified guidelines provided by the Faculty of Dental Sciences,
-              empowering patients with early detection skills and proper oral hygiene habits.
+              {educationSec.description ||
+                "Clear, clinically verified guidelines provided by the Faculty of Dental Sciences, empowering patients with early detection skills and proper oral hygiene habits."}
             </p>
           </div>
 

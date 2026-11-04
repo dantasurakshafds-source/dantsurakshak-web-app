@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { LayoutDashboard, ShieldCheck, Users, ClipboardList, FileText, Images, Stethoscope, HeartPulse, ShieldAlert, BookOpenCheck, MessageCircleQuestion, ShieldEllipsis, FileCheck, UserX } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, Users, ClipboardList, FileText, Images, Stethoscope, HeartPulse, ShieldAlert, BookOpenCheck, MessageCircleQuestion, ShieldEllipsis, FileCheck, UserX, Home } from "lucide-react";
 import { FaTimes } from "react-icons/fa";
 import sidebarLogo from '@/images/danta-suraksha-logo.png';
 import Image from "next/image";
@@ -21,6 +21,7 @@ const links = [
   { href: "/super-admin/user", label: "Users", icon: Users },
   { href: "/super-admin/delete-requests", label: "Deletion Requests", icon: UserX },
   { href: "/super-admin/banners", label: "Health Campaigns", icon: Images },
+  { href: "/super-admin/homepage", label: "Home Page", icon: Home },
   { href: "/super-admin/diseases", label: "Oral Diseases", icon: HeartPulse },
   { href: "/super-admin/oral-health-habits", label: "Oral Health Habits", icon: ClipboardList },
   { href: "/super-admin/dental-emergencies", label: "Dental Emergencies", icon: ShieldAlert },
